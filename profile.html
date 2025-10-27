@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>User Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a class="brand" href="index.html"><span class="brand__dot"></span> Mulebay</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="index.html">Browse</a>
+        <a href="profile.html" aria-current="page">Profile</a>
+      </nav>
+      <div class="actions">
+        <span class="badge">Verified</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page container">
+    <h1 class="page__title">Profile</h1>
+    <section class="profile">
+      <div class="avatar">
+        <img src="assets/avatar.svg" alt="User profile image">
+      </div>
+      <div class="prose">
+        <h2>Bob the Minion</h2>
+        <p class="muted">(Payment Options)</p>
+        <p>I mostly sell bikes, computer gear, and campus-friendly furniture. Happy to answer questions and provide more photos.</p>
+        <h3>Listings</h3>
+        <ul>
+          <li><a href="item.html">Mountain Bike — Medium</a></li>
+          <li>Ergonomic Chair — Black</li>
+          <li>USB-C Dock — 8-in-1</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span>© <span id="year"></span> Mulebay</span>
+      <a href="index.html">Browse items</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Item — Mountain Bike</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a class="brand" href="index.html"><span class="brand__dot"></span> Mulebay</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="index.html">Browse</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+      <div class="actions">
+        <span class="badge">Secure Checkout</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page container">
+    <div class="product">
+      <section class="gallery" aria-label="Image gallery">
+        <div class="gallery__stage">
+          <img id="stage" src="assets/item1.svg" alt="Mountain bike main image">
+        </div>
+        <div class="gallery__thumbs" role="listbox" aria-label="Thumbnails">
+          <img src="assets/item1.svg" alt="Mountain bike angle 1" data-large="assets/item1.svg" aria-current="true">
+          <img src="assets/item4.svg" alt="Bike detail 2" data-large="assets/item4.svg">
+          <img src="assets/item3.svg" alt="Bike detail 3" data-large="assets/item3.svg">
+          <img src="assets/item2.svg" alt="Bike detail 4" data-large="assets/item2.svg">
+          <img src="assets/item1.svg" alt="Bike detail 5" data-large="assets/item1.svg">
+        </div>
+      </section>
+
+      <aside class="buybox card" aria-label="Purchase panel">
+        <h1 class="buybox__title">Mountain Bike</h1>
+        <div class="price">$10</div>
+        <button class="btn" id="buy">Indicate Interest</button>
+        <div class="specs">
+          <div><strong>Condition:</strong> Used — good</div>
+          <div><strong>Seller:</strong> <a href="profile.html">Bob the Minion</a>
+          <div><strong>Payment Options:</strong> (Venmo), (Cash)</div>
+          </div>
+        </div>
+        <section class="prose">
+          <h2>Details</h2>
+          <p>Some really interesting details.</p>
+          <ul>
+            <li>Aluminum frame</li>
+            <li>1×11 drivetrain</li>
+            <li>Hydraulic disc brakes</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span>© <span id="year"></span> Mulebay</span>
+      <a href="index.html">Back to browse</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
