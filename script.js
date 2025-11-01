@@ -1,5 +1,22 @@
-// Year stamp
-document.querySelectorAll('#year').forEach(n=> n.textContent = new Date().getFullYear());
+// script.js
+
+/* BROWSE ITEMS */
+
+// Handles bookmark icon switch
+document.querySelectorAll('.item-card__bookmark').forEach(icon => {
+  icon.addEventListener('click', e => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const current = icon.getAttribute('src');
+    const alt = icon.dataset.altSrc;
+
+    icon.setAttribute('src', alt);
+    icon.dataset.altSrc = current;
+  });
+});
+
+/* INSPECT ITEM */
 
 // Gallery behavior (photo carousel) on item page
 (function(){
@@ -17,3 +34,10 @@ document.querySelectorAll('#year').forEach(n=> n.textContent = new Date().getFul
     });
   });
 })();
+
+/* USER PROFILE */
+
+/* MISCELLANEOUS */
+
+// Year stamp
+document.querySelectorAll('#year').forEach(n=> n.textContent = new Date().getFullYear());
