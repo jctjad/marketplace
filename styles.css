@@ -81,9 +81,23 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 @media (max-width: 480px){ .grid { grid-template-columns: 1fr; } }
 
 .item-card__thumb { aspect-ratio: 4/3; object-fit: cover; }
-.item-card__body { padding: 12px; display:grid; gap: 6px; }
-.item-card__price { font-weight: 800; }
-.item-card__meta { color: var(--muted); font-size: .92rem; }
+.item-card__body { padding: 12px; font-size: 1.1rem; }
+.item-card__top { display: grid; grid-template-columns: 2fr 1fr; gap: 6px; margin-bottom: 5px; }
+.item-card__bottom { display: grid; grid-template-columns: 2fr 1fr; gap: 6px; }
+
+.item-card__title { font-weight: 800; }
+.item-card__price { color: #02AB0A; text-align: right; font-weight: 600; }
+.item-card__seller { color: var(--muted); font-size: .92rem;}
+.item-card__payment-icons { display: flex; gap: 4px; justify-content: flex-end;}
+.item-card__payment-icons .icon { width: 25px; height: 25px; }
+
+.item-card__title,
+.item-card__seller { /* Hides text instead of making new line if too long */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
 
 /* Item Inspect */
 .product {
