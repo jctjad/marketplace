@@ -80,12 +80,27 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 @media (max-width: 720px){ .grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 480px){ .grid { grid-template-columns: 1fr; } }
 
+/* Item Card (Browse Items) */ 
 .item-card__thumb { aspect-ratio: 4/3; object-fit: cover; }
 .item-card__body { padding: 12px; font-size: 1.1rem; }
+
+.item-card__bookmark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 25px;
+  height: 25px;
+  z-index: 2;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
+  cursor: pointer;
+  transition: transform .15s ease;
+}
+.item-card__bookmark:hover { transform: scale(1.06); }
+
 .item-card__top { display: grid; grid-template-columns: 2fr 1fr; gap: 6px; margin-bottom: 5px; }
 .item-card__bottom { display: grid; grid-template-columns: 2fr 1fr; gap: 6px; }
 
-.item-card__title { font-weight: 800; }
+.item-card__title { font-weight: 600; }
 .item-card__price { color: #02AB0A; text-align: right; font-weight: 600; }
 .item-card__seller { color: var(--muted); font-size: .92rem;}
 .item-card__payment-icons { display: flex; gap: 4px; justify-content: flex-end;}
