@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="static/styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
   <header class="header">
@@ -29,13 +29,6 @@
         <div class="gallery__stage">
           <img id="stage" src="static/assets/item1.svg" alt="Mountain bike main image">
         </div>
-        <div class="gallery__thumbs" role="listbox" aria-label="Thumbnails">
-          <img src="static/assets/item1.svg" alt="Mountain bike angle 1" data-large="static/assets/item1.svg" aria-current="true">
-          <img src="static/assets/item4.svg" alt="Bike detail 2" data-large="static/assets/item4.svg">
-          <img src="static/assets/item3.svg" alt="Bike detail 3" data-large="static/assets/item3.svg">
-          <img src="static/assets/item2.svg" alt="Bike detail 4" data-large="static/assets/item2.svg">
-          <img src="static/assets/item1.svg" alt="Bike detail 5" data-large="static/assets/item1.svg">
-        </div>
       </section>
 
       <aside class="buybox card" aria-label="Purchase panel">
@@ -44,9 +37,8 @@
         <button class="btn" id="buy">Message Seller</button>
         <div class="specs">
           <div><strong>Condition:</strong> Used — good</div>
-          <div><strong>Seller:</strong> <a href="{{ url_for('profile.goto_profile_page') }}">Bob the Minion</a>
+          <div><strong>Seller:</strong> <a href="{{ url_for('profile.goto_profile_page') }}">Bob the Minion</a></div>
           <div><strong>Payment Options:</strong> (Venmo), (Cash)</div>
-          </div>
         </div>
         <section class="prose">
           <h2>Details</h2>
@@ -68,6 +60,6 @@
     </div>
   </footer>
 
-  <script src="static/script.js"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
