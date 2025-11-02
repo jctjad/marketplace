@@ -1,6 +1,4 @@
 from flask import Blueprint, render_template, redirect, url_for
-from flask import request
-from models import db
 
 main_blueprint = Blueprint('main', __name__)
 item_blueprint = Blueprint('item', __name__)
