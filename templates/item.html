@@ -12,10 +12,10 @@
 <body>
   <header class="header">
     <div class="container header__inner">
-      <a class="brand" href="index.html"><span class="brand__dot"></span> Mulebay</a>
+      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}"><span class="brand__dot"></span> Mulebay</a>
       <nav class="nav" aria-label="Primary">
-        <a href="index.html">Browse</a>
-        <a href="profile.html">Profile</a>
+        <a href="{{ url_for('main.goto_browse_items_page') }}">Browse</a>
+        <a href="{{ url_for('profile.goto_profile_page') }}">Profile</a>
       </nav>
       <div class="actions">
         <span class="badge">Secure Checkout</span>
@@ -27,14 +27,14 @@
     <div class="product">
       <section class="gallery" aria-label="Image gallery">
         <div class="gallery__stage">
-          <img id="stage" src="assets/item1.svg" alt="Mountain bike main image">
+          <img id="stage" src="static/assets/item1.svg" alt="Mountain bike main image">
         </div>
         <div class="gallery__thumbs" role="listbox" aria-label="Thumbnails">
-          <img src="assets/item1.svg" alt="Mountain bike angle 1" data-large="assets/item1.svg" aria-current="true">
-          <img src="assets/item4.svg" alt="Bike detail 2" data-large="assets/item4.svg">
-          <img src="assets/item3.svg" alt="Bike detail 3" data-large="assets/item3.svg">
-          <img src="assets/item2.svg" alt="Bike detail 4" data-large="assets/item2.svg">
-          <img src="assets/item1.svg" alt="Bike detail 5" data-large="assets/item1.svg">
+          <img src="static/assets/item1.svg" alt="Mountain bike angle 1" data-large="static/assets/item1.svg" aria-current="true">
+          <img src="static/assets/item4.svg" alt="Bike detail 2" data-large="static/assets/item4.svg">
+          <img src="static/assets/item3.svg" alt="Bike detail 3" data-large="static/assets/item3.svg">
+          <img src="static/assets/item2.svg" alt="Bike detail 4" data-large="static/assets/item2.svg">
+          <img src="static/assets/item1.svg" alt="Bike detail 5" data-large="static/assets/item1.svg">
         </div>
       </section>
 
@@ -44,7 +44,7 @@
         <button class="btn" id="buy">Indicate Interest</button>
         <div class="specs">
           <div><strong>Condition:</strong> Used — good</div>
-          <div><strong>Seller:</strong> <a href="profile.html">Bob the Minion</a>
+          <div><strong>Seller:</strong> <a href="{{ url_for('profile.goto_profile_page') }}">Bob the Minion</a>
           <div><strong>Payment Options:</strong> (Venmo), (Cash)</div>
           </div>
         </div>
@@ -64,7 +64,7 @@
   <footer class="footer">
     <div class="container footer__inner">
       <span>© <span id="year"></span> Mulebay</span>
-      <a href="index.html">Back to browse</a>
+      <a href="{{ url_for('main.goto_browse_items_page') }}">Back to browse</a>
     </div>
   </footer>
 

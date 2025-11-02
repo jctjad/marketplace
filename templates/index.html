@@ -7,15 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="static/styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
   <header class="header">
     <div class="container header__inner">
-      <a class="brand" href="index.html"><span class="brand__dot"></span> Mulebay</a>
+      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}"><span class="brand__dot"></span> Mulebay</a>
       <nav class="nav" aria-label="Primary">
-        <a href="index.html" aria-current="page">Browse</a>
-        <a href="profile.html">Profile</a>
+        <a href="{{ url_for('main.goto_browse_items_page') }}" aria-current="page">Browse</a>
+        <a href="{{ url_for('profile.goto_profile_page') }}">Profile</a>
       </nav>
       <div class="actions">
         <span class="badge">Beta</span>
@@ -34,9 +34,9 @@
     </div>
 
     <section class="grid" aria-label="Items">
-      <a class="card" href="item.html">
-        <img class="item-card__thumb" src="assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="assets/bookmark.svg" data-alt-src="assets/bookmark-filled.svg" alt="Bookmark">
+      <a class="card" href="{{ url_for('item.goto_item_page') }}">
+        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
+        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
         <div class="item-card__body">
           <div class="item-card__top">
             <div class="item-card__title">Mountain Bike</div>
@@ -45,17 +45,17 @@
           <div class="item-card__bottom">
             <div class="item-card__seller">Seller Name</div>
             <div class="item-card__payment-icons">
-              <img class="icon" src="assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="assets/cash.svg" alt="Cash">
+              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
+              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
+              <img class="icon" src="static/assets/cash.svg" alt="Cash">
             </div>
           </div>
         </div>
       </a>
 
-      <a class="card" href="item.html">
-        <img class="item-card__thumb" src="assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="assets/bookmark.svg" data-alt-src="assets/bookmark-filled.svg" alt="Bookmark">
+      <a class="card" href="{{ url_for('item.goto_item_page') }}">
+        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
+        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
         <div class="item-card__body">
           <div class="item-card__top">
             <div class="item-card__title">Mountain Bike</div>
@@ -64,17 +64,17 @@
           <div class="item-card__bottom">
             <div class="item-card__seller">Seller Name</div>
             <div class="item-card__payment-icons">
-              <img class="icon" src="assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="assets/cash.svg" alt="Cash">
+              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
+              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
+              <img class="icon" src="static/assets/cash.svg" alt="Cash">
             </div>
           </div>
         </div>
       </a>
 
-      <a class="card" href="item.html">
-        <img class="item-card__thumb" src="assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="assets/bookmark.svg" data-alt-src="assets/bookmark-filled.svg" alt="Bookmark">
+      <a class="card" href="{{ url_for('item.goto_item_page') }}">
+        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
+        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
         <div class="item-card__body">
           <div class="item-card__top">
             <div class="item-card__title">Mountain Bike</div>
@@ -83,17 +83,17 @@
           <div class="item-card__bottom">
             <div class="item-card__seller">Seller Name</div>
             <div class="item-card__payment-icons">
-              <img class="icon" src="assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="assets/cash.svg" alt="Cash">
+              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
+              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
+              <img class="icon" src="static/assets/cash.svg" alt="Cash">
             </div>
           </div>
         </div>
       </a>
 
-      <a class="card" href="item.html">
-        <img class="item-card__thumb" src="assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="assets/bookmark.svg" data-alt-src="assets/bookmark-filled.svg" alt="Bookmark">
+      <a class="card" href="{{ url_for('item.goto_item_page') }}">
+        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
+        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
         <div class="item-card__body">
           <div class="item-card__top">
             <div class="item-card__title">Mountain Bike</div>
@@ -102,17 +102,17 @@
           <div class="item-card__bottom">
             <div class="item-card__seller">Seller Name</div>
             <div class="item-card__payment-icons">
-              <img class="icon" src="assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="assets/cash.svg" alt="Cash">
+              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
+              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
+              <img class="icon" src="static/assets/cash.svg" alt="Cash">
             </div>
           </div>
         </div>
       </a>
 
-      <a class="card" href="item.html">
-        <img class="item-card__thumb" src="assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="assets/bookmark.svg" data-alt-src="assets/bookmark-filled.svg" alt="Bookmark">
+      <a class="card" href="{{ url_for('item.goto_item_page') }}">
+        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
+        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
         <div class="item-card__body">
           <div class="item-card__top">
             <div class="item-card__title">Mountain Bike</div>
@@ -121,17 +121,17 @@
           <div class="item-card__bottom">
             <div class="item-card__seller">Seller Name</div>
             <div class="item-card__payment-icons">
-              <img class="icon" src="assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="assets/cash.svg" alt="Cash">
+              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
+              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
+              <img class="icon" src="static/assets/cash.svg" alt="Cash">
             </div>
           </div>
         </div>
       </a>
 
-      <a class="card" href="item.html">
-        <img class="item-card__thumb" src="assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="assets/bookmark.svg" data-alt-src="assets/bookmark-filled.svg" alt="Bookmark">
+      <a class="card" href="{{ url_for('item.goto_item_page') }}">
+        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
+        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
         <div class="item-card__body">
           <div class="item-card__top">
             <div class="item-card__title">Mountain Bike</div>
@@ -140,9 +140,9 @@
           <div class="item-card__bottom">
             <div class="item-card__seller">Seller Name</div>
             <div class="item-card__payment-icons">
-              <img class="icon" src="assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="assets/cash.svg" alt="Cash">
+              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
+              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
+              <img class="icon" src="static/assets/cash.svg" alt="Cash">
             </div>
           </div>
         </div>
@@ -154,7 +154,7 @@
   <footer class="footer">
     <div class="container footer__inner">
       <span>© <span id="year"></span> Mulebay</span>
-      <a href="profile.html">Your profile</a>
+      <a href="{{ url_for('profile.goto_profile_page') }}">Your profile</a>
     </div>
   </footer>
 
