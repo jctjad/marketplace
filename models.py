@@ -13,7 +13,7 @@ class User(db.Model):
     profile_description = db.Column(db.String(2000))
     bookmark_items = db.Column(db.JSON, default=list)   # List of item_ids bookmarked by user
     selling_items = db.Column(db.JSON, default=list)   # List of item_ids being sold by user
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime)
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,7 +24,7 @@ class Item(db.Model):
     price = db.Column(db.Float, nullable=False)
     payment_options = db.Column(db.JSON, default=list)  # List of payment options for transaction
     live_on_market = db.Column(db.Boolean, default=True, nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime)
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 class Chat(db.Model):   # The seller and buyer can chat (message one another) ON ITEM PAGE about given item
     id = db.Column(db.Integer, primary_key=True)

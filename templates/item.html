@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Item — Mountain Bike</title>
+  <title>Item — {{ item.name }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -27,22 +27,37 @@
     <div class="product">
       <section class="gallery" aria-label="Image gallery">
         <div class="gallery__stage">
-          <img id="stage" src="static/assets/item1.svg" alt="Mountain bike main image">
+          <img id="stage" src="{{ item.item_photos }}" alt="{{ item.name }}">
         </div>
       </section>
 
       <aside class="buybox card" aria-label="Purchase panel">
-        <h1 class="buybox__title">Mountain Bike</h1>
-        <div class="price">$10</div>
+        <h1 class="buybox__title">{{ item.name }}</h1>
+        <div class="price">${{ "%.2f"|format(item.price) }}</div>
         <button class="btn" id="buy">Message Seller</button>
+        
         <div class="specs">
+          <!-- We could later replace "Used — good" with item.condition if we add that field -->
           <div><strong>Condition:</strong> Used — good</div>
-          <div><strong>Seller:</strong> <a href="{{ url_for('profile.goto_profile_page') }}">Bob the Minion</a></div>
-          <div><strong>Payment Options:</strong> (Venmo), (Cash)</div>
+
+          <div><strong>Seller:</strong> 
+            <a href="{{ url_for('profile.goto_profile_page') }}">
+              {{ seller.first_name }} {{ seller.last_name }}
+            </a>
+          </div>
+
+          <div><strong>Payment Options:</strong> 
+            {% for option in item.payment_options %}
+              ({{ option }}){% if not loop.last %}, {% endif %}
+            {% endfor %}
+          </div>
         </div>
+        
         <section class="prose">
           <h2>Details</h2>
-          <p>Some really interesting details.</p>
+          <p>{{ item.description }}</p>
+
+          <!-- We can remove the static list below if the description already covers it -->
           <ul>
             <li>Aluminum frame</li>
             <li>1×11 drivetrain</li>
