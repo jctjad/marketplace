@@ -1,4 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for
+#Auth Security
+from flask_login import (  # current_user here to implement further security down the line
+    current_user, login_required)
 from models import db, User, Item, Chat
 from flask import send_file
 from datetime import datetime
@@ -9,18 +12,22 @@ item_blueprint = Blueprint('item', __name__)
 profile_blueprint = Blueprint('profile', __name__)
 
 @main_blueprint.route('/')
+@login_required
 def goto_browse_items_page():
     return render_template('index.html')
 
 @item_blueprint.route('/item')
+@login_required
 def goto_item_page():
     return render_template('item.html')
 
 @profile_blueprint.route('/profile')
+@login_required
 def goto_profile_page():
     return render_template('profile.html')
 
 @main_blueprint.route('/export')
+@login_required
 def export():
     # generate_Fake_Data() # this is to test to see if the csv populates
     get_User_Data()
