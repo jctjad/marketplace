@@ -37,8 +37,7 @@
         <button class="btn" id="buy">Message Seller</button>
         
         <div class="specs">
-          <!-- We could later replace "Used — good" with item.condition if we add that field -->
-          <div><strong>Condition:</strong> Used — good</div>
+          <div><strong>Condition:</strong>{{ item.condition }}</div>
 
           <div><strong>Seller:</strong> 
             <a href="{{ url_for('profile.goto_profile_page') }}">
@@ -56,13 +55,6 @@
         <section class="prose">
           <h2>Details</h2>
           <p>{{ item.description }}</p>
-
-          <!-- We can remove the static list below if the description already covers it -->
-          <ul>
-            <li>Aluminum frame</li>
-            <li>1×11 drivetrain</li>
-            <li>Hydraulic disc brakes</li>
-          </ul>
         </section>
       </aside>
     </div>
