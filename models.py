@@ -18,7 +18,7 @@ class User(db.Model, UserMixin): #Added UserMixin parameter
     profile_description = db.Column(db.String(2000))
     bookmark_items = db.Column(db.JSON, default=list)   # List of item_ids bookmarked by user
     selling_items = db.Column(db.JSON, default=list)   # List of item_ids being sold by user
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime) #added .utcnow
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) #added .utcnow
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

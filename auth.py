@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for
 from flask import request
 from models import db, User
 from flask_login import login_user, login_required, logout_user
+from datetime import datetime
 
 #Auth Blueprint
 auth_blueprint = Blueprint('auth', __name__)
@@ -18,7 +19,7 @@ def signup():
             return redirect(url_for('auth.login'))
         
         #Creating a new User
-        new_user = User(email = email)
+        new_user = User(email=email, first_name="Bob", last_name="The-Minion", date_created=datetime.utcnow())
         new_user.set_password(password)
 
         #Add and commite new user to db
