@@ -21,7 +21,7 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   color: var(--text);
-  background:#f2f2f4;
+  background: var(--elev);
   font: 16px/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   letter-spacing: .2px;
   -webkit-font-smoothing: antialiased;
@@ -47,17 +47,24 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   align-items: center;
   padding: 14px 0;
   gap: 12px;
+  position: relative;
 }
-.brand { font-weight: 800; letter-spacing: .3px; display: inline-flex; align-items: center; gap: 10px; }
+.brand { font-weight: 800; letter-spacing: .3px; display: inline-flex; align-items: center; gap: 10px; width: fit-content; z-index: 1; }
+.brand__logo {
+  height: 42px;
+  width: auto;
+  vertical-align: middle;
+}
 .brand__dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block;
   background: conic-gradient(from 180deg at 50% 50%, #2563eb, #7a5bff, #059669, #2563eb);
   box-shadow: 0 0 24px rgba(91,157,255,.45);
 }
-.nav { justify-self: center; display:flex; gap: 16px; }
+.nav { justify-self: center; display:flex; gap: 16px; position: relative; z-index: 2; }
 .nav a { color: var(--muted); font-weight: 600; padding: 8px 10px; border-radius: 10px; }
-.nav a[aria-current="page"], .nav a:hover { color: var(--text); background: var(--elev); border: 1px solid var(--bd); }
-.actions { justify-self: end; display:flex; gap: 10px; }
+.nav a[aria-current="page"], .nav a:hover { color: var(--text); background: var(--elev); }
+.actions { justify-self: end; display:flex; gap: 10px; position: relative; z-index: 2; }
 .badge { background: var(--elev); border: 1px solid var(--bd); padding: 6px 10px; border-radius: 999px; color: var(--muted); }
+
 
 /* Cards */
 .card {
