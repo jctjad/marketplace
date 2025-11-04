@@ -338,3 +338,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   display: block; /* show only after upload */
   opacity: 1;
 }
+
+/* Ensure uploaded item images fit neatly inside their container */
+.gallery__stage img,
+.item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* ensures full image is visible, keeps proportions */
+  border-radius: 12px; /* optional – matches your soft corners */
+  background-color: #f5f5f5; /* gives subtle backdrop if image doesn’t fill */
+}

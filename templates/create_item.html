@@ -23,61 +23,63 @@
   </header>
 
   <main class="page container">
-    <div class="product">
-      <!-- Left side: Image upload area -->
-      <section class="gallery" aria-label="Item image">
-        <div class="gallery__stage upload-stage" onclick="document.getElementById('fileInput').click()">
-          <img id="stage" src="/static/assets/item_placeholder.svg" alt="">
-          <div class="upload-overlay">
-            <span>Click to upload image</span>
-          </div>
-        </div>
-        <input type="file" id="fileInput" name="image_file" accept="image/*" style="display: none;" onchange="previewImage(event)">
-      </section>
+  <!-- ONE form spanning both columns -->
+  <form id="createForm" class="product" method="POST" enctype="multipart/form-data">
 
-      <!-- Right side: Create item form -->
-      <aside class="buybox card">
-        <h1 class="buybox__title">Create a New Item</h1>
+    <!-- Left: image upload area -->
+    <section class="gallery" aria-label="Item image">
+      <div class="gallery__stage upload-stage"
+           onclick="document.getElementById('fileInput').click()">
+        <img id="stage" src="/static/assets/item_placeholder.svg" alt="">
+        <div class="upload-overlay"><span>Click to upload image</span></div>
+      </div>
 
-        <form method="POST" enctype="multipart/form-data" class="create-item-form">
-          <label>
-            Name
-            <input type="text" name="name" required>
-          </label>
+      <!-- This input is now INSIDE the form -->
+      <input type="file" id="fileInput" name="image_file"
+             accept="image/*" style="display:none" onchange="previewImage(event)">
+    </section>
 
-          <label>
-            Description
-            <textarea name="description" rows="3" required></textarea>
-          </label>
+    <!-- Right: fields -->
+    <aside class="buybox card">
+      <h1 class="buybox__title">Create a New Item</h1>
 
-          <label>
-            Price ($)
-            <input type="number" step="0.01" name="price" required>
-          </label>
+      <!-- remove the inner <form>; keep the fields -->
+      <div class="create-item-form">
+        <label>Name
+          <input type="text" name="name" required>
+        </label>
 
-          <label>
-            Condition
-            <select name="condition" required>
-              <option value="New">New</option>
-              <option value="Used — like new">Used — like new</option>
-              <option value="Used — good">Used — good</option>
-              <option value="Used — fair">Used — fair</option>
-            </select>
-          </label>
+        <label>Description
+          <textarea name="description" rows="3" required></textarea>
+        </label>
 
-          <fieldset class="payment-options">
-            <legend>Payment Options</legend>
-            <label><input type="checkbox" name="payment_options" value="Cash"> Cash</label>
-            <label><input type="checkbox" name="payment_options" value="Venmo"> Venmo</label>
-            <label><input type="checkbox" name="payment_options" value="Zelle"> Zelle</label>
+        <label>Price ($)
+          <input type="number" step="0.01" name="price" required>
+        </label>
+
+        <label>Condition
+          <select name="condition" required>
+            <option value="New">New</option>
+            <option value="Used — like new">Used — like new</option>
+            <option value="Used — good">Used — good</option>
+            <option value="Used — fair">Used — fair</option>
+          </select>
+        </label>
+
+        <fieldset class="payment-options">
+          <legend>Payment Options</legend>
+          <label><input type="checkbox" name="payment_options" value="Cash"> Cash</label>
+          <label><input type="checkbox" name="payment_options" value="Venmo"> Venmo</label>
+          <label><input type="checkbox" name="payment_options" value="Zelle"> Zelle</label>
         </fieldset>
 
+        <button class="btn" type="submit">Create Item</button>
+      </div>
+    </aside>
 
-          <button class="btn" type="submit">Create Item</button>
-        </form>
-      </aside>
-    </div>
-  </main>
+  </form>
+</main>
+
 
   <footer class="footer">
     <div class="container footer__inner">
