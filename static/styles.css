@@ -81,7 +81,14 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 @media (max-width: 480px){ .grid { grid-template-columns: 1fr; } }
 
 /* Item Card (Browse Items) */ 
-.item-card__thumb { aspect-ratio: 4/3; object-fit: cover; }
+/* Ensure item images scale nicely inside the grid cards */
+.item-card__thumb {
+  width: 100%;
+  height: 200px;           /* or adjust to your card height */
+  object-fit: contain;     /* ensures the full image shows, not cropped */
+  border-radius: 10px 10px 0 0;
+  background-color: #f8f8f8; /* subtle background for images with transparency */
+}
 .item-card__body { padding: 12px; font-size: 1.1rem; }
 
 .item-card__bookmark {

@@ -9,7 +9,9 @@ profile_blueprint = Blueprint('profile', __name__)
 
 @main_blueprint.route('/')
 def goto_browse_items_page():
-    return render_template('index.html')
+    # fetch all items from database
+    items = Item.query.order_by(Item.date_created.desc()).all()
+    return render_template('index.html', items=items)
 
 @item_blueprint.route('/item/<int:item_id>')
 def goto_item_page(item_id):
@@ -21,7 +23,7 @@ def goto_item_page(item_id):
     
     return render_template('item.html', item=item, seller=seller)
 
-HERE = os.path.abspath(os.path.dirname(__file__))             # ✅ this file's dir
+HERE = os.path.abspath(os.path.dirname(__file__))             # this file's dir
 STATIC_DIR = os.path.join(HERE, "static")                     # e.g. .../marketplace/static
 UPLOAD_FOLDER = os.path.join(STATIC_DIR, "uploads")           # .../static/uploads
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -41,17 +43,17 @@ def create_item():
         payment_options = request.form.getlist('payment_options')
 
         image_file = request.files.get('image_file')
-        print("📥 image_file in request:", image_file)   # 👀 quick debug
+        print("image_file in request:", image_file)   # 👀 quick debug
 
         if image_file and image_file.filename and allowed_file(image_file.filename):
             filename = secure_filename(image_file.filename)
             save_path = os.path.join(UPLOAD_FOLDER, filename)   # absolute save path
             image_file.save(save_path)
             image_path = f"/static/uploads/{filename}"          # URL path for template
-            print("✅ saved to:", save_path)
+            print("saved to:", save_path)
         else:
             image_path = "/static/assets/item_placeholder.svg"
-            print("⚠️ no valid upload; using placeholder")
+            print("no valid upload; using placeholder")
 
         seller = User.query.first()
         if not seller:
@@ -70,7 +72,7 @@ def create_item():
 
         db.session.add(new_item)
         db.session.commit()
-        flash('✅ Item created successfully!', 'success')
+        flash('Item created successfully!', 'success')
         return redirect(url_for('item.goto_item_page', item_id=new_item.id))
 
     return render_template('create_item.html')
