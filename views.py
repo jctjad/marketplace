@@ -20,7 +20,7 @@ def goto_profile_page():
     return render_template('profile.html')
 
 @main_blueprint.route('/export')
-def get_User_Item():
+def get_User_Item_Data():
     items = db.session.query(Item).join(User, User.id == Item.seller_id)
     with open('users_items.csv', 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
