@@ -21,35 +21,37 @@ def goto_profile_page():
     return render_template('profile.html')
 
 @main_blueprint.route('/export')
-def get_User_Item_Data():
-    test_User_Item_Data() # this populates the db with fake data, for testing purposes
-
-    # with db.session.no_autoflush:
-    items = db.session.query(Item).join(User, User.id == Item.seller_id).all()
-    with open('users_items.csv', 'w', newline='') as csvfile:
-        csvwrite = csv.writer(csvfile, delimiter=',')
-        for i in items:
-            csvwrite.writerow([i.user.id, i.user.email, i.user.firstname, i.user.last_name, i.user.profile_image,
-                               i.user.profile_description, i.user.bookmark_items, i.user.selling_items, i.user.data_create])
+def export():
+    get_User_Data()
+    get_Item_Data()
+    get_Chat_Data()
     return redirect(url_for('main.goto_browse_items_page'))
 
-def test_User_Item_Data():
-    # this method will populate the db with some fake data
-    new_user1 = User(email='gru@minion.com', first_name='Gru', last_name='Minion', date_created=datetime.today())
-    new_user2 = User(email='ash@pokemon.com', first_name='Ash', last_name='Ketchum', date_created=datetime.today())
-    new_user3 = User(email='john@mail.com', first_name='John', last_name='Frisbee', date_created=datetime.today())
-    db.session.add(new_user1)
-    db.session.add(new_user2)
-    db.session.add(new_user3)
+# this helper method gets the User data
+def get_User_Data():
+    users = db.session.query(User).all()
+    with open('Users.csv', 'w', newline='') as csvfile:
+        csvwrite = csv.writer(csvfile, delimiter=',')
+        csvwrite.writerow(["User ID", "Email", "First Name", "Last Name", "Profile Image", "Profile Description", "Bookmarks", "Items Selling", "Date Created"])
+        for user in users:
+            csvwrite.writerow([user.id, user.email, user.first_name, user.last_name, user.profile_image,
+                               user.profile_description, user.bookmark_items, user.selling_items, user.date_created])
 
-    for i in range(2):
-        new_item1 = Item(seller_id=new_user1.id, name='banana', item_photos='null', price=3, date_created = datetime.today())
-        new_item2 = Item(seller_id=new_user2.id, name='pokeball', item_photos='null', price=5, date_created = datetime.today())
-        new_item3 = Item(seller_id=new_user3.id, name='disc', item_photos='null', price=12, date_created = datetime.today())
-        db.session.add(new_item1)
-        db.session.add(new_item2)
-        db.session.add(new_item3)
-
-    # new_task = Task(title=task, user_id=current_user.id)
-    # db.session.add(new_task)
-    db.session.commit()
+# this helper method gets Item data
+def get_Item_Data():
+    items = db.session.query(Item).all()
+    with open('Items.csv', 'w', newline='') as csvfile:
+        csvwrite = csv.writer(csvfile, delimiter=',')
+        csvwrite.writerow(["Item ID", "Seller ID", "Item Name", "Item Description", "Item Photos", "Price", "Payment Options", "Live On Market", "Date Created"])
+        for item in items:
+            csvwrite.writerow([item.id, item.seller_id, item.name, item.description, item.item_photos, item.price, 
+                               item.payment_options, item.live_on_market, item.date_created])
+            
+# this helper method gets the Chat data
+def get_Chat_Data():
+    chats = db.session.query(Chat).all()
+    with open('Chats.csv', 'w', newline='') as csvfile:
+        csvwrite = csv.writer(csvfile, delimiter=',')
+        csvwrite.writerow(["Chat ID", "Item ID", "Seller ID", "Buyer IDs", "Messages"])
+        for chat in chats:
+            csvwrite.writerow([chat.id, chat.item_id, chat.seller_id, chat.buyer_ids, chat.messages])
