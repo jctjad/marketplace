@@ -22,6 +22,7 @@ def goto_profile_page():
 
 @main_blueprint.route('/export')
 def export():
+    # generate_Fake_Data() # this is to test to see if the csv populates
     get_User_Data()
     get_Item_Data()
     get_Chat_Data()
@@ -55,3 +56,25 @@ def get_Chat_Data():
         csvwrite.writerow(["Chat ID", "Item ID", "Seller ID", "Buyer IDs", "Messages"])
         for chat in chats:
             csvwrite.writerow([chat.id, chat.item_id, chat.seller_id, chat.buyer_ids, chat.messages])
+
+# this method will populate the db with some fake data
+def generate_Fake_Data():
+    new_user1 = User(email='gru@minion.com', first_name='Gru', last_name='Minion', date_created=datetime.today())
+    new_user2 = User(email='ash@pokemon.com', first_name='Ash', last_name='Ketchum', date_created=datetime.today())
+    new_user3 = User(email='john@mail.com', first_name='John', last_name='Frisbee', date_created=datetime.today())
+    db.session.add(new_user1)
+    db.session.add(new_user2)
+    db.session.add(new_user3)
+    db.session.commit()
+
+    new_item1 = Item(seller_id=new_user1.id, name='banana', item_photos='null', price=3, date_created = datetime.today())
+    new_item3 = Item(seller_id=new_user2.id, name='pokeball', item_photos='null', price=15, date_created = datetime.today())
+    new_item2 = Item(seller_id=new_user1.id, name='ray gun', item_photos='null', price=300, date_created = datetime.today())
+    new_item4 = Item(seller_id=new_user3.id, name='disc', item_photos='null', price=12, date_created = datetime.today())
+    new_item5 = Item(seller_id=new_user3.id, name='cones', item_photos='null', price=5, date_created = datetime.today())
+    db.session.add(new_item1)
+    db.session.add(new_item2)
+    db.session.add(new_item3)
+    db.session.add(new_item4)
+    db.session.add(new_item5)
+    db.session.commit()
