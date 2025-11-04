@@ -27,7 +27,8 @@ app.register_blueprint(item_blueprint)
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(auth_blueprint)
 
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
