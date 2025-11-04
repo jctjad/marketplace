@@ -15,7 +15,7 @@ db.init_app(app)
 
 #Auth Section
 login_man = LoginManager(app)
-login_man.login_view = 'auth.login'
+login_man.login_view = 'auth.signup'
 
 @login_man.user_loader
 def load_user(id):

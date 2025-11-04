@@ -26,11 +26,12 @@ def signup():
         db.session.commit()
 
         return redirect(url_for('auth.login'))
-    return render_template('login.html')
+    return render_template('signup.html')
 
 
 @auth_blueprint.route('/login', methods = ['GET', 'POST'])
 def login():
+    #Doesn't account for how many times someone can log in
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -38,7 +39,7 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
             login_user(user)
-            return redirect(url_for('main.index')) #I believe it's main.index to render index.html
+            return redirect(url_for('main.goto_browse_items_page')) #I believe it's main.index to render index.html
         
     return render_template('login.html')
 

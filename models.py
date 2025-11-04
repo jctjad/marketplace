@@ -11,14 +11,14 @@ db = SQLAlchemy()
 class User(db.Model, UserMixin): #Added UserMixin parameter
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(80), unique=True, nullable=False) #Acts like username
-    password_hash = db.Column(db.string(10), nullable = False) #Login Variable
+    password_hash = db.Column(db.String(10), nullable = False) #Login Variable
     first_name = db.Column(db.String(40), nullable=False)
     last_name = db.Column(db.String(40), nullable=False)
     profile_image = db.Column(db.String(255))   # String: path to image (static/assets..)
     profile_description = db.Column(db.String(2000))
     bookmark_items = db.Column(db.JSON, default=list)   # List of item_ids bookmarked by user
     selling_items = db.Column(db.JSON, default=list)   # List of item_ids being sold by user
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime)
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime) #added .utcnow
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
