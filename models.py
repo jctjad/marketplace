@@ -11,7 +11,7 @@ db = SQLAlchemy()
 class User(db.Model, UserMixin): #Added UserMixin parameter
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(80), unique=True, nullable=False) #Acts like username
-    password_hash = db.Column(db.String(10), nullable = False) #Login Variable
+    password_hash = db.Column(db.String(255), nullable=False) #Login Variable
     first_name = db.Column(db.String(40), nullable=False)
     last_name = db.Column(db.String(40), nullable=False)
     profile_image = db.Column(db.String(255))   # String: path to image (static/assets..)
@@ -36,7 +36,7 @@ class Item(db.Model):
     price = db.Column(db.Float, nullable=False)
     payment_options = db.Column(db.JSON, default=list)  # List of payment options for transaction
     live_on_market = db.Column(db.Boolean, default=True, nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime)
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 class Chat(db.Model):   # The seller and buyer can chat (message one another) ON ITEM PAGE about given item
     id = db.Column(db.Integer, primary_key=True)
