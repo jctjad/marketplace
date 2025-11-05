@@ -42,6 +42,7 @@ def populate():
     populate_User_Data()
     populate_Item_Data()
     populate_Chat_Data()
+    # generate_Fake_Data() # this is to test to see if the csv populates
     return redirect(url_for('main.goto_browse_items_page'))
 
 # this helper method clears the database but maintains the structure
@@ -56,7 +57,7 @@ def clear_data():
 # this helper method gets the User data
 def get_User_Data():
     users = db.session.query(User).all()
-    with open('../marketplace/data/Users.csv', 'w', newline='') as csvfile:
+    with open('../marketplace/static/data/Users.csv', 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
         csvwrite.writerow(["User ID", "Email", "First Name", "Last Name", "Profile Image", "Profile Description", "Bookmarks", "Items Selling", "Date Created"])
         for user in users:
@@ -66,7 +67,7 @@ def get_User_Data():
 # this helper method gets Item data
 def get_Item_Data():
     items = db.session.query(Item).all()
-    with open('../marketplace/data/Items.csv', 'w', newline='') as csvfile:
+    with open('../marketplace/static/data/Items.csv', 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
         csvwrite.writerow(["Item ID", "Seller ID", "Item Name", "Item Description", "Item Photos", "Price", "Payment Options", "Live On Market", "Date Created"])
         for item in items:
@@ -76,7 +77,7 @@ def get_Item_Data():
 # this helper method gets the Chat data
 def get_Chat_Data():
     chats = db.session.query(Chat).all()
-    with open('../marketplace/data/Chats.csv', 'w', newline='') as csvfile:
+    with open('../marketplace/static/data/Chats.csv', 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
         csvwrite.writerow(["Chat ID", "Item ID", "Seller ID", "Buyer IDs", "Messages"])
         for chat in chats:
@@ -107,7 +108,7 @@ def generate_Fake_Data():
 # this helper method populates the User database
 def populate_User_Data():
     # going line by line, add the record to the db
-    with open('../marketplace/data/Users.csv', 'r', newline='') as csvfile:
+    with open('../marketplace/static/data/Users.csv', 'r', newline='') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',')
         next(csvreader) # skips the header line
         for row in csvreader:
@@ -119,7 +120,7 @@ def populate_User_Data():
 # this helper method populates the Item database
 def populate_Item_Data():
     # going line by line, add the record to the db
-    with open('../marketplace/data/Items.csv', 'r', newline='') as csvfile:
+    with open('../marketplace/static/data/Items.csv', 'r', newline='') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',')
         next(csvreader) # skips the header line
         for row in csvreader:
@@ -131,7 +132,7 @@ def populate_Item_Data():
 # this helper method populates the Chat database
 def populate_Chat_Data():
     # going line by line, add the record to the db
-    with open('../marketplace/data/Chats.csv', 'r', newline='') as csvfile:
+    with open('../marketplace/static/data/Chats.csv', 'r', newline='') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',')
         next(csvreader) # skips the header line
         for row in csvreader:
