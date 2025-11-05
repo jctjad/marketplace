@@ -13,22 +13,22 @@ item_blueprint = Blueprint('item', __name__)
 profile_blueprint = Blueprint('profile', __name__)
 
 @main_blueprint.route('/')
-# @login_required
+@login_required
 def goto_browse_items_page():
     return render_template('index.html')
 
 @item_blueprint.route('/item')
-# @login_required
+@login_required
 def goto_item_page():
     return render_template('item.html')
 
 @profile_blueprint.route('/profile')
-# @login_required
+@login_required
 def goto_profile_page():
     return render_template('profile.html')
 
 @main_blueprint.route('/export')
-# @login_required
+@login_required
 def export():
     # generate_Fake_Data() # this is to çtest to see if the csv populates
     get_User_Data()
@@ -37,7 +37,7 @@ def export():
     return redirect(url_for('main.goto_browse_items_page'))
 
 @main_blueprint.route('/import')
-# @login_required
+@login_required
 def populate():
     clear_data() # before populating the database, we want to make sure it is empty
     populate_User_Data()
