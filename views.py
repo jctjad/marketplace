@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from models import Item, User, db
 import os
+from datetime import datetime
 from werkzeug.utils import secure_filename 
 
 main_blueprint = Blueprint('main', __name__)
@@ -66,8 +67,10 @@ def create_item():
             description=description,
             item_photos=image_path,
             price=price,
+            condition=condition,
             payment_options=payment_options,
-            condition=condition
+            live_on_market=True,
+            date_created=datetime.today()
         )
 
         db.session.add(new_item)
