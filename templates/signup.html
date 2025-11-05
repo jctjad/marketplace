@@ -16,10 +16,10 @@
         <div class = "login-box">
             <img class = "login-img" src="static/assets/mulebay_logo.svg" alt = "MuleBay Logo Image">
         
-            <form method = "POST" action="{{ url_for('auth.login') }}">
+            <form method = "POST" action="{{ url_for('auth.signup') }}">
                 <h3 class = "login-title">Sign up</h3>
                 <div class = "login-section">
-                    <input type = "text" name ="email" placeholder="Email" required/>
+                    <input type="email" name="email" placeholder="Email" required/>
                 </div>
                 <div class = "login-section">
                     <input type = "password" name ="password" placeholder="Password" required/>

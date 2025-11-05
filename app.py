@@ -6,9 +6,8 @@ from models import db, User
 from auth import auth_blueprint
 from flask_login import LoginManager
 
-
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///todo.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_keyyyyy'
 db.init_app(app)
