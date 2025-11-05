@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, redirect, render_template, url_for
 #Auth Security
 from flask_login import (  # current_user here to implement further security down the line
     current_user, login_required)
