@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, url_for, redirect
+from flask import Blueprint, render_template, url_for
 #Auth Security
 from flask_login import (  # current_user here to implement further security down the line
     current_user, login_required)
 from models import db, User, Item, Chat
-from flask import send_file
+from flask import send_file, redirect
 from datetime import datetime
 import csv
 
