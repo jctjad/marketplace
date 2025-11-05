@@ -118,7 +118,9 @@ def populate_User_Data():
         path = os.getcwd()
         with open(os.path.join(path, 'static/data/Users.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
-            next(csvreader) # skips the header line
+            # need to check if it has a header line
+            if csv.Sniffer().has_header(csvfile):
+                next(csvreader) # if true, skip the header file, else read in the first line
             for row in csvreader:
                 new_user = User(id=row[0], email=row[1], first_name=row[2], last_name=row[3], profile_image=row[4],
                                 profile_description=row[5], bookmark_items=row[6], selling_items=row[7], date_created=datetime.fromisoformat(row[8]))
@@ -134,7 +136,9 @@ def populate_Item_Data():
         path = os.getcwd()
         with open(os.path.join(path, 'static/data/Items.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
-            next(csvreader) # skips the header line
+            # need to check if it has a header line
+            if csv.Sniffer().has_header(csvfile):
+                next(csvreader) # if true, skip the header file, else read in the first line
             for row in csvreader:
                 new_item = Item(id=row[0], seller_id=row[1], name=row[2], description=row[3], item_photos=row[4], price=row[5],
                                 payment_options=row[6], live_on_market=bool((row[7] == 'True')), date_created=datetime.fromisoformat(row[8]))
@@ -150,7 +154,9 @@ def populate_Chat_Data():
         path = os.getcwd()
         with open(os.path.join(path, 'static/data/Chats.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
-            next(csvreader) # skips the header line
+            # need to check if it has a header line
+            if csv.Sniffer().has_header(csvfile):
+                next(csvreader) # if true, skip the header file, else read in the first line
             for row in csvreader:
                 new_item = Chat(id=row[0], item_id=row[1], seller_id=row[2], buyer_ids=row[3], messages=row[4])
                 db.session.add(new_item)
