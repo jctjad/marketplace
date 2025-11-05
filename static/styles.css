@@ -199,8 +199,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 .login-section {
-  background-color: #FFFFFF;
-  color: black;
+  background-color: var(--bd);
+  color: var(--text);
   border-radius: 5px;
   padding: 1px 1px;
   text-align: center;
@@ -218,7 +218,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 .login-button {
   background-color: #059669;
-  color: black;
+  color: var(--text);
   border-radius: 5px;
   text-align: center;
   display: block;
