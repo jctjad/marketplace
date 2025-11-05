@@ -13,22 +13,22 @@ item_blueprint = Blueprint('item', __name__)
 profile_blueprint = Blueprint('profile', __name__)
 
 @main_blueprint.route('/')
-@login_required
+# @login_required
 def goto_browse_items_page():
     return render_template('index.html')
 
 @item_blueprint.route('/item')
-@login_required
+# @login_required
 def goto_item_page():
     return render_template('item.html')
 
 @profile_blueprint.route('/profile')
-@login_required
+# @login_required
 def goto_profile_page():
     return render_template('profile.html')
 
 @main_blueprint.route('/export')
-@login_required
+# @login_required
 def export():
     # generate_Fake_Data() # this is to çtest to see if the csv populates
     get_User_Data()
@@ -38,12 +38,13 @@ def export():
     return redirect(url_for('main.goto_browse_items_page'))
 
 @main_blueprint.route('/import')
-@login_required
+# @login_required
 def populate():
     clear_data() # before populating the database, we want to make sure it is empty
     populate_User_Data()
     populate_Item_Data()
     populate_Chat_Data()
+    clear_uploads()
     # generate_Fake_Data() # this is to test to see if the csv populates
     # return render_template('index.html')
     return redirect(url_for('main.goto_browse_items_page'))
@@ -53,9 +54,19 @@ def populate():
 def clear_data():
     meta = db.metadata
     for table in reversed(meta.sorted_tables):
-        print('Clear table %s', table)
+        print('Cleared table')
         db.session.execute(table.delete())
     db.session.commit()
+
+# this helper method removes images from the upload folder if they aren't in User'
+def clear_uploads():
+    path = os.getcwd()
+    upload_path = 'static/uploads'
+    item_photo_paths = db.session.query(Item).with_entities(Item.item_photos)
+    for i in item_photo_paths:
+        print(i)
+    # for image in os.listdir(os.path.join(path, upload_path)):
+    # return
 
 # this helper method gets the User data
 def get_User_Data():
@@ -119,8 +130,8 @@ def populate_User_Data():
         with open(os.path.join(path, 'static/data/Users.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             # need to check if it has a header line
-            if csv.Sniffer().has_header(csvfile):
-                next(csvreader) # if true, skip the header file, else read in the first line
+            if not csv.Sniffer().has_header(csvfile.readline()):
+                csvfile.seek(0) # if there is no header, start with the first line, else skip it
             for row in csvreader:
                 new_user = User(id=row[0], email=row[1], first_name=row[2], last_name=row[3], profile_image=row[4],
                                 profile_description=row[5], bookmark_items=row[6], selling_items=row[7], date_created=datetime.fromisoformat(row[8]))
@@ -137,8 +148,8 @@ def populate_Item_Data():
         with open(os.path.join(path, 'static/data/Items.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             # need to check if it has a header line
-            if csv.Sniffer().has_header(csvfile):
-                next(csvreader) # if true, skip the header file, else read in the first line
+            if not csv.Sniffer().has_header(csvfile.readline()):
+                csvfile.seek(0) # if there is no header, start with the first line, else skip it
             for row in csvreader:
                 new_item = Item(id=row[0], seller_id=row[1], name=row[2], description=row[3], item_photos=row[4], price=row[5],
                                 payment_options=row[6], live_on_market=bool((row[7] == 'True')), date_created=datetime.fromisoformat(row[8]))
@@ -155,8 +166,8 @@ def populate_Chat_Data():
         with open(os.path.join(path, 'static/data/Chats.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             # need to check if it has a header line
-            if csv.Sniffer().has_header(csvfile):
-                next(csvreader) # if true, skip the header file, else read in the first line
+            if not csv.Sniffer().has_header(csvfile.readline()):
+                csvfile.seek(0) # if there is no header, start with the first line, else skip it
             for row in csvreader:
                 new_item = Chat(id=row[0], item_id=row[1], seller_id=row[2], buyer_ids=row[3], messages=row[4])
                 db.session.add(new_item)
