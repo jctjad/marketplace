@@ -3,7 +3,7 @@ from flask import Blueprint, redirect, render_template, url_for
 from flask_login import (  # current_user here to implement further security down the line
     current_user, login_required)
 from models import db, User, Item, Chat
-from flask import send_file
+from flask import send_file, flash
 from datetime import datetime
 import csv
 import os
@@ -34,6 +34,7 @@ def export():
     get_User_Data()
     get_Item_Data()
     get_Chat_Data()
+    # return render_template('index.html')
     return redirect(url_for('main.goto_browse_items_page'))
 
 @main_blueprint.route('/import')
@@ -44,6 +45,7 @@ def populate():
     populate_Item_Data()
     populate_Chat_Data()
     # generate_Fake_Data() # this is to test to see if the csv populates
+    # return render_template('index.html')
     return redirect(url_for('main.goto_browse_items_page'))
 
 # this helper method clears the database but maintains the structure
@@ -111,38 +113,47 @@ def generate_Fake_Data():
 
 # this helper method populates the User database
 def populate_User_Data():
-    # going line by line, add the record to the db
-    path = os.getcwd()
-    with open(os.path.join(path, 'static/data/Users.csv'), 'r', newline='') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter=',')
-        next(csvreader) # skips the header line
-        for row in csvreader:
-            new_user = User(id=row[0], email=row[1], first_name=row[2], last_name=row[3], profile_image=row[4],
-                            profile_description=row[5], bookmark_items=row[6], selling_items=row[7], date_created=datetime.fromisoformat(row[8]))
-            db.session.add(new_user)
-        db.session.commit()
+    try:
+        # going line by line, add the record to the db 
+        path = os.getcwd()
+        with open(os.path.join(path, 'static/data/Users.csv'), 'r', newline='') as csvfile:
+            csvreader = csv.reader(csvfile, delimiter=',')
+            next(csvreader) # skips the header line
+            for row in csvreader:
+                new_user = User(id=row[0], email=row[1], first_name=row[2], last_name=row[3], profile_image=row[4],
+                                profile_description=row[5], bookmark_items=row[6], selling_items=row[7], date_created=datetime.fromisoformat(row[8]))
+                db.session.add(new_user)
+            db.session.commit()
+    except:
+        print("Cannot import file: Users.csv not found")
 
 # this helper method populates the Item database
 def populate_Item_Data():
-    # going line by line, add the record to the db
-    path = os.getcwd()
-    with open(os.path.join(path, 'static/data/Items.csv'), 'r', newline='') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter=',')
-        next(csvreader) # skips the header line
-        for row in csvreader:
-            new_item = Item(id=row[0], seller_id=row[1], name=row[2], description=row[3], item_photos=row[4], price=row[5],
-                            payment_options=row[6], live_on_market=bool((row[7] == 'True')), date_created=datetime.fromisoformat(row[8]))
-            db.session.add(new_item)
-        db.session.commit()
+    try:
+        # going line by line, add the record to the db
+        path = os.getcwd()
+        with open(os.path.join(path, 'static/data/Items.csv'), 'r', newline='') as csvfile:
+            csvreader = csv.reader(csvfile, delimiter=',')
+            next(csvreader) # skips the header line
+            for row in csvreader:
+                new_item = Item(id=row[0], seller_id=row[1], name=row[2], description=row[3], item_photos=row[4], price=row[5],
+                                payment_options=row[6], live_on_market=bool((row[7] == 'True')), date_created=datetime.fromisoformat(row[8]))
+                db.session.add(new_item)
+            db.session.commit()
+    except:
+        print("Cannot import file: Item.csv not found")
 
 # this helper method populates the Chat database
 def populate_Chat_Data():
-    # going line by line, add the record to the db
-    path = os.getcwd()
-    with open(os.path.join(path, 'static/data/Chats.csv'), 'r', newline='') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter=',')
-        next(csvreader) # skips the header line
-        for row in csvreader:
-            new_item = Chat(id=row[0], item_id=row[1], seller_id=row[2], buyer_ids=row[3], messages=row[4])
-            db.session.add(new_item)
-        db.session.commit()
+    try:
+        # going line by line, add the record to the db
+        path = os.getcwd()
+        with open(os.path.join(path, 'static/data/Chats.csv'), 'r', newline='') as csvfile:
+            csvreader = csv.reader(csvfile, delimiter=',')
+            next(csvreader) # skips the header line
+            for row in csvreader:
+                new_item = Chat(id=row[0], item_id=row[1], seller_id=row[2], buyer_ids=row[3], messages=row[4])
+                db.session.add(new_item)
+            db.session.commit()
+    except:
+        print("Cannot import file: Chat.csv not found")
