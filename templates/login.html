@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Item — Mountain Bike</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/styles.css">
+</head>
+
+
+<body>
+    <main class="page container">
+        <div class = "login-box">
+            <img class = "login-img" src="static/assets/mulebay_logo.svg" alt = "MuleBay Logo Image">
+        
+            <form method = "POST" action="{{ url_for('auth.login') }}">
+                <h3 class = "login-title">Login</h3>
+                <div class = "login-section">
+                    <input type="email" name="email" placeholder="Email" required/>
+                </div>
+                <div class = "login-section">
+                    <input type = "password" name ="password" placeholder="Password" required/>
+                </div>
+                <button class = "login-button" type="Submit">Submit</button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <span>© <span id="year"></span> Mulebay</span>
+        </div>
+    </footer>
+
+    <script src="static/script.js"></script>
+</body>

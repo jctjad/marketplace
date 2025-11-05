@@ -12,13 +12,20 @@
 <body>
   <header class="header">
     <div class="container header__inner">
-      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}"><span class="brand__dot"></span> Mulebay</a>
+      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}">
+          <img class="brand__logo" src="{{ url_for('static', filename='assets/mulebay_logo.svg') }}"alt="Mulebay Logo">
+          <span>Mulebay</span>
+      </a>
       <nav class="nav" aria-label="Primary">
         <a href="{{ url_for('main.goto_browse_items_page') }}">Browse</a>
         <a href="{{ url_for('profile.goto_profile_page') }}">Profile</a>
       </nav>
       <div class="actions">
-        <span class="badge">Secure Checkout</span>
+          {% if current_user.is_authenticated %}
+              <a href="{{ url_for('auth.logout') }}" id="logout-button" class="badge">Logout</a>
+          {% else %}
+              <a href="{{ url_for('auth.login') }}" id="login-button" class="badge">Login</a>
+          {% endif %}
       </div>
     </div>
   </header>
