@@ -34,6 +34,7 @@ class Item(db.Model):
     description = db.Column(db.String(2000))
     item_photos = db.Column(db.String(255), nullable=False)
     price = db.Column(db.Float, nullable=False)
+    condition = db.Column(db.String(50))
     payment_options = db.Column(db.JSON, default=list)  # List of payment options for transaction
     live_on_market = db.Column(db.Boolean, default=True, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

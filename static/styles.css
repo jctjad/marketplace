@@ -88,7 +88,14 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 @media (max-width: 480px){ .grid { grid-template-columns: 1fr; } }
 
 /* Item Card (Browse Items) */ 
-.item-card__thumb { aspect-ratio: 4/3; object-fit: cover; }
+/* Ensure item images scale nicely inside the grid cards */
+.item-card__thumb {
+  width: 100%;
+  height: 200px;           /* or adjust to your card height */
+  object-fit: contain;     /* ensures the full image shows, not cropped */
+  border-radius: 10px 10px 0 0;
+  background-color: #f8f8f8; /* subtle background for images with transparency */
+}
 .item-card__body { padding: 12px; font-size: 1.1rem; }
 
 .item-card__bookmark {
@@ -184,6 +191,177 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .footer { border-top: 1px solid var(--bd); margin-top: 36px; }
 .footer__inner { display:flex; align-items:center; justify-content:space-between; padding: 16px 0; color: var(--muted); }
 
+/* Floating Sell Button */
+.floating-sell-btn {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  padding: 14px 22px;
+  border-radius: 30px; /* pill shape */
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  text-decoration: none;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  z-index: 1000;
+}
+
+.floating-sell-btn:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Create Item Form Styling */
+.create-item-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.create-item-form label {
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+
+.create-item-form input[type="text"],
+.create-item-form input[type="number"],
+.create-item-form textarea {
+  margin-top: 0.25rem;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.payment-options {
+  border: none;
+  padding: 0;
+}
+
+.payment-options legend {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+/* Text and box on the same line */
+.payment-options label {
+  display: inline-flex;
+  align-items: center;       /* vertical alignment */
+  gap: 8px;                  /* space between text and box */
+  font-weight: 400;
+  margin-right: 16px;        /* spacing between options */
+  cursor: pointer;
+}
+
+.payment-options input[type="checkbox"] {
+  margin: 0;
+  accent-color: var(--brand); /* optional: blue checkmark */
+  transform: translateY(1px); /* perfect baseline alignment */
+}
+
+.create-item-form .btn {
+  width: fit-content;
+  align-self: flex-start;
+  padding: 10px 16px;
+  background: linear-gradient(to right, #007bff, #6a5af9);
+  color: white;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.create-item-form .btn:hover {
+  transform: scale(1.05);
+}
+
+/* Upload section */
+.upload-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #f9f9f9;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s ease;
+}
+
+.upload-stage:hover {
+  background: #f0f0f0;
+}
+
+.upload-stage img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 12px;
+  object-fit: contain;
+  opacity: 0.95;
+}
+
+.upload-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.65); /* subtle light background */
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.upload-overlay:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translate(-50%, -50%) scale(1.03);
+}
+
+/* Condition dropdown */
+.create-item-form select {
+  margin-top: 0.25rem;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+#stage {
+  display: none; /* hide image by default */
+  max-width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  transition: opacity 0.25s ease;
+}
+#stage.visible {
+  display: block; /* show only after upload */
+  opacity: 1;
+}
+
+/* Ensure uploaded item images fit neatly inside their container */
+.gallery__stage img,
+.item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* ensures full image is visible, keeps proportions */
+  border-radius: 12px; /* optional – matches your soft corners */
+  background-color: #f5f5f5; /* gives subtle backdrop if image doesn’t fill */
+}
 
 /* Login/Signup Section */
 
