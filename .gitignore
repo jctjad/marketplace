@@ -1,6 +1,9 @@
 # macOS system files
 .DS_Store
+
+# Python cache files
 __pycache__
 
-# database files
-.db
+# SQLite database files
+*.db
+*.sqlite3
