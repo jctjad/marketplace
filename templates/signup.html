@@ -12,25 +12,29 @@
 
 
 <body>
-
-    <div class="container">
-
+    <main class="page container">
         <div class = "login-box">
-            <img>
-            <h3>Sign Up</h3>
-            <form method = "POST" action = "{{ url_for('auth.signup') }}">
-                <div class = "input-section">
+            <img class = "login-img" src="static/assets/mulebay_logo.svg" alt = "MuleBay Logo Image">
+        
+            <form method = "POST" action="{{ url_for('auth.login') }}">
+                <h3 class = "login-title">Sign up</h3>
+                <div class = "login-section">
                     <input type = "text" name ="email" placeholder="Email" required/>
                 </div>
-                <div class = "input-section">
+                <div class = "login-section">
                     <input type = "password" name ="password" placeholder="Password" required/>
                 </div>
-                <button type = "submit">Sign Up</button>
+                <button class = "login-button" type="Submit">Submit</button>
             </form>
-
         </div>
+    </main>
 
-
-    </div>
-
+    <footer class="footer">
+        <div class="container footer__inner">
+            <span>© <span id="year"></span> Mulebay</span>
+        </div>
+    </footer>
+    <script src="static/script.js"></script>
 </body>
+
+

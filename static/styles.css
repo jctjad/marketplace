@@ -187,3 +187,48 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* Login/Signup Section */
 
+.login-box {
+  margin: 10px auto;
+  background-color: #254893;
+  border-radius: 10px;
+  width: 60%;
+  padding: 10px 10px;
+}
+
+.login-title {
+  text-align: center;
+  color: white;
+}
+
+.login-img {
+  display: block;
+  margin: 0 auto;
+}
+
+.login-section {
+  background-color: var(--bd);
+  color: var(--text);
+  border-radius: 5px;
+  padding: 1px 1px;
+  text-align: center;
+  width: 250px;
+  margin: 10px auto;
+}
+
+.login-section input {
+  width: 100%; 
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.login-button {
+  background-color: #059669;
+  color: var(--text);
+  border-radius: 5px;
+  text-align: center;
+  display: block;
+  margin: 0 auto;
+  width: 150px;
+}
