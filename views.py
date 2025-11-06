@@ -17,6 +17,7 @@ STATIC_DIR = os.path.join(HERE, "static")                     # e.g. .../marketp
 UPLOAD_FOLDER = os.path.join(STATIC_DIR, "uploads")           # .../static/uploads
 DATA_FOLDER = os.path.join(STATIC_DIR, "data")                # .../static/data
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(DATA_FOLDER, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
