@@ -196,8 +196,8 @@ def populate_User_Data():
             if not csv.Sniffer().has_header(csvfile.readline()):
                 csvfile.seek(0) # if there is no header, start with the first line, else skip it
             for row in csvreader:
-                new_user = User(id=row[0], email=row[1], first_name=row[2], last_name=row[3], profile_image=row[4],
-                                profile_description=row[5], bookmark_items=row[6], selling_items=row[7], date_created=datetime.fromisoformat(row[8]))
+                new_user = User(id=row[0], email=row[1], password_hash=row[2], first_name=row[3], last_name=row[4], profile_image=row[5],
+                                profile_description=row[6], bookmark_items=row[7], selling_items=row[8], date_created=datetime.fromisoformat(row[9]))
                 db.session.add(new_user)
             db.session.commit()
     except:
@@ -213,7 +213,7 @@ def populate_Item_Data():
                 csvfile.seek(0) # if there is no header, start with the first line, else skip it
             for row in csvreader:
                 new_item = Item(id=row[0], seller_id=row[1], name=row[2], description=row[3], item_photos=row[4], price=row[5],
-                                payment_options=row[6], live_on_market=bool((row[7] == 'True')), date_created=datetime.fromisoformat(row[8]))
+                                conditon=row[6], payment_options=row[7], live_on_market=bool((row[8] == 'True')), date_created=datetime.fromisoformat(row[9]))
                 db.session.add(new_item)
             db.session.commit()
     except:
