@@ -12,21 +12,40 @@
 
 
 <body>
-    <main class="page container">
-        <div class = "login-box">
-            <img class = "login-img" src="static/assets/mulebay_logo.svg" alt = "MuleBay Logo Image">
-        
-            <form method = "POST" action="{{ url_for('auth.login') }}">
+    <main class = "login-main">
+
+        <div class = "card card-default mb-0">
+            <!--Card Header Section-->
+            <div class = "card-header pb-0">
+                <img class = "login-img" src="static/assets/mulebay_logo.svg" alt = "MuleBay Logo Image"> 
+            </div>
+
+            <!--Card Body Section-->
+            <div class = "card-body px-5 pb-5 pt-0">
                 <h3 class = "login-title">Login</h3>
-                <div class = "login-section">
-                    <input type = "text" name ="email" placeholder="Email" required/>
-                </div>
-                <div class = "login-section">
-                    <input type = "password" name ="password" placeholder="Password" required/>
-                </div>
-                <button class = "login-button" type="Submit">Submit</button>
-            </form>
+                <form method = "POST" action="{{ url_for('auth.login') }}">
+                    <div class = "row">
+                        <div class = "form-group col-md-12 mb-4">
+                            <input type="text" class = "form-control input-lg" name = "email" placeholder="Email">
+                        </div>
+                        <div class = "form-group col-md-12 mb-4">
+                            <input type="password" class = "form-control input-lg" name = "password" placeholder="Password">
+                        </div>
+
+                        <!--Submit Section-->
+                        <div class = "col-md-12">
+                            <button class = "login-button" type="Submit">Submit</button>
+                            <p class = "log-p">
+                                "Don't have an Account yet?"
+                                <a class = "log-link" href="{{ url_for('auth.signup') }}">Sign Up</a>
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
+
+
     </main>
 
     <footer class="footer">

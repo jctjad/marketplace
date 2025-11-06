@@ -11,6 +11,8 @@ auth_blueprint = Blueprint('auth', __name__)
 def signup():
     if request.method == 'POST':
         email = request.form.get('email') #Email acts like our username
+        first_name = request.form.get('firstName')
+        last_name = request.form.get('lastName')
         password = request.form.get('password')
 
         #Checking if User already exists
@@ -19,7 +21,7 @@ def signup():
             return redirect(url_for('auth.login'))
         
         #Creating a new User
-        new_user = User(email=email, first_name="Bob", last_name="The-Minion", date_created=datetime.utcnow())
+        new_user = User(email=email, first_name=first_name, last_name=last_name, date_created=datetime.utcnow())
         new_user.set_password(password)
 
         #Add and commite new user to db
