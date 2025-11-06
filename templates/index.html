@@ -12,13 +12,20 @@
 <body>
   <header class="header">
     <div class="container header__inner">
-      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}"><span class="brand__dot"></span> Mulebay</a>
+      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}">
+          <img class="brand__logo" src="{{ url_for('static', filename='assets/mulebay_logo.svg') }}"alt="Mulebay Logo">
+          <span>Mulebay</span>
+      </a>
       <nav class="nav" aria-label="Primary">
         <a href="{{ url_for('main.goto_browse_items_page') }}" aria-current="page">Browse</a>
         <a href="{{ url_for('profile.goto_profile_page') }}">Profile</a>
       </nav>
       <div class="actions">
-        <span class="badge">Beta</span>
+          {% if current_user.is_authenticated %}
+              <a href="{{ url_for('auth.logout') }}" id="logout-button" class="badge">Logout</a>
+          {% else %}
+              <a href="{{ url_for('auth.login') }}" id="login-button" class="badge">Login</a>
+          {% endif %}
       </div>
     </div>
   </header>
@@ -33,123 +40,47 @@
       <button class="filter" aria-haspopup="listbox" aria-expanded="false">All categories ▾</button>
     </div>
 
+    <!-- DYNAMIC ITEM GRID START -->
     <section class="grid" aria-label="Items">
-      <a class="card" href="{{ url_for('item.goto_item_page') }}">
-        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
-        <div class="item-card__body">
-          <div class="item-card__top">
-            <div class="item-card__title">Mountain Bike</div>
-            <div class="item-card__price">$10</div>
-          </div>
-          <div class="item-card__bottom">
-            <div class="item-card__seller">Seller Name</div>
-            <div class="item-card__payment-icons">
-              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="static/assets/cash.svg" alt="Cash">
+      {% if items %}
+        {% for item in items %}
+          <a class="card" href="{{ url_for('item.goto_item_page', item_id=item.id) }}">
+            <img class="item-card__thumb" src="{{ item.item_photos }}" alt="{{ item.name }}">
+            <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
+            <div class="item-card__body">
+              <div class="item-card__top">
+                <div class="item-card__title">{{ item.name }}</div>
+                <div class="item-card__price">${{ "%.2f"|format(item.price) }}</div>
+              </div>
+              <div class="item-card__bottom">
+                <div class="item-card__seller">
+                  {{ item.seller.first_name if item.seller else "Unknown Seller" }}
+                </div>
+                <div class="item-card__payment-icons">
+                  {% for method in item.payment_options %}
+                    {% if "Venmo" in method %}
+                      <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
+                    {% elif "Zelle" in method %}
+                      <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
+                    {% elif "Cash" in method %}
+                      <img class="icon" src="static/assets/cash.svg" alt="Cash">
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </a>
-
-      <a class="card" href="{{ url_for('item.goto_item_page') }}">
-        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
-        <div class="item-card__body">
-          <div class="item-card__top">
-            <div class="item-card__title">Mountain Bike</div>
-            <div class="item-card__price">$10</div>
-          </div>
-          <div class="item-card__bottom">
-            <div class="item-card__seller">Seller Name</div>
-            <div class="item-card__payment-icons">
-              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="static/assets/cash.svg" alt="Cash">
-            </div>
-          </div>
-        </div>
-      </a>
-
-      <a class="card" href="{{ url_for('item.goto_item_page') }}">
-        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
-        <div class="item-card__body">
-          <div class="item-card__top">
-            <div class="item-card__title">Mountain Bike</div>
-            <div class="item-card__price">$10</div>
-          </div>
-          <div class="item-card__bottom">
-            <div class="item-card__seller">Seller Name</div>
-            <div class="item-card__payment-icons">
-              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="static/assets/cash.svg" alt="Cash">
-            </div>
-          </div>
-        </div>
-      </a>
-
-      <a class="card" href="{{ url_for('item.goto_item_page') }}">
-        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
-        <div class="item-card__body">
-          <div class="item-card__top">
-            <div class="item-card__title">Mountain Bike</div>
-            <div class="item-card__price">$10</div>
-          </div>
-          <div class="item-card__bottom">
-            <div class="item-card__seller">Seller Name</div>
-            <div class="item-card__payment-icons">
-              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="static/assets/cash.svg" alt="Cash">
-            </div>
-          </div>
-        </div>
-      </a>
-
-      <a class="card" href="{{ url_for('item.goto_item_page') }}">
-        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
-        <div class="item-card__body">
-          <div class="item-card__top">
-            <div class="item-card__title">Mountain Bike</div>
-            <div class="item-card__price">$10</div>
-          </div>
-          <div class="item-card__bottom">
-            <div class="item-card__seller">Seller Name</div>
-            <div class="item-card__payment-icons">
-              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="static/assets/cash.svg" alt="Cash">
-            </div>
-          </div>
-        </div>
-      </a>
-
-      <a class="card" href="{{ url_for('item.goto_item_page') }}">
-        <img class="item-card__thumb" src="static/assets/item1.svg" alt="Mountain bike">
-        <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
-        <div class="item-card__body">
-          <div class="item-card__top">
-            <div class="item-card__title">Mountain Bike</div>
-            <div class="item-card__price">$10</div>
-          </div>
-          <div class="item-card__bottom">
-            <div class="item-card__seller">Seller Name</div>
-            <div class="item-card__payment-icons">
-              <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
-              <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
-              <img class="icon" src="static/assets/cash.svg" alt="Cash">
-            </div>
-          </div>
-        </div>
-      </a>
-      
+          </a>
+        {% endfor %}
+      {% else %}
+        <p class="empty-msg">No items yet — be the first to list something!</p>
+      {% endif %}
     </section>
+    <!-- DYNAMIC ITEM GRID END -->
   </main>
+
+  <a href="{{ url_for('item.create_item') }}" class="floating-sell-btn">
+    Sell Item
+  </a>
 
   <footer class="footer">
     <div class="container footer__inner">

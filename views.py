@@ -1,12 +1,13 @@
-from flask import Blueprint, redirect, render_template, url_for
-#Auth Security
-from flask_login import (  # current_user here to implement further security down the line
-    current_user, login_required)
+from flask import Blueprint, render_template, redirect, url_for, request, flash
 from models import db, User, Item, Chat
 from flask import send_file, flash
 from datetime import datetime
 import csv
 import os
+from werkzeug.utils import secure_filename 
+#Auth Security
+from flask_login import (  # current_user here to implement further security down the line
+    current_user, login_required)
 
 main_blueprint = Blueprint('main', __name__)
 item_blueprint = Blueprint('item', __name__)
@@ -23,64 +24,121 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 
 @main_blueprint.route('/')
-# @login_required
+@login_required
 def goto_browse_items_page():
-    return render_template('index.html')
+    # fetch all items from database
+    items = Item.query.order_by(Item.date_created.desc()).all()
+    return render_template('index.html', items=items)
 
-@item_blueprint.route('/item')
-# @login_required
-def goto_item_page():
-    return render_template('item.html')
+@item_blueprint.route('/item/<int:item_id>')
+@login_required
+def goto_item_page(item_id):
+    # Get item by ID (or 404 if not found)
+    item = Item.query.get_or_404(item_id)
+    
+    # Get seller info (using the foreign key)
+    seller = User.query.get(item.seller_id)
+    
+    return render_template('item.html', item=item, seller=seller)
+
+HERE = os.path.abspath(os.path.dirname(__file__))             # this file's dir
+STATIC_DIR = os.path.join(HERE, "static")                     # e.g. .../marketplace/static
+UPLOAD_FOLDER = os.path.join(STATIC_DIR, "uploads")           # .../static/uploads
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@item_blueprint.route('/item/new', methods=['GET', 'POST'])
+def create_item():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        description = request.form.get('description')
+        price = float(request.form.get('price'))
+        condition = request.form.get('condition')
+        payment_options = request.form.getlist('payment_options')
+
+        image_file = request.files.get('image_file')
+        print("image_file in request:", image_file)   # 👀 quick debug
+
+        if image_file and image_file.filename and allowed_file(image_file.filename):
+            filename = secure_filename(image_file.filename)
+            save_path = os.path.join(UPLOAD_FOLDER, filename)   # absolute save path
+            image_file.save(save_path)
+            image_path = f"/static/uploads/{filename}"          # URL path for template
+            print("saved to:", save_path)
+        else:
+            image_path = "/static/assets/item_placeholder.svg"
+            print("no valid upload; using placeholder")
+
+        seller = User.query.first()
+        if not seller:
+            flash("Create a user first (no seller in DB).", "error")
+            return redirect(url_for('main.goto_browse_items_page'))
+
+        new_item = Item(
+            seller_id=seller.id,
+            name=name,
+            description=description,
+            item_photos=image_path,
+            price=price,
+            condition=condition,
+            payment_options=payment_options,
+            live_on_market=True,
+            date_created=datetime.today()
+        )
+
+        db.session.add(new_item)
+        db.session.commit()
+        flash('Item created successfully!', 'success')
+        return redirect(url_for('item.goto_item_page', item_id=new_item.id))
+
+    return render_template('create_item.html')
 
 @profile_blueprint.route('/profile')
-# @login_required
+@login_required
 def goto_profile_page():
     return render_template('profile.html')
 
 @main_blueprint.route('/export')
-# @login_required
+@login_required
 def export():
-    # generate_Fake_Data() # this is to çtest to see if the csv populates
     get_User_Data()
     get_Item_Data()
     get_Chat_Data()
-    # return render_template('index.html')
     return redirect(url_for('main.goto_browse_items_page'))
 
 @main_blueprint.route('/import')
-# @login_required
+@login_required
 def populate():
     clear_data() # before populating the database, we want to make sure it is empty
     populate_User_Data()
     populate_Item_Data()
     populate_Chat_Data()
-    # generate_Fake_Data() # this is to test to see if the csv populates
-    # clear_uploads() # this will remove images that are no longer in the db from the uploads folder (not implemented)
-    # return render_template('index.html')
+    # generate_Fake_Data()  # Test data to see if the csv populates
+     # clear_uploads()  # Removes images that are no longer in the db from the uploads folder (not implemented)
     return redirect(url_for('main.goto_browse_items_page'))
 
-# this helper method clears the database but maintains the structure
-# Method from vkotovv on GitHub
-def clear_data():
+# Clears the database but maintains the structure
+def clear_data():   # Method from vkotovv on GitHub
     meta = db.metadata
     for table in reversed(meta.sorted_tables):
         print('Cleared table')
         db.session.execute(table.delete())
     db.session.commit()
 
-# this helper method removes images from the upload folder if they aren't in User'
+# Removes images from the upload folder if they aren't in User
 def clear_uploads():
     path = os.getcwd()
     upload_path = 'static/uploads'
     for image in os.listdir(os.path.join(path, upload_path)):
         print(db.session.query(Item).filter(item_photos = image).all())
-    # for image in os.listdir(os.path.join(path, upload_path)):
-    # return
 
-# this helper method gets the User data
+# Gets User data
 def get_User_Data():
     users = db.session.query(User).all()
-    # path = os.getcwd()
     with open(os.path.join(DATA_FOLDER, 'Users.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
         csvwrite.writerow(["User ID", "Email", "First Name", "Last Name", "Profile Image", "Profile Description", "Bookmarks", "Items Selling", "Date Created"])
@@ -88,10 +146,9 @@ def get_User_Data():
             csvwrite.writerow([user.id, user.email, user.first_name, user.last_name, user.profile_image,
                                user.profile_description, user.bookmark_items, user.selling_items, user.date_created])
 
-# this helper method gets Item data
+# Gets Item data
 def get_Item_Data():
     items = db.session.query(Item).all()
-    # path = os.getcwd()
     with open(os.path.join(DATA_FOLDER, 'Items.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
         csvwrite.writerow(["Item ID", "Seller ID", "Item Name", "Item Description", "Item Photos", "Price", "Payment Options", "Live On Market", "Date Created"])
@@ -99,17 +156,16 @@ def get_Item_Data():
             csvwrite.writerow([item.id, item.seller_id, item.name, item.description, item.item_photos, item.price, 
                                item.payment_options, item.live_on_market, item.date_created])
             
-# this helper method gets the Chat data
+# Gets the Chat data
 def get_Chat_Data():
     chats = db.session.query(Chat).all()
-    # path = os.getcwd()
     with open(os.path.join(DATA_FOLDER, 'Chats.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
         csvwrite.writerow(["Chat ID", "Item ID", "Seller ID", "Buyer IDs", "Messages"])
         for chat in chats:
             csvwrite.writerow([chat.id, chat.item_id, chat.seller_id, chat.buyer_ids, chat.messages])
 
-# this method will populate the db with some fake data
+# Populate db with test data (may not work with password hashing)
 def generate_Fake_Data():
     new_user1 = User(email='gru@minion.com', first_name='Gru', last_name='Minion', date_created=datetime.today())
     new_user2 = User(email='ash@pokemon.com', first_name='Ash', last_name='Ketchum', date_created=datetime.today())
@@ -131,11 +187,9 @@ def generate_Fake_Data():
     db.session.add(new_item5)
     db.session.commit()
 
-# this helper method populates the User database
+# Populates the User database
 def populate_User_Data():
     try:
-        # going line by line, add the record to the db 
-        # path = os.getcwd()
         with open(os.path.join(DATA_FOLDER, 'Users.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             # need to check if it has a header line
@@ -149,11 +203,9 @@ def populate_User_Data():
     except:
         print("Cannot import file: Users.csv not found")
 
-# this helper method populates the Item database
+# Populates the Item database
 def populate_Item_Data():
     try:
-        # going line by line, add the record to the db
-        # path = os.getcwd()
         with open(os.path.join(DATA_FOLDER, 'Items.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             # need to check if it has a header line
@@ -167,10 +219,9 @@ def populate_Item_Data():
     except:
         print("Cannot import file: Item.csv not found")
 
-# this helper method populates the Chat database
+# Populates the Chat database
 def populate_Chat_Data():
     try:
-        # going line by line, add the record to the db
         path = os.getcwd()
         with open(os.path.join(DATA_FOLDER, 'Chats.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')

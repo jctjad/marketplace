@@ -12,13 +12,20 @@
 <body>
   <header class="header">
     <div class="container header__inner">
-      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}"><span class="brand__dot"></span> Mulebay</a>
+      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}">
+          <img class="brand__logo" src="{{ url_for('static', filename='assets/mulebay_logo.svg') }}"alt="Mulebay Logo">
+          <span>Mulebay</span>
+      </a>
       <nav class="nav" aria-label="Primary">
         <a href="{{ url_for('main.goto_browse_items_page') }}">Browse</a>
         <a href="{{ url_for('profile.goto_profile_page') }}" aria-current="page">Profile</a>
       </nav>
       <div class="actions">
-        <span class="badge">Verified</span>
+          {% if current_user.is_authenticated %}
+              <a href="{{ url_for('auth.logout') }}" id="logout-button" class="badge">Logout</a>
+          {% else %}
+              <a href="{{ url_for('auth.login') }}" id="login-button" class="badge">Login</a>
+          {% endif %}
       </div>
     </div>
   </header>
@@ -35,7 +42,7 @@
         <p>I mostly sell bikes, computer gear, and campus-friendly furniture. Happy to answer questions and provide more photos.</p>
         <h3>Listings</h3>
         <ul>
-          <li><a href="{{ url_for('item.goto_item_page') }}">Mountain Bike — Medium</a></li>
+          <li><a href="{{ url_for('item.goto_item_page', item_id=1) }}">Mountain Bike — Medium</a></li>
           <li>Ergonomic Chair — Black</li>
           <li>USB-C Dock — 8-in-1</li>
         </ul>
