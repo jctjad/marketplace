@@ -44,8 +44,8 @@ def populate():
     populate_User_Data()
     populate_Item_Data()
     populate_Chat_Data()
-    clear_uploads()
     # generate_Fake_Data() # this is to test to see if the csv populates
+    # clear_uploads() # this will remove images that are no longer in the db from the uploads folder (not implemented)
     # return render_template('index.html')
     return redirect(url_for('main.goto_browse_items_page'))
 
@@ -62,9 +62,8 @@ def clear_data():
 def clear_uploads():
     path = os.getcwd()
     upload_path = 'static/uploads'
-    item_photo_paths = db.session.query(Item).with_entities(Item.item_photos)
-    for i in item_photo_paths:
-        print(i)
+    for image in os.listdir(os.path.join(path, upload_path)):
+        print(db.session.query(Item).filter(item_photos = image).all())
     # for image in os.listdir(os.path.join(path, upload_path)):
     # return
 
@@ -110,11 +109,11 @@ def generate_Fake_Data():
     db.session.add(new_user3)
     db.session.commit()
 
-    new_item1 = Item(seller_id=new_user1.id, name='banana', item_photos='null', price=3, date_created = datetime.today())
-    new_item3 = Item(seller_id=new_user2.id, name='pokeball', item_photos='null', price=15, date_created = datetime.today())
-    new_item2 = Item(seller_id=new_user1.id, name='ray gun', item_photos='null', price=300, date_created = datetime.today())
-    new_item4 = Item(seller_id=new_user3.id, name='disc', item_photos='null', price=12, date_created = datetime.today())
-    new_item5 = Item(seller_id=new_user3.id, name='cones', item_photos='null', price=5, date_created = datetime.today())
+    new_item1 = Item(seller_id=new_user1.id, name='banana', item_photos='banana.png', price=3, date_created = datetime.today())
+    new_item3 = Item(seller_id=new_user2.id, name='pokeball', item_photos='pokeball.png', price=15, date_created = datetime.today())
+    new_item2 = Item(seller_id=new_user1.id, name='ray gun', item_photos='raygun.png', price=300, date_created = datetime.today())
+    new_item4 = Item(seller_id=new_user3.id, name='disc', item_photos='ultra_star_disc.png', price=12, date_created = datetime.today())
+    new_item5 = Item(seller_id=new_user3.id, name='cones', item_photos='cones.png', price=5, date_created = datetime.today())
     db.session.add(new_item1)
     db.session.add(new_item2)
     db.session.add(new_item3)
