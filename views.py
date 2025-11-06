@@ -12,23 +12,32 @@ main_blueprint = Blueprint('main', __name__)
 item_blueprint = Blueprint('item', __name__)
 profile_blueprint = Blueprint('profile', __name__)
 
+HERE = os.path.abspath(os.path.dirname(__file__))             # this file's dir
+STATIC_DIR = os.path.join(HERE, "static")                     # e.g. .../marketplace/static
+UPLOAD_FOLDER = os.path.join(STATIC_DIR, "uploads")           # .../static/uploads
+DATA_FOLDER = os.path.join(STATIC_DIR, "data")                # .../static/data
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+
 @main_blueprint.route('/')
-@login_required
+# @login_required
 def goto_browse_items_page():
     return render_template('index.html')
 
 @item_blueprint.route('/item')
-@login_required
+# @login_required
 def goto_item_page():
     return render_template('item.html')
 
 @profile_blueprint.route('/profile')
-@login_required
+# @login_required
 def goto_profile_page():
     return render_template('profile.html')
 
 @main_blueprint.route('/export')
-@login_required
+# @login_required
 def export():
     # generate_Fake_Data() # this is to çtest to see if the csv populates
     get_User_Data()
@@ -38,7 +47,7 @@ def export():
     return redirect(url_for('main.goto_browse_items_page'))
 
 @main_blueprint.route('/import')
-@login_required
+# @login_required
 def populate():
     clear_data() # before populating the database, we want to make sure it is empty
     populate_User_Data()
@@ -70,8 +79,8 @@ def clear_uploads():
 # this helper method gets the User data
 def get_User_Data():
     users = db.session.query(User).all()
-    path = os.getcwd()
-    with open(os.path.join(path,'static/data/Users.csv'), 'w', newline='') as csvfile:
+    # path = os.getcwd()
+    with open(os.path.join(DATA_FOLDER, 'Users.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
         csvwrite.writerow(["User ID", "Email", "First Name", "Last Name", "Profile Image", "Profile Description", "Bookmarks", "Items Selling", "Date Created"])
         for user in users:
@@ -81,8 +90,8 @@ def get_User_Data():
 # this helper method gets Item data
 def get_Item_Data():
     items = db.session.query(Item).all()
-    path = os.getcwd()
-    with open(os.path.join(path, 'static/data/Items.csv'), 'w', newline='') as csvfile:
+    # path = os.getcwd()
+    with open(os.path.join(DATA_FOLDER, 'Items.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
         csvwrite.writerow(["Item ID", "Seller ID", "Item Name", "Item Description", "Item Photos", "Price", "Payment Options", "Live On Market", "Date Created"])
         for item in items:
@@ -92,8 +101,8 @@ def get_Item_Data():
 # this helper method gets the Chat data
 def get_Chat_Data():
     chats = db.session.query(Chat).all()
-    path = os.getcwd()
-    with open(os.path.join(path, 'static/data/Chats.csv'), 'w', newline='') as csvfile:
+    # path = os.getcwd()
+    with open(os.path.join(DATA_FOLDER, 'Chats.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
         csvwrite.writerow(["Chat ID", "Item ID", "Seller ID", "Buyer IDs", "Messages"])
         for chat in chats:
@@ -125,8 +134,8 @@ def generate_Fake_Data():
 def populate_User_Data():
     try:
         # going line by line, add the record to the db 
-        path = os.getcwd()
-        with open(os.path.join(path, 'static/data/Users.csv'), 'r', newline='') as csvfile:
+        # path = os.getcwd()
+        with open(os.path.join(DATA_FOLDER, 'Users.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             # need to check if it has a header line
             if not csv.Sniffer().has_header(csvfile.readline()):
@@ -143,8 +152,8 @@ def populate_User_Data():
 def populate_Item_Data():
     try:
         # going line by line, add the record to the db
-        path = os.getcwd()
-        with open(os.path.join(path, 'static/data/Items.csv'), 'r', newline='') as csvfile:
+        # path = os.getcwd()
+        with open(os.path.join(DATA_FOLDER, 'Items.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             # need to check if it has a header line
             if not csv.Sniffer().has_header(csvfile.readline()):
@@ -162,7 +171,7 @@ def populate_Chat_Data():
     try:
         # going line by line, add the record to the db
         path = os.getcwd()
-        with open(os.path.join(path, 'static/data/Chats.csv'), 'r', newline='') as csvfile:
+        with open(os.path.join(DATA_FOLDER, 'Chats.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             # need to check if it has a header line
             if not csv.Sniffer().has_header(csvfile.readline()):
