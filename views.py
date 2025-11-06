@@ -141,9 +141,9 @@ def get_User_Data():
     users = db.session.query(User).all()
     with open(os.path.join(DATA_FOLDER, 'Users.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
-        csvwrite.writerow(["User ID", "Email", "First Name", "Last Name", "Profile Image", "Profile Description", "Bookmarks", "Items Selling", "Date Created"])
+        csvwrite.writerow(["User ID", "Email", "Password Hash", "First Name", "Last Name", "Profile Image", "Profile Description", "Bookmarks", "Items Selling", "Date Created"])
         for user in users:
-            csvwrite.writerow([user.id, user.email, user.first_name, user.last_name, user.profile_image,
+            csvwrite.writerow([user.id, user.email, user.password_hash, user.first_name, user.last_name, user.profile_image,
                                user.profile_description, user.bookmark_items, user.selling_items, user.date_created])
 
 # Gets Item data
@@ -151,10 +151,10 @@ def get_Item_Data():
     items = db.session.query(Item).all()
     with open(os.path.join(DATA_FOLDER, 'Items.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
-        csvwrite.writerow(["Item ID", "Seller ID", "Item Name", "Item Description", "Item Photos", "Price", "Payment Options", "Live On Market", "Date Created"])
+        csvwrite.writerow(["Item ID", "Seller ID", "Item Name", "Item Description", "Item Photos", "Price", "Condition", "Payment Options", "Live On Market", "Date Created"])
         for item in items:
             csvwrite.writerow([item.id, item.seller_id, item.name, item.description, item.item_photos, item.price, 
-                               item.payment_options, item.live_on_market, item.date_created])
+                               item.condition, item.payment_options, item.live_on_market, item.date_created])
             
 # Gets the Chat data
 def get_Chat_Data():
