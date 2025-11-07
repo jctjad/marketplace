@@ -1,11 +1,13 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, flash, render_template, redirect, url_for
 from flask import request
 from models import db, User
 from flask_login import login_user, login_required, logout_user
 from datetime import datetime
+import re
 
 #Auth Blueprint
 auth_blueprint = Blueprint('auth', __name__)
+email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
 
 @auth_blueprint.route('/signup', methods = ['GET', 'POST'])
 def signup():
@@ -14,6 +16,11 @@ def signup():
         password = request.form.get('password')
         firstName = request.form.get('firstName')
         lastName = request.form.get('lastName')
+
+        #Checking if information is valid
+        if not re.match(email_regex, email):
+            flash("Please enter a valid email address", "error")
+            return redirect(url_for('auth.signup'))
 
         #Checking if User already exists
         existing_user = User.query.filter_by(email=email).first()

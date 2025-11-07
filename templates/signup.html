@@ -13,6 +13,17 @@
 
 <body class = "login-background">
     <main class="page container">
+
+        <!-- FLASH MESSAGES APPEAR HERE -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-log {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+
         <div class = "card-login card-login-default">
             <!--Card header Section-->
             <div class = "card-login-header">

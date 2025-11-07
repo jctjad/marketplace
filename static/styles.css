@@ -517,6 +517,20 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   border-radius: 0.3rem;
 }
 
+.flash-log {
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+.flash-log.error {
+  background-color: #ffdddd;
+  color: #a30000;
+  border: 1px solid #a30000;
+}
+
+
 .payment-options-display {
   display: flex;
   flex-direction: column;
