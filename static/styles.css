@@ -365,6 +365,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* Login/Signup Section */
 
+.login-background {
+  background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)),
+  url('assets/miller.jpg') no-repeat center center / cover;
+  background-attachment: fixed;
+  background-size: cover;
+}
+
 .login-box {
   margin: 10px auto;
   background-color: #254893;
@@ -381,6 +388,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .login-img {
   display: block;
   margin: 0 auto;
+  margin-left: 46px;
 }
 
 .login-section {
@@ -402,13 +410,110 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 .login-button {
-  background-color: #059669;
-  color: var(--text);
-  border-radius: 5px;
+  background-color: #10d194;
+  color: white;
+  border-radius: 20px;
   text-align: center;
   display: block;
   margin: 0 auto;
   width: 150px;
+}
+
+.login-button:hover {
+  background-color: #0fb480;
+}
+
+.login-p{
+  color:white;
+}
+.login-link{
+  color: #10d194;
+}
+.login-link:hover {
+  color: #0ea878;
+  text-decoration: underline;
+}
+
+/* Updating Login Section */
+.card-login {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #254893;
+  background-clip: border-box;
+  border: 1px solid #FFFFFF;
+  border-radius: 0.25rem;
+  margin: 10px auto;
+}
+
+.card-login-default .card-login-header {
+  padding-top: 1.875rem;
+  padding-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  background-color: transparent;
+  border-bottom: none;
+  flex-wrap: wrap;
+  text-transform: capitalize;
+}
+
+.card-login-body {
+  flex: 1 1 auto;
+  min-height: 1px;
+  padding: 1.875rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.col-md-12{
+  position: relative;
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  height: calc(1.5em + 1.12rem + 2px);
+  padding: 0.56rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #ffffff;
+  background-clip: padding-box;
+  border: 1px solid #e5e9f2;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .form-control {
+    transition: none;
+  }
+}
+
+.form-control:hover {
+  background-color: #e0e0e0;
+}
+
+.input-lg > .form-control{
+  padding: 0.65rem 1.5rem;
+  font-size: 1.171875rem;
+  line-height: 1.5;
+  border-radius: 0.3rem;
 }
 
 .payment-options-display {
@@ -439,4 +544,3 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   vertical-align: middle;
   border-radius: 3px;
 }
-
