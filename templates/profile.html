@@ -7,44 +7,59 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="static/styles.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
   <header class="header">
     <div class="container header__inner">
       <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}">
-          <img class="brand__logo" src="{{ url_for('static', filename='assets/mulebay_logo.svg') }}"alt="Mulebay Logo">
-          <span>Mulebay</span>
+        <img class="brand__logo" src="{{ url_for('static', filename='assets/mulebay_logo.svg') }}" alt="Mulebay Logo">
+        <span>Mulebay</span>
       </a>
       <nav class="nav" aria-label="Primary">
         <a href="{{ url_for('main.goto_browse_items_page') }}">Browse</a>
         <a href="{{ url_for('profile.goto_profile_page') }}" aria-current="page">Profile</a>
       </nav>
       <div class="actions">
-          {% if current_user.is_authenticated %}
-              <a href="{{ url_for('auth.logout') }}" id="logout-button" class="badge">Logout</a>
-          {% else %}
-              <a href="{{ url_for('auth.login') }}" id="login-button" class="badge">Login</a>
-          {% endif %}
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('auth.logout') }}" id="logout-button" class="badge">Logout</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" id="login-button" class="badge">Login</a>
+        {% endif %}
       </div>
     </div>
   </header>
 
   <main class="page container">
     <h1 class="page__title">Profile</h1>
+
     <section class="profile">
       <div class="avatar">
-        <img src="static/assets/avatar.svg" alt="User profile image">
+        <img
+          src="{{ current_user.profile_image or url_for('static', filename='assets/avatar.svg') }}"
+          alt="User profile image"
+          class="profile__avatar">
       </div>
+
       <div class="prose">
-        <h2>Bob the Minion</h2>
-        <p class="muted">(Payment Options)</p>
-        <p>I mostly sell bikes, computer gear, and campus-friendly furniture. Happy to answer questions and provide more photos.</p>
+        <h2>
+          {{ (current_user.first_name ~ ' ' ~ current_user.last_name)|trim if current_user.is_authenticated else 'User' }}
+        </h2>
+
+        <p>
+          {{ current_user.profile_description or 'No bio yet. Click “Edit profile” to add a public bio.' }}
+        </p>
+
+        {% if current_user.is_authenticated %}
+          <p>
+            <a class="badge" href="{{ url_for('profile.goto_edit_profile_page') }}">Edit profile</a>
+          </p>
+        {% endif %}
+
         <h3>Listings</h3>
         <ul>
-          <li><a href="{{ url_for('item.goto_item_page', item_id=1) }}">Mountain Bike — Medium</a></li>
-          <li>Ergonomic Chair — Black</li>
-          <li>USB-C Dock — 8-in-1</li>
+          {# TODO: Replace with real user listings (e.g., items owned by current_user) #}
+          <li><a href="{{ url_for('item.goto_item_page', item_id=1) }}">Example Listing</a></li>
         </ul>
       </div>
     </section>
@@ -57,6 +72,6 @@
     </div>
   </footer>
 
-  <script src="static/script.js"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
