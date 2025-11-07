@@ -11,21 +11,40 @@
 </head>
 
 
-<body>
+<body class = "login-background">
     <main class="page container">
-        <div class = "login-box">
-            <img class = "login-img" src="static/assets/mulebay_logo.svg" alt = "MuleBay Logo Image">
-        
-            <form method = "POST" action="{{ url_for('auth.login') }}">
-                <h3 class = "login-title">Login</h3>
-                <div class = "login-section">
-                    <input type="email" name="email" placeholder="Email" required/>
-                </div>
-                <div class = "login-section">
-                    <input type = "password" name ="password" placeholder="Password" required/>
-                </div>
-                <button class = "login-button" type="Submit">Submit</button>
-            </form>
+        <div class = "card-login card-login-default">
+            <!--Card header Section-->
+            <div class = "card-login-header">
+                <img class = "login-img" src = "{{ url_for('static', filename='assets/mulebay_logo.svg') }}" alt = "MuleBay Logo Image">
+            </div>
+
+            <!--Card Body Section-->
+            <div class = "card-login-body">
+                <h3 class = "login-title">Sign In</h3>
+                <form method = "POST" action = "{{ url_for('auth.login')  }}">
+                    <div class = "row">
+                        <div class = "form-group col-md-12">
+                            <input class="form-control input-lg" type = "text" name = "email" placeholder = "Email">
+                        </div>
+                        <div class = "form-group col-md-12">
+                            <input class="form-control input-lg" type = "password" name = "password" placeholder = "Password">
+                        </div>
+                    </div>
+
+                    <!--Submit Section-->
+                    <div class = "col-md-12">
+                        <button class ="login-button" type = "submit">Submit</button>
+                        <p class = "login-p">
+                            Don't have an Account?
+                            <a class = "login-link" href = "{{ url_for('auth.signup')  }}">Sign Up</a>
+                        </p>
+                    </div>
+
+                </form>
+            </div>
+            
+
         </div>
     </main>
 
@@ -34,6 +53,5 @@
             <span>© <span id="year"></span> Mulebay</span>
         </div>
     </footer>
-
     <script src="static/script.js"></script>
 </body>

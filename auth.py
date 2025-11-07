@@ -12,6 +12,8 @@ def signup():
     if request.method == 'POST':
         email = request.form.get('email') #Email acts like our username
         password = request.form.get('password')
+        firstName = request.form.get('firstName')
+        lastName = request.form.get('lastName')
 
         #Checking if User already exists
         existing_user = User.query.filter_by(email=email).first()
@@ -19,7 +21,7 @@ def signup():
             return redirect(url_for('auth.login'))
         
         #Creating a new User
-        new_user = User(email=email, first_name="Bob", last_name="The-Minion", date_created=datetime.utcnow())
+        new_user = User(email=email, first_name=firstName, last_name=lastName, date_created=datetime.today())
         new_user.set_password(password)
 
         #Add and commite new user to db
