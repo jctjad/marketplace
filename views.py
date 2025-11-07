@@ -8,6 +8,8 @@ from datetime import datetime
 import os
 import csv
 import imghdr
+import json # this will help read string representations of lists from .csv file
+import io # this will help make string representations as a file object for json.load()
 
 # --- Blueprints ---
 main_blueprint = Blueprint('main', __name__)
@@ -271,7 +273,7 @@ def populate_Item_Data():
                 csvfile.seek(0)
             for row in csvreader:
                 new_item = Item(id=row[0], seller_id=row[1], name=row[2], description=row[3], item_photos=row[4], price=row[5],
-                                conditon=row[6], payment_options=row[7], live_on_market=bool((row[8] == 'True')), date_created=datetime.fromisoformat(row[9]))
+                                condition=row[6], payment_options=json.load(io.StringIO(row[7].replace('\'', '"'))), live_on_market=bool((row[8] == 'True')), date_created=datetime.fromisoformat(row[9]))
                 db.session.add(new_item)
             db.session.commit()
     except Exception as e:

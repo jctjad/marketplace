@@ -1,0 +1,2 @@
+User ID,Email,Password Hash,First Name,Last Name,Profile Image,Profile Description,Bookmarks,Items Selling,Date Created
+1,seller@mail.com,scrypt:32768:8:1$32eM11lL9VwBZIXW$ab6643270daf17e96f75318925f8925ff4cb3ed062fa59fa7a5a818c7dfa51fab8577ade20e7dba67e01027ce48203f2f7dade432d575b2e0abc2c7c01d2bb86,John,Smith,,,[],[],2025-11-06 23:50:21.298831
