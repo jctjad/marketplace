@@ -6,15 +6,23 @@ from models import db, User
 from auth import auth_blueprint
 from flask_login import LoginManager
 
+#os import (for avatar upload folder)
+import os
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///todo.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_keyyyyy'
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads', 'avatars')
+app.config['ALLOWED_AVATAR_TYPES'] = {'image/jpeg', 'image/png'}
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db.init_app(app)
 
 #Auth Section
 login_man = LoginManager(app)
 login_man.login_view = 'auth.signup'
+login_man.login_message = None
 
 @login_man.user_loader
 def load_user(id):
