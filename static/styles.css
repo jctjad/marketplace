@@ -388,7 +388,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .login-img {
   display: block;
   margin: 0 auto;
-  margin-left: 46px;
+  max-width: 100%;
+  height: auto;
 }
 
 .login-section {
@@ -543,4 +544,20 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   object-fit: contain;
   vertical-align: middle;
   border-radius: 3px;
+}
+
+.search input {
+  background: #f9fafb;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: 200px;
+  transition: width 0.3s ease;
+}
+
+.search input:focus {
+  width: 280px;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
 }
