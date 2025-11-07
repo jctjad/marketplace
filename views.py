@@ -257,7 +257,8 @@ def populate_User_Data():
                 csvfile.seek(0)
             for row in csvreader:
                 new_user = User(id=row[0], email=row[1], password_hash=row[2], first_name=row[3], last_name=row[4], profile_image=row[5],
-                                profile_description=row[6], bookmark_items=row[7], selling_items=row[8], date_created=datetime.fromisoformat(row[9]))
+                                profile_description=row[6], bookmark_items=json.load(io.StringIO(row[7].replace('\'', '"'))), selling_items=json.load(io.StringIO(row[8].replace('\'', '"'))), 
+                                date_created=datetime.fromisoformat(row[9]))
                 db.session.add(new_user)
             db.session.commit()
     except Exception as e:
@@ -290,7 +291,7 @@ def populate_Chat_Data():
             for row in csvreader:
                 new_item = Chat(
                     id=row[0], item_id=row[1], seller_id=row[2],
-                    buyer_ids=row[3], messages=row[4]
+                    buyer_ids=json.load(io.StringIO(row[3].replace('\'', '"'))), messages=row[4]
                 )
                 db.session.add(new_item)
             db.session.commit()
