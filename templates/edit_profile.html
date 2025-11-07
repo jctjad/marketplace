@@ -4,6 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Edit Profile</title>
+
+  <!-- Site font & CSS (same as the rest of your app) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -28,11 +33,14 @@
   </header>
 
   <main class="page container">
-    <h1 class="page__title">Edit Profile</h1>
+    <div class="page__header">
+      <h1 class="page__title">Edit Profile</h1>
+      <p class="muted">Update your public bio and profile picture.</p>
+    </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <ul class="flash-list">
+        <ul class="flash-list" style="margin: 1rem 0;">
           {% for category, message in messages %}
             <li class="flash flash--{{ category }}">{{ message }}</li>
           {% endfor %}
@@ -40,28 +48,105 @@
       {% endif %}
     {% endwith %}
 
-    <form action="{{ url_for('profile.save_profile_edits') }}" method="post" enctype="multipart/form-data" class="form">
-      <div class="form__row">
-        <label class="form__label">Avatar</label>
-        <div class="form__control">
-          <img src="{{ current_user.profile_image or url_for('static', filename='assets/avatar.svg') }}"
-               alt="avatar" class="w-16 h-16 rounded-full object-cover border">
-          <input type="file" name="avatar" accept="image/png,image/jpeg">
-          <p class="muted">PNG or JPEG up to 5 MB.</p>
+    <!-- Roomier card so content isn't flush with the border -->
+    <section class="card card--profileEdit">
+      <form action="{{ url_for('profile.save_profile_edits') }}" method="post" enctype="multipart/form-data" class="profileEdit">
+        <!-- LEFT: square image with hover overlay (overlay only covers image area) -->
+        <div class="profileEdit__left">
+          <div class="avatarCard">
+            <div class="avatarCard__frame">
+              <img
+                id="avatarPreview"
+                class="avatarCard__img"
+                src="{{ current_user.profile_image or url_for('static', filename='assets/avatar.svg') }}"
+                alt="Current profile picture">
+              <input id="avatarInput" class="avatarCard__file" type="file" name="avatar" accept="image/png,image/jpeg">
+              <div class="avatarCard__overlay" aria-hidden="true">
+                <div class="avatarCard__overlayInner">
+                  <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24"><path d="M4 7h3l2-2h6l2 2h3v12H4z" fill="currentColor"/></svg>
+                  <span>Upload image</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Button + caption inline on the same row -->
+            <div class="avatarCard__controls">
+              <button type="button" class="button button--secondary" id="avatarBtn">Change photo</button>
+              <span class="avatarCard__caption muted tiny">PNG or JPEG, up to 5&nbsp;MB.</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="form__row">
-        <label for="profile_description" class="form__label">Public Bio</label>
-        <textarea id="profile_description" name="profile_description" rows="4" maxlength="2000" class="textarea"
-                  placeholder="Tell buyers a bit about you…">{{ current_user.profile_description or '' }}</textarea>
-      </div>
+        <!-- RIGHT: bio + actions -->
+        <div class="profileEdit__right">
+          <div class="form__row">
+            <label for="profile_description" class="form__label">Public Bio</label>
+            <textarea
+              id="profile_description"
+              name="profile_description"
+              rows="7"
+              maxlength="2000"
+              class="input input--textarea"
+              placeholder="Tell buyers a bit about you…">{{ current_user.profile_description or '' }}</textarea>
+            <div class="muted tiny" style="display:flex;justify-content:space-between;margin-top:.25rem;">
+              <span>What you sell, meet-up preferences, etc.</span>
+              <span id="bioCount">0/2000</span>
+            </div>
+          </div>
 
-      <div class="form__actions">
-        <a class="button button--ghost" href="{{ url_for('profile.goto_profile_page') }}">Cancel</a>
-        <button class="button" type="submit">Save changes</button>
-      </div>
-    </form>
+          <div class="form__actions">
+            <a class="button button--ghost" href="{{ url_for('profile.goto_profile_page') }}">Cancel</a>
+            <button class="button" type="submit">Save changes</button>
+          </div>
+        </div>
+      </form>
+    </section>
   </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span>© <span id="year"></span> Mulebay</span>
+      <a href="{{ url_for('main.goto_browse_items_page') }}">Browse items</a>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const bio = document.getElementById('profile_description');
+      const count = document.getElementById('bioCount');
+      const file = document.getElementById('avatarInput');
+      const btn = document.getElementById('avatarBtn');
+      const preview = document.getElementById('avatarPreview');
+
+      function updateCount() {
+        if (bio && count) count.textContent = (bio.value || '').length + '/2000';
+      }
+      if (bio) {
+        updateCount();
+        bio.addEventListener('input', updateCount);
+      }
+
+      function launchPicker() { if (file) file.click(); }
+      if (btn) btn.addEventListener('click', launchPicker);
+
+      // Also allow clicking the image frame to upload
+      const frame = document.querySelector('.avatarCard__frame');
+      if (frame) frame.addEventListener('click', launchPicker);
+
+      if (file && preview) {
+        file.addEventListener('change', function (e) {
+          const f = e.target.files && e.target.files[0];
+          if (!f) return;
+          if (!['image/png','image/jpeg'].includes(f.type)) {
+            alert('Please choose a PNG or JPEG image.');
+            file.value = '';
+            return;
+          }
+          const url = URL.createObjectURL(f);
+          preview.src = url;
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

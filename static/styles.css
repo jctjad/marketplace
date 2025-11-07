@@ -91,10 +91,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 /* Ensure item images scale nicely inside the grid cards */
 .item-card__thumb {
   width: 100%;
-  height: 200px;           /* or adjust to your card height */
-  object-fit: contain;     /* ensures the full image shows, not cropped */
+  height: 200px;
+  object-fit: contain;
   border-radius: 10px 10px 0 0;
-  background-color: #f8f8f8; /* subtle background for images with transparency */
+  background-color: #f8f8f8;
 }
 .item-card__body { padding: 12px; font-size: 1.1rem; }
 
@@ -121,7 +121,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .item-card__payment-icons .icon { width: 25px; height: 25px; }
 
 .item-card__title,
-.item-card__seller { /* Hides text instead of making new line if too long */
+.item-card__seller {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -202,13 +202,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   font-weight: 600;
   text-align: center;
   padding: 14px 22px;
-  border-radius: 30px; /* pill shape */
+  border-radius: 30px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
   text-decoration: none;
   transition: transform 0.2s ease, background-color 0.2s ease;
   z-index: 1000;
 }
-
 .floating-sell-btn:hover {
   background-color: #0056b3;
   transform: scale(1.05);
@@ -220,7 +219,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   flex-direction: column;
   gap: 1rem;
 }
-
 .create-item-form label {
   font-weight: 600;
   color: #333;
@@ -228,7 +226,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   flex-direction: column;
   font-size: 0.9rem;
 }
-
 .create-item-form input[type="text"],
 .create-item-form input[type="number"],
 .create-item-form textarea {
@@ -239,30 +236,20 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   font-size: 0.9rem;
 }
 
-.payment-options {
-  border: none;
-  padding: 0;
-}
-
-.payment-options legend {
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-}
-
-/* Text and box on the same line */
+.payment-options { border: none; padding: 0; }
+.payment-options legend { font-weight: 600; margin-bottom: 0.4rem; }
 .payment-options label {
   display: inline-flex;
-  align-items: center;       /* vertical alignment */
-  gap: 8px;                  /* space between text and box */
+  align-items: center;
+  gap: 8px;
   font-weight: 400;
-  margin-right: 16px;        /* spacing between options */
+  margin-right: 16px;
   cursor: pointer;
 }
-
 .payment-options input[type="checkbox"] {
   margin: 0;
-  accent-color: var(--brand); /* optional: blue checkmark */
-  transform: translateY(1px); /* perfect baseline alignment */
+  accent-color: var(--brand);
+  transform: translateY(1px);
 }
 
 .create-item-form .btn {
@@ -277,10 +264,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   cursor: pointer;
   transition: transform 0.2s ease;
 }
-
-.create-item-form .btn:hover {
-  transform: scale(1.05);
-}
+.create-item-form .btn:hover { transform: scale(1.05); }
 
 /* Upload section */
 .upload-stage {
@@ -296,11 +280,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   justify-content: center;
   transition: 0.2s ease;
 }
-
-.upload-stage:hover {
-  background: #f0f0f0;
-}
-
+.upload-stage:hover { background: #f0f0f0; }
 .upload-stage img {
   max-width: 90%;
   max-height: 90%;
@@ -308,13 +288,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   object-fit: contain;
   opacity: 0.95;
 }
-
 .upload-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.65); /* subtle light background */
+  background: rgba(255, 255, 255, 0.65);
   color: #333;
   font-size: 1rem;
   font-weight: 600;
@@ -326,7 +305,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   cursor: pointer;
   transition: background 0.2s ease, transform 0.15s ease;
 }
-
 .upload-overlay:hover {
   background: rgba(255, 255, 255, 0.8);
   transform: translate(-50%, -50%) scale(1.03);
@@ -342,36 +320,31 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 #stage {
-  display: none; /* hide image by default */
+  display: none;
   max-width: 100%;
   border-radius: 12px;
   object-fit: cover;
   transition: opacity 0.25s ease;
 }
-#stage.visible {
-  display: block; /* show only after upload */
-  opacity: 1;
-}
+#stage.visible { display: block; opacity: 1; }
 
 /* Ensure uploaded item images fit neatly inside their container */
 .gallery__stage img,
 .item-image {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* ensures full image is visible, keeps proportions */
-  border-radius: 12px; /* optional – matches your soft corners */
-  background-color: #f5f5f5; /* gives subtle backdrop if image doesn’t fill */
+  object-fit: contain;
+  border-radius: 12px;
+  background-color: #f5f5f5;
 }
 
 /* Login/Signup Section */
-
 .login-background {
   background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)),
   url('assets/miller.jpg') no-repeat center center / cover;
   background-attachment: fixed;
   background-size: cover;
 }
-
 .login-box {
   margin: 10px auto;
   background-color: #254893;
@@ -379,18 +352,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   width: 60%;
   padding: 10px 10px;
 }
-
-.login-title {
-  text-align: center;
-  color: white;
-}
-
-.login-img {
-  display: block;
-  margin: 0 auto;
-  margin-left: 46px;
-}
-
+.login-title { text-align: center; color: white; }
+.login-img { display: block; margin: 0 auto; margin-left: 46px; }
 .login-section {
   background-color: var(--bd);
   color: var(--text);
@@ -400,15 +363,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   width: 250px;
   margin: 10px auto;
 }
-
 .login-section input {
-  width: 100%; 
+  width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
 }
-
 .login-button {
   background-color: #10d194;
   color: white;
@@ -418,21 +379,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   margin: 0 auto;
   width: 150px;
 }
-
-.login-button:hover {
-  background-color: #0fb480;
-}
-
-.login-p{
-  color:white;
-}
-.login-link{
-  color: #10d194;
-}
-.login-link:hover {
-  color: #0ea878;
-  text-decoration: underline;
-}
+.login-button:hover { background-color: #0fb480; }
+.login-p{ color:white; }
+.login-link{ color: #10d194; }
+.login-link:hover { color: #0ea878; text-decoration: underline; }
 
 /* Updating Login Section */
 .card-login {
@@ -448,7 +398,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   border-radius: 0.25rem;
   margin: 10px auto;
 }
-
 .card-login-default .card-login-header {
   padding-top: 1.875rem;
   padding-bottom: 1rem;
@@ -459,31 +408,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   flex-wrap: wrap;
   text-transform: capitalize;
 }
-
-.card-login-body {
-  flex: 1 1 auto;
-  min-height: 1px;
-  padding: 1.875rem;
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  margin-right: -15px;
-  margin-left: -15px;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.col-md-12{
-  position: relative;
-  width: 100%;
-  padding-right: 15px;
-  padding-left: 15px;
-}
-
+.card-login-body { flex: 1 1 auto; min-height: 1px; padding: 1.875rem; }
+.row { display: flex; flex-wrap: wrap; margin-right: -15px; margin-left: -15px; }
+.form-group { margin-bottom: 1rem; }
+.col-md-12{ position: relative; width: 100%; padding-right: 15px; padding-left: 15px; }
 .form-control {
   display: block;
   width: 100%;
@@ -499,48 +427,147 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   border-radius: 0.25rem;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
-@media (prefers-reduced-motion: reduce) {
-  .form-control {
-    transition: none;
-  }
-}
-
-.form-control:hover {
-  background-color: #e0e0e0;
-}
-
+@media (prefers-reduced-motion: reduce) { .form-control { transition: none; } }
+.form-control:hover { background-color: #e0e0e0; }
 .input-lg > .form-control{
   padding: 0.65rem 1.5rem;
   font-size: 1.171875rem;
   line-height: 1.5;
   border-radius: 0.3rem;
 }
-
-.payment-options-display {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.payment-options-display { display: flex; flex-direction: column; gap: 6px; }
+.payment-icons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+.payment-option { display: flex; align-items: center; gap: 6px; font-weight: 500; font-size: 0.95rem; }
+.payment-option .icon {
+  width: 20px; height: 20px; object-fit: contain; vertical-align: middle; border-radius: 3px;
 }
 
-.payment-icons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 4px;
+
+/* =========================================================
+   ADDITIONS FOR EDIT PROFILE (SoundCloud-like layout)
+   ========================================================= */
+
+/* Flash messages for form feedback */
+.flash-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.flash {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--bd);
+  background: var(--panel);
+}
+.flash--success { border-color: #10b98133; background: #10b98111; }
+.flash--error   { border-color: #ef444433; background: #ef444411; }
+.flash--info    { border-color: #60a5fa33; background: #60a5fa11; }
+
+/* Generic form helpers reused on Edit Profile */
+.form__row { margin-bottom: 12px; }
+.form__label { display:block; font-weight: 600; margin-bottom: .35rem; }
+.input, .input--textarea {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: .7rem .85rem;
+  font: inherit;
+  background: #fff;
+  color: var(--text);
+}
+.input:focus, .input--textarea:focus { outline: none; box-shadow: var(--ring); border-color: #c9d7ff; }
+.input--textarea { resize: vertical; min-height: 140px; }
+.form__actions { display: flex; gap: .6rem; justify-content: flex-end; flex-wrap: wrap; }
+
+/* Button aliases to match your existing style */
+.button {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding: 12px 16px; border-radius: 12px; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, #2563eb, #7a5bff);
+  border: 1px solid var(--bd-strong);
+}
+.button:hover { filter: brightness(0.98); }
+.button--ghost { background: var(--elev); color: var(--text); border: 1px solid var(--bd); }
+.button--secondary { background: var(--panel); color: var(--text); border: 1px solid var(--bd); }
+
+/* Roomier card just for Edit Profile */
+.card--profileEdit {
+  padding: 28px;
+}
+@media (min-width: 900px) {
+  .card--profileEdit { padding: 32px; }
 }
 
-.payment-option {
+/* Edit Profile layout: left avatar (square), right content */
+.profileEdit {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px; /* more breathing room between columns */
+}
+@media (min-width: 900px) {
+  .profileEdit {
+    grid-template-columns: 320px minmax(0, 1fr);
+    align-items: start;
+  }
+}
+.profileEdit__left { display: flex; flex-direction: column; gap: .5rem; }
+.profileEdit__right { display: flex; flex-direction: column; gap: 1rem; }
+
+/* Square image frame that clips the overlay */
+.avatarCard { position: relative; display: flex; flex-direction: column; align-items: stretch; }
+.avatarCard__frame {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;                 /* clips overlay to image area */
+}
+
+/* Inside the frame: square image */
+.avatarCard__img {
+  width: 100%;
+  aspect-ratio: 1 / 1;              /* perfect square */
+  object-fit: cover;
+  border-radius: 0;                  /* frame already has rounding */
+  background: #f6f6f6;
+  cursor: pointer;
+  display: block;
+}
+
+/* Overlay only covers the frame (image area), not the text below */
+.avatarCard__overlay {
+  position: absolute;
+  inset: 0;                          /* exactly the frame area */
+  background: rgba(0,0,0,.45);
+  color: #fff;
+  opacity: 0;
+  transition: opacity .18s ease;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 500;
-  font-size: 0.95rem;
+  justify-content: center;
+  pointer-events: none;              /* allow clicks through unless hovered */
+}
+.avatarCard__frame:hover .avatarCard__overlay {
+  opacity: 1;
+  pointer-events: auto;              /* clickable overlay when hovered */
+}
+.avatarCard__overlayInner {
+  display: inline-flex; gap: .5rem; align-items: center;
+  padding: .5rem .75rem; border-radius: 999px;
+  background: rgba(0,0,0,.55);
+  font-weight: 600;
 }
 
-.payment-option .icon {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  vertical-align: middle;
-  border-radius: 3px;
+/* Hidden file input */
+.avatarCard__file {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Controls row: button + caption inline */
+.avatarCard__controls {
+  display: inline-flex;
+  align-items: center;            /* vertical alignment with the button text */
+  gap: 10px;
+  margin-top: .6rem;
+}
+.avatarCard__caption {
+  line-height: 1;                 /* tidy baseline next to the button */
+  opacity: .9;                    /* subtle de-emphasis */
 }
