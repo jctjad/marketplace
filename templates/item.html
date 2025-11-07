@@ -44,7 +44,7 @@
         <button class="btn" id="buy">Message Seller</button>
         
         <div class="specs">
-          <div><strong>Condition:</strong>{{ item.condition }}</div>
+          <div><strong>Condition: </strong>{{ item.condition }}</div>
 
           <div><strong>Seller:</strong> 
             <a href="{{ url_for('profile.goto_profile_page') }}">
@@ -53,8 +53,18 @@
           </div>
 
           <div><strong>Payment Options:</strong> 
+            <div class="payment-icons">
             {% for option in item.payment_options %}
-              ({{ option }}){% if not loop.last %}, {% endif %}
+              <div class="payment-option">
+                {% if option == 'Cash' %}
+                  <img src="{{ url_for('static', filename='assets/cash.svg') }}" alt="Cash" class="icon">
+                {% elif option == 'Venmo' %}
+                  <img src="{{ url_for('static', filename='assets/venmo.svg') }}" alt="Venmo" class="icon">
+                {% elif option == 'Zelle' %}
+                  <img src="{{ url_for('static', filename='assets/zelle.svg') }}" alt="Zelle" class="icon">
+                {% endif %}
+                <span>{{ option }}</span>
+              </div>
             {% endfor %}
           </div>
         </div>
