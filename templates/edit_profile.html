@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Edit Profile</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}">
+        <img class="brand__logo" src="{{ url_for('static', filename='assets/mulebay_logo.svg') }}" alt="Mulebay Logo">
+        <span>Mulebay</span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="{{ url_for('main.goto_browse_items_page') }}">Browse</a>
+        <a href="{{ url_for('profile.goto_profile_page') }}">Profile</a>
+      </nav>
+      <div class="actions">
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('auth.logout') }}" class="badge">Logout</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}" class="badge">Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="page container">
+    <h1 class="page__title">Edit Profile</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash-list">
+          {% for category, message in messages %}
+            <li class="flash flash--{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('profile.save_profile_edits') }}" method="post" enctype="multipart/form-data" class="form">
+      <div class="form__row">
+        <label class="form__label">Avatar</label>
+        <div class="form__control">
+          <img src="{{ current_user.profile_image or url_for('static', filename='assets/avatar.svg') }}"
+               alt="avatar" class="w-16 h-16 rounded-full object-cover border">
+          <input type="file" name="avatar" accept="image/png,image/jpeg">
+          <p class="muted">PNG or JPEG up to 5 MB.</p>
+        </div>
+      </div>
+
+      <div class="form__row">
+        <label for="profile_description" class="form__label">Public Bio</label>
+        <textarea id="profile_description" name="profile_description" rows="4" maxlength="2000" class="textarea"
+                  placeholder="Tell buyers a bit about you…">{{ current_user.profile_description or '' }}</textarea>
+      </div>
+
+      <div class="form__actions">
+        <a class="button button--ghost" href="{{ url_for('profile.goto_profile_page') }}">Cancel</a>
+        <button class="button" type="submit">Save changes</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

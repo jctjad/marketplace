@@ -418,6 +418,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   margin: 0 auto;
   width: 150px;
 }
+
 .login-button:hover {
   background-color: #0fb480;
 }
@@ -515,3 +516,31 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   border-radius: 0.3rem;
 }
 
+.payment-options-display {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.payment-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.payment-option .icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  vertical-align: middle;
+  border-radius: 3px;
+}
