@@ -41,9 +41,21 @@ def allowed_file(filename: str) -> bool:
 @main_blueprint.route('/')
 @login_required
 def goto_browse_items_page():
-    items = Item.query.order_by(Item.date_created.desc()).all()
-    return render_template('index.html', items=items)
+    # items = Item.query.order_by(Item.date_created.desc()).all()
+    # return render_template('index.html', items=items)
+    query = request.args.get('q', '').strip().lower()
 
+    if query:
+        # Case-insensitive partial match on name or description
+        items = Item.query.filter(
+            (Item.name.ilike(f'%{query}%')) |
+            (Item.description.ilike(f'%{query}%')) |
+            (Item.condition.ilike(f'%{query}%'))
+        ).all()
+    else:
+        items = Item.query.all()
+
+    return render_template('index.html', items=items)
 
 # =========================
 # Items
