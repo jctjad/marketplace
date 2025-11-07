@@ -1,0 +1,3 @@
+Item ID,Seller ID,Item Name,Item Description,Item Photos,Price,Condition,Payment Options,Live On Market,Date Created
+1,1,Alex Solano,hes a good programmer,/static/assets/item_placeholder.svg,10.0,New,['Venmo'],True,2025-11-06 20:50:20.324066
+2,1,lamp,amazing lamp,/static/uploads/miller.jpg,67.0,Used — like new,"['Cash', 'Venmo']",True,2025-11-06 20:52:38.666719

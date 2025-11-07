@@ -1,0 +1,3 @@
+User ID,Email,Password Hash,First Name,Last Name,Profile Image,Profile Description,Bookmarks,Items Selling,Date Created
+1,saatil26@colby.edu,scrypt:32768:8:1$mRlgXYZZY2StgPmS$7aaf52a283bd90fbefa959e8b855c8f9831c5846fbdd2b50ba135aebd7fb6be7a2fc3ddc3bfea09624b79fc462704dd08aa29c212cbdd1253dfbf9fbaf117873,Samuel,Atilano,/static/uploads/avatars/1_wolf.jpg,,[],[],2025-11-06 19:33:09.220671
+2,saatil26@icloud.com,scrypt:32768:8:1$3OmClD3I573KdFvg$a782ac5e27bfe6918341f1713fe3e9ce633c9e3c476d08ef330ce200f1a8547de051a676471cafd757f3fe9bbcff05f144d38cd6d2231ee5d8f3155a96dfde89,Samuel ,Atilano,/static/uploads/avatars/2_fridge.jpg,Thos is my bio nice to meet you,[],[],2025-11-06 20:53:52.271198

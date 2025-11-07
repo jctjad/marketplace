@@ -16,6 +16,7 @@ db.init_app(app)
 login_man = LoginManager(app)
 login_man.login_view = 'auth.signup'
 login_man.login_message = None
+login_man.login_message_category = None
 
 @login_man.user_loader
 def load_user(id):
