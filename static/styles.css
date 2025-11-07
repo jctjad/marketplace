@@ -388,7 +388,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .login-img {
   display: block;
   margin: 0 auto;
-  margin-left: 46px;
+  max-width: 100%;
+  height: auto;
 }
 
 .login-section {
