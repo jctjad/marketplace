@@ -2,6 +2,9 @@ from flask import Flask
 from views import main_blueprint, item_blueprint, profile_blueprint
 from models import db, User
 
+#Messaging Libraries
+from flask_socketio import SocketIO, send, emit, join_room, leave_room
+
 #Auth Libraries
 from auth import auth_blueprint
 from flask_login import LoginManager
