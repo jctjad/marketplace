@@ -8,6 +8,7 @@ from datetime import datetime
 import os
 import csv
 import imghdr
+from app import socketio # to access socketio
 
 # --- Blueprints ---
 main_blueprint = Blueprint('main', __name__)

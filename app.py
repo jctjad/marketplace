@@ -30,6 +30,8 @@ app.register_blueprint(item_blueprint)
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(auth_blueprint)
 
+socketio = SocketIO(app) # wrapping our app in SocektIO to enable WebSocket capabilities
+
 with app.app_context():
     db.create_all()
 
