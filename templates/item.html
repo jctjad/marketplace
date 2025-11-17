@@ -41,7 +41,9 @@
       <aside class="buybox card" aria-label="Purchase panel">
         <h1 class="buybox__title">{{ item.name }}</h1>
         <div class="price">${{ "%.2f"|format(item.price) }}</div>
-        <button class="btn" id="buy">Message Seller</button>
+        <button class="btn" id="buy">
+          <a href = "{{ url_for('item.goto_msg_page')}}"> Message Seller </a> 
+        </button>
         
         <div class="specs">
           <div><strong>Condition: </strong>{{ item.condition }}</div>

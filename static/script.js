@@ -37,9 +37,6 @@ document.querySelectorAll('.item-card__bookmark').forEach(icon => {
 
 /* USER PROFILE */
 
-/* MESSAGING */
-
-
 /* MISCELLANEOUS */
 
 // Year stamp
