@@ -2,14 +2,14 @@ from flask import Flask
 from views import main_blueprint, item_blueprint, profile_blueprint
 from models import db, User
 
-#Messaging Libraries
-from flask_socketio import SocketIO, send, emit, join_room, leave_room
+#Messaging import
+from setup_socket import app, socketio
 
 #Auth Libraries
 from auth import auth_blueprint
 from flask_login import LoginManager
 
-app = Flask(__name__)
+# app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///todo.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_keyyyyy'
@@ -24,16 +24,18 @@ login_man.login_message = None
 def load_user(id):
     return User.query.get(int(id))
 
+# socketio = SocketIO(app) # wrapping our app in SocektIO to enable WebSocket capabilities
+
 #Blue Register Section
 app.register_blueprint(main_blueprint)
 app.register_blueprint(item_blueprint)
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(auth_blueprint)
 
-socketio = SocketIO(app) # wrapping our app in SocektIO to enable WebSocket capabilities
 
 with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # app.run(debug=True)
+    socketio.run(app, debug=True)
