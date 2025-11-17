@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from views import main_blueprint, item_blueprint, profile_blueprint
 from models import db, User
@@ -10,9 +11,21 @@ from auth import auth_blueprint
 from flask_login import LoginManager
 
 # app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///todo.db"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your_secret_keyyyyy'
+
+uri = os.getenv("DATABASE_URL")  # Heroku sets this automatically
+
+if uri is None:
+    # Local development fallback (SQLite)
+    uri = "sqlite:///marketplace.db"
+
+# Fix for Heroku’s old Postgres URLs
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = uri
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
+
 db.init_app(app)
 
 #Auth Section
@@ -32,9 +45,10 @@ app.register_blueprint(item_blueprint)
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(auth_blueprint)
 
-
-with app.app_context():
-    db.create_all()
+# auto create tables in local dev only
+if uri.startswith("sqlite:///"):
+    with app.app_context():
+        db.create_all()
 
 if __name__ == '__main__':
     # app.run(debug=True)

@@ -117,6 +117,11 @@ def create_item():
 
     return render_template('create_item.html')
 
+# When a buyer clicks message seller
+@socketio.on('join')
+def handle_join(chat_id):
+    # need to create a new entry 
+
 
 # =========================
 # Profile (View + Edit)
