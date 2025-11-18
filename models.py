@@ -43,7 +43,6 @@ class User(db.Model, UserMixin): #Added UserMixin parameter
             "date_created": self.date_created.isoformat() if self.date_created else None,
         }
 
-
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     seller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -59,7 +58,7 @@ class Item(db.Model):
     # NEW: define seller relationship so we can access item.seller
     seller = db.relationship("User", back_populates="items", lazy=True)
 
-    # NEW: dict representation for REST API
+    # NEW: dict representation for REST API and current user id is added
     def to_dict(self, include_seller=True, current_user_id=None):
         data = {
             "id": self.id,
@@ -73,6 +72,7 @@ class Item(db.Model):
             "live_on_market": self.live_on_market,
             "date_created": self.date_created.isoformat() if self.date_created else None,
         }
+
         if include_seller and self.seller:
             data["seller"] = {
                 "id": self.seller.id,
