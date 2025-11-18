@@ -123,7 +123,6 @@ def create_item():
 def goto_msg_page():
     return render_template('messaging.html')
 
-users = {}
 @socketio.on('join')
 def handle_join(item_id, buyer_id):
     item = Item.query.get(item_id)

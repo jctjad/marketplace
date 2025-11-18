@@ -35,6 +35,16 @@ document.querySelectorAll('.item-card__bookmark').forEach(icon => {
   });
 })();
 
+// Open chat box
+function openForm(){
+  document.getElementById("chatForm").style.display = "block";
+}
+
+// Close chat box
+function closeForm(){
+  document.getElementById("chatForm").style.display = "none";
+}
+
 /* USER PROFILE */
 
 /* MISCELLANEOUS */

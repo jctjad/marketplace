@@ -38,11 +38,14 @@
         </div>
       </section>
 
+      <!-- Here is the html element for the popp chat, it will be hidden for now until the 
+       user presses the "Message Seller" button! -->
+
       <aside class="buybox card" aria-label="Purchase panel">
         <h1 class="buybox__title">{{ item.name }}</h1>
         <div class="price">${{ "%.2f"|format(item.price) }}</div>
         <button class="btn" id="buy">
-          <a href = "{{ url_for('item.goto_msg_page')}}"> Message Seller </a> 
+          <a href> Message Seller </a> 
         </button>
         
         <div class="specs">
@@ -76,6 +79,17 @@
           <p>{{ item.description }}</p>
         </section>
       </aside>
+
+      
+    </div>
+    <div class="chat-popup" id="chatForm">
+      <form actions="{{ url_for('item.goto_msg_page')}}" class="form-container">
+        <h1> Chat </h1>
+        <label for="msg"> <b> Message </b> </label>
+        <textarea placeholder="Type message..." name="msg" required></textarea>
+        <button type="submit" class="btn"> Send </button>
+        <button type="button" class="btn cancel" onclick="closeForm()"> Close </button>
+      </form>
     </div>
   </main>
 
