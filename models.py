@@ -60,7 +60,7 @@ class Item(db.Model):
     seller = db.relationship("User", back_populates="items", lazy=True)
 
     # NEW: dict representation for REST API
-    def to_dict(self, include_seller=True):
+    def to_dict(self, include_seller=True, current_user_id=None):
         data = {
             "id": self.id,
             "seller_id": self.seller_id,
@@ -79,6 +79,11 @@ class Item(db.Model):
                 "first_name": self.seller.first_name,
                 "last_name": self.seller.last_name,
             }
+
+        # NEW: add dynamic ownership flag (NOT stored in DB)
+        if current_user_id is not None:
+            data["is_owner"] = (self.seller_id == current_user_id)
+
         return data
 
 class Chat(db.Model):   # The seller and buyer can chat (message one another) ON ITEM PAGE about given item
