@@ -322,21 +322,34 @@ function bindBookmarkIcons() {
 // ==============================
 // Messaging 
 // ==============================
-
+let socket;
 // Open chat box
 function openForm(){
-  document.getElementById("chatForm").style.display = "block";
+  const chat_form = document.getElementById("chatForm");
+  chat_form.style.display = "block";
   // Item id from path: /item/<id>
   const parts = window.location.pathname.split("/");
-  const item_id = parts[parts.length - 1]; 
+  const item_id = parts[parts.length - 1];
+  
+  socket = io();
+  joinRoom(item_id);
+  lookForMessages();
 
-  socket.emit('join', item_id)
-  document.getElementById("send_btn").addEventListener("submit", async (e) => {
+  chat_form.addEventListener("submit", (e) => {
     e.preventDefault();
-    socket.on("message", function(data) {
-      const messages = document.getElementsByClassName('form-container')[0];
-      messages.innerHTML += `<p>${data}</p>`;
-    });
+    // sendMessage();
+  });
+}
+
+function joinRoom(item_id){
+  socket.emit("join", item_id);
+}
+
+function lookForMessages(){
+  socket.on("message", function(data) {
+  var messages = document.getElementByID('messages');
+  messages.innerHTML += `<p>${data}</p>`;
+  console.log(messages);
   });
 }
 
@@ -347,7 +360,7 @@ function closeForm(){
 
 // Function to send messages
 function sendMessage(){
-  var msgInput = document.getElementsByName("msg")[0];
+  var msgInput = document.getElementById("msg");
   var message = msgInput.value;
   socket.send(message);
   msgInput.value = "";

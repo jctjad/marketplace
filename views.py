@@ -80,7 +80,7 @@ def create_item_page():
 @socketio.on('join')
 def handle_join(item_id):
     join_room(item_id)
-    emit("message", f"Buyer has joined the chat", broadcast=True)
+    emit("message", f"Buyer has joined the chat", room=item_id)
     
 # Handle user messages
 @socketio.on('message')
