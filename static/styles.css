@@ -561,3 +561,20 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   background: #fff;
   box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
 }
+
+/* NEW: owner controls inside item cards */
+.item-card__owner-actions {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  margin-left: auto;
+}
+
+.link-button {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
+}
