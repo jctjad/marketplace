@@ -34,6 +34,9 @@ AVATAR_ALLOWED_MIMES = {'image/png', 'image/jpeg'}
 def allowed_file(filename: str) -> bool:
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# =====================================================
+# HTML ROUTES (NO JINJA DATA) – FRONTEND SHELL ONLY
+# =====================================================
 
 # =========================
 # Main / Browse
@@ -41,21 +44,11 @@ def allowed_file(filename: str) -> bool:
 @main_blueprint.route('/')
 @login_required
 def goto_browse_items_page():
-    # items = Item.query.order_by(Item.date_created.desc()).all()
-    # return render_template('index.html', items=items)
-    query = request.args.get('q', '').strip().lower()
-
-    if query:
-        # Case-insensitive partial match on name or description
-        items = Item.query.filter(
-            (Item.name.ilike(f'%{query}%')) |
-            (Item.description.ilike(f'%{query}%')) |
-            (Item.condition.ilike(f'%{query}%'))
-        ).all()
-    else:
-        items = Item.query.all()
-
-    return render_template('index.html', items=items)
+    """
+    CHANGED: This now ONLY returns a static HTML template.
+    The grid of items is fetched via the REST API in script.js.
+    """
+    return render_template("index.html")  # no 'items' passed in
 
 # =========================
 # Items
@@ -63,58 +56,24 @@ def goto_browse_items_page():
 @item_blueprint.route('/item/<int:item_id>')
 @login_required
 def goto_item_page(item_id):
-    item = Item.query.get_or_404(item_id)
-    seller = User.query.get(item.seller_id)
-    return render_template('item.html', item=item, seller=seller)
+    """
+    CHANGED: We do NOT look up the item here anymore.
+    We just return the same item.html shell for ANY id.
+    script.js reads `window.location.pathname` to figure out the id,
+    then fetches item details via GET /api/items/<id>.
+    """
+    return render_template("item.html")
 
 
-@item_blueprint.route('/item/new', methods=['GET', 'POST'])
+@item_blueprint.route("/item/new", methods=["GET"])
 @login_required
-def create_item():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        description = request.form.get('description')
-        price = float(request.form.get('price'))
-        condition = request.form.get('condition')
-        payment_options = request.form.getlist('payment_options')
-
-        image_file = request.files.get('image_file')
-        print("image_file in request:", image_file)  # debug
-
-        if image_file and image_file.filename and allowed_file(image_file.filename):
-            filename = secure_filename(image_file.filename)
-            save_path = os.path.join(UPLOAD_FOLDER, filename)
-            image_file.save(save_path)
-            image_path = f"/static/uploads/{filename}"   # URL path for template
-            print("saved to:", save_path)
-        else:
-            image_path = "/static/assets/item_placeholder.svg"
-            print("no valid upload; using placeholder")
-
-        # Use the current user as seller
-        seller = current_user
-        if not seller or not seller.is_authenticated:
-            flash("Please sign in to create an item.", "error")
-            return redirect(url_for('main.goto_browse_items_page'))
-
-        new_item = Item(
-            seller_id=seller.id,
-            name=name,
-            description=description,
-            item_photos=image_path,
-            price=price,
-            condition=condition,
-            payment_options=payment_options,
-            live_on_market=True,
-            date_created=datetime.today()
-        )
-
-        db.session.add(new_item)
-        db.session.commit()
-        flash('Item created successfully!', 'success')
-        return redirect(url_for('item.goto_item_page', item_id=new_item.id))
-
-    return render_template('create_item.html')
+def create_item_page():
+    """
+    NEW: This route only serves the static create_item.html page.
+    The actual creation is done by the REST API: POST /api/items
+    called via fetch() in script.js.
+    """
+    return render_template("create_item.html")
 
 
 # =========================
@@ -123,28 +82,41 @@ def create_item():
 @profile_blueprint.route('/profile')
 @login_required
 def goto_profile_page():
+    """
+    Profile page is now a static shell as well.
+    script.js calls GET /api/profile/me to fill in the data.
+    """
     return render_template('profile.html')
 
 
 @profile_blueprint.route('/profile/edit', methods=['GET'])
 @login_required
 def goto_edit_profile_page():
+    """
+    Edit profile page HTML is static.
+    script.js calls GET /api/profile/me to pre-fill the form.
+    On submit, we still do a normal form POST to this same URL.
+    """
     return render_template('edit_profile.html')
 
 
-@profile_blueprint.route('/profile/edit', methods=['POST'])
+@profile_blueprint.route("/profile/edit", methods=["POST"])
 @login_required
 def save_profile_edits():
+    """
+    CHANGED only slightly: same logic, but the templates no longer
+    use Jinja – they are populated via JS from /api/profile/me.
+    """
     # Update bio (public profile description)
-    bio = (request.form.get('profile_description') or '').strip()[:2000]
+    bio = (request.form.get("profile_description") or "").strip()[:2000]
     current_user.profile_description = bio
 
     # Optional avatar upload (strict PNG/JPEG)
-    f = request.files.get('avatar')
+    f = request.files.get("avatar")
     if f and f.filename:
         if f.mimetype not in AVATAR_ALLOWED_MIMES:
-            flash('Avatar must be PNG or JPEG (≤ 5 MB).', 'error')
-            return redirect(url_for('profile.goto_edit_profile_page'))
+            flash("Avatar must be PNG or JPEG (≤ 5 MB).", "error")
+            return redirect(url_for("profile.goto_edit_profile_page"))
 
         filename = secure_filename(f"{current_user.id}_{f.filename}")
         dest = os.path.join(AVATAR_FOLDER, filename)
@@ -152,18 +124,18 @@ def save_profile_edits():
 
         # Magic-bytes sanity check
         kind = imghdr.what(dest)
-        if kind not in ('png', 'jpeg', 'jpg'):
+        if kind not in ("png", "jpeg", "jpg"):
             os.remove(dest)
-            flash('Invalid image file.', 'error')
-            return redirect(url_for('profile.goto_edit_profile_page'))
+            flash("Invalid image file.", "error")
+            return redirect(url_for("profile.goto_edit_profile_page"))
 
-        # Build a /static/... URL for templates
-        rel = os.path.relpath(dest, STATIC_DIR).replace('\\', '/')
+        # Build a /static/... URL for templates & REST API
+        rel = os.path.relpath(dest, STATIC_DIR).replace("\\", "/")
         current_user.profile_image = f"/static/{rel}"
 
     db.session.commit()
-    flash('Profile updated!', 'success')
-    return redirect(url_for('profile.goto_profile_page'))
+    flash("Profile updated!", "success")
+    return redirect(url_for("profile.goto_profile_page"))
 
 
 # =========================
@@ -306,3 +278,104 @@ def populate_Chat_Data():
             db.session.commit()
     except Exception as e:
         print("Cannot import Chats.csv:", e)
+
+# =====================================================
+# REST API ROUTES – REAL “BACKEND”
+# =====================================================
+
+@main_blueprint.route("/api/items", methods=["GET"])
+@login_required
+def api_list_items():
+    """
+    NEW: REST endpoint for listing items.
+    Optional ?q= search param to filter by name, description, condition.
+    """
+    q = (request.args.get("q") or "").strip().lower()
+
+    query = Item.query.filter_by(live_on_market=True)
+
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            (Item.name.ilike(like))
+            | (Item.description.ilike(like))
+            | (Item.condition.ilike(like))
+        )
+
+    items = query.order_by(Item.date_created.desc()).all()
+    return {"items": [item.to_dict() for item in items]}
+
+
+@main_blueprint.route("/api/items/<int:item_id>", methods=["GET"])
+@login_required
+def api_get_item(item_id):
+    """
+    NEW: REST endpoint for a single item, used by item.html via JS.
+    """
+    item = Item.query.get_or_404(item_id)
+    return {"item": item.to_dict()}
+
+
+@main_blueprint.route("/api/items", methods=["POST"])
+@login_required
+def api_create_item():
+    """
+    NEW: REST endpoint for creating an item.
+    Accepts multipart form-data (image + fields) from create_item.html via fetch().
+    """
+    name = request.form.get("name", "").strip()
+    description = request.form.get("description", "").strip()
+    price_raw = request.form.get("price")
+    condition = request.form.get("condition", "").strip()
+    payment_options = request.form.getlist("payment_options")
+
+    if not name or not price_raw:
+        return {"error": "Name and price are required."}, 400
+
+    try:
+        price = float(price_raw)
+    except ValueError:
+        return {"error": "Price must be a valid number."}, 400
+
+    # Handle image upload
+    image_file = request.files.get("image_file")
+    if image_file and image_file.filename and allowed_file(image_file.filename):
+        filename = secure_filename(image_file.filename)
+        save_path = os.path.join(UPLOAD_FOLDER, filename)
+        image_file.save(save_path)
+        image_path = f"/static/uploads/{filename}"
+    else:
+        image_path = "/static/assets/item_placeholder.svg"
+
+    new_item = Item(
+        seller_id=current_user.id,
+        name=name,
+        description=description,
+        item_photos=image_path,
+        price=price,
+        condition=condition,
+        payment_options=payment_options,
+        live_on_market=True,
+        date_created=datetime.today(),
+    )
+
+    db.session.add(new_item)
+    db.session.commit()
+
+    # Optional: update user's selling_items list
+    selling = current_user.selling_items or []
+    selling.append(new_item.id)
+    current_user.selling_items = selling
+    db.session.commit()
+
+    return {"item": new_item.to_dict()}, 201
+
+
+@profile_blueprint.route("/api/profile/me", methods=["GET"])
+@login_required
+def api_profile_me():
+    """
+    NEW: REST endpoint for current user's profile data.
+    Used by profile.html and edit_profile.html via JS.
+    """
+    return {"user": current_user.to_dict()}
