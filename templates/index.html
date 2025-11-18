@@ -3,29 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Browse Items</title>
+  <title>Browse Items — Mulebay</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <!-- CHANGED: no url_for, plain /static/... -->
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
+<body data-page="browse">
   <header class="header">
     <div class="container header__inner">
-      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}">
-          <img class="brand__logo" src="{{ url_for('static', filename='assets/mulebay_logo.svg') }}"alt="Mulebay Logo">
-          <span>Mulebay</span>
+      <a class="brand" href="/">
+        <img class="brand__logo" src="/static/assets/mulebay_logo.svg" alt="Mulebay Logo">
+        <span>Mulebay</span>
       </a>
       <nav class="nav" aria-label="Primary">
-        <a href="{{ url_for('main.goto_browse_items_page') }}" aria-current="page">Browse</a>
-        <a href="{{ url_for('profile.goto_profile_page') }}">Profile</a>
+        <a href="/" aria-current="page">Browse</a>
+        <a href="/profile">Profile</a>
       </nav>
       <div class="actions">
-          {% if current_user.is_authenticated %}
-              <a href="{{ url_for('auth.logout') }}" id="logout-button" class="badge">Logout</a>
-          {% else %}
-              <a href="{{ url_for('auth.login') }}" id="login-button" class="badge">Login</a>
-          {% endif %}
+        <!-- You could dynamically show Login/Logout in JS, but
+             for now we just link to login. -->
+        <a href="/login" id="login-button" class="badge">Login</a>
       </div>
     </div>
   </header>
@@ -34,100 +33,39 @@
     <div class="bar">
       <h1 class="page__title">Browse Items</h1>
       <div class="search" role="search">
-        <!-- <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.5 20.5l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/></svg>
-        <input type="search" placeholder="Search items…" aria-label="Search items"> -->
-        <form method="GET" action="{{ url_for('main.goto_browse_items_page') }}" class="search" role="search">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M20.5 20.5l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
-          </svg>
-          <input
-            type="search"
-            name="q"
-            placeholder="Search items…"
-            aria-label="Search items"
-            value="{{ request.args.get('q', '') }}"
-          >
-        </form>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20.5 20.5l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+        </svg>
+        <input
+          type="search"
+          name="q"
+          placeholder="Search items…"
+          aria-label="Search items"
+        >
       </div>
       <button class="filter" aria-haspopup="listbox" aria-expanded="false">All categories ▾</button>
     </div>
 
-    <!-- DYNAMIC ITEM GRID START -->
+    <!-- CHANGED: empty grid, populated entirely via script.js calling /api/items -->
     <section class="grid" aria-label="Items">
-      {% if items %}
-        {% for item in items %}
-          <a class="card" href="{{ url_for('item.goto_item_page', item_id=item.id) }}">
-            <img class="item-card__thumb" src="{{ item.item_photos }}" alt="{{ item.name }}">
-            <img class="item-card__bookmark" src="static/assets/bookmark.svg" data-alt-src="static/assets/bookmark-filled.svg" alt="Bookmark">
-            <div class="item-card__body">
-              <div class="item-card__top">
-                <div class="item-card__title">{{ item.name }}</div>
-                <div class="item-card__price">${{ "%.2f"|format(item.price) }}</div>
-              </div>
-              <div class="item-card__bottom">
-                <div class="item-card__seller">
-                  {{ item.seller.first_name if item.seller else "Unknown Seller" }}
-                </div>
-                <div class="item-card__payment-icons">
-                  {% for method in item.payment_options %}
-                    {% if "Venmo" in method %}
-                      <img class="icon" src="static/assets/venmo.svg" alt="Venmo">
-                    {% elif "Zelle" in method %}
-                      <img class="icon" src="static/assets/zelle.svg" alt="Zelle">
-                    {% elif "Cash" in method %}
-                      <img class="icon" src="static/assets/cash.svg" alt="Cash">
-                    {% endif %}
-                  {% endfor %}
-                </div>
-              </div>
-            </div>
-          </a>
-        {% endfor %}
-      {% else %}
-        <p class="empty-msg">No items yet — be the first to list something!</p>
-      {% endif %}
+      <!-- cards inserted by JavaScript -->
     </section>
-    <!-- DYNAMIC ITEM GRID END -->
   </main>
 
-  <a href="{{ url_for('item.create_item') }}" class="floating-sell-btn">
+  <a href="/item/new" class="floating-sell-btn">
     Sell Item
   </a>
 
   <footer class="footer">
     <div class="container footer__inner">
       <span>© <span id="year"></span> Mulebay</span>
-      <a href="{{ url_for('profile.goto_profile_page') }}">Your profile</a>
-      <a href="{{ url_for('main.export') }}">Export</a>
-      <a href="{{ url_for('main.populate') }}">Import</a>
+      <a href="/profile">Your profile</a>
+      <a href="/export">Export</a>
+      <a href="/import">Import</a>
     </div>
   </footer>
 
-  <script src="static/script.js"></script>
-
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const searchInput = document.querySelector(".search input");
-    const cards = document.querySelectorAll(".grid .card");
-
-    searchInput.addEventListener("input", () => {
-      const query = searchInput.value.toLowerCase().trim();
-
-      cards.forEach(card => {
-        const title = card.querySelector(".item-card__title").textContent.toLowerCase();
-        const seller = card.querySelector(".item-card__seller").textContent.toLowerCase();
-        const price = card.querySelector(".item-card__price").textContent.toLowerCase();
-
-        if (title.includes(query) || seller.includes(query) || price.includes(query)) {
-          card.style.display = "block";
-        } else {
-          card.style.display = "none";
-        }
-      });
-    });
-  });
-  </script>
-
+  <script src="/static/script.js"></script>
 </body>
 </html>
