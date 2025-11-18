@@ -11,7 +11,7 @@
 </head>
 <script>
     var socket = io();
-    socket.emit("join");
+    socket.emit("join", );
 
     socket.on("message", function(data){
         var messages = document.getElementById("messages");

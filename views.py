@@ -77,29 +77,20 @@ def create_item_page():
     """
     return render_template("create_item.html")
 
-# When a buyer clicks message seller
-@item_blueprint.route('/messaging')
-def goto_msg_page():
-    return render_template('messaging.html')
-
 @socketio.on('join')
-def handle_join(item_id, buyer_id):
-    item = Item.query.get(item_id)
-    # seller = User.query.get(item.seller_id)
-    buyer = User.query.get(buyer_id)
-    # need to create a new entry in db or find entry in db depending on seller id and item id
-    join_room(item_id) # join the room based on item id
-    emit("message", f"{buyer.first_name} {buyer.last_name} has joined the chat.", room=item_id)
-
+def handle_join(item_id):
+    join_room(item_id)
+    emit("message", f"Buyer has joined the chat", broadcast=True)
+    
 # Handle user messages
-@item_blueprint.route('/messaging.html')
 @socketio.on('message')
-def handle_message(data, item_id):
-    emit("message", f"{data}", to=item_id)
+def handle_message(data):
+    emit("message", f"{data}", broadcast=True)
 
-# @socketio.on('disconnect')
-# def handle_disconnect(buyer_id):
-#     emit
+# Handle disconnects
+@socketio.on('disconnect')
+def handle_disconnect():
+    emit("message", f"Buyer left the chat", broadcast=True)
 
 
 # =========================

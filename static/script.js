@@ -326,11 +326,31 @@ function bindBookmarkIcons() {
 // Open chat box
 function openForm(){
   document.getElementById("chatForm").style.display = "block";
+  // Item id from path: /item/<id>
+  const parts = window.location.pathname.split("/");
+  const item_id = parts[parts.length - 1]; 
+
+  socket.emit('join', item_id)
+  document.getElementById("send_btn").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    socket.on("message", function(data) {
+      const messages = document.getElementsByClassName('form-container')[0];
+      messages.innerHTML += `<p>${data}</p>`;
+    });
+  });
 }
 
 // Close chat box
 function closeForm(){
   document.getElementById("chatForm").style.display = "none";
+}
+
+// Function to send messages
+function sendMessage(){
+  var msgInput = document.getElementsByName("msg")[0];
+  var message = msgInput.value;
+  socket.send(message);
+  msgInput.value = "";
 }
 
 /* USER PROFILE */

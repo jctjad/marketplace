@@ -565,7 +565,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 /* {box-sizing: border-box;} */
 
 /* Button used to open the chat form - fixed at the bottom of the page */
-.open-button {
+/* .open-button {
   background-color: #555;
   color: white;
   padding: 16px 20px;
@@ -576,10 +576,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   bottom: 23px;
   right: 28px;
   width: 280px;
-}
+} */
 
 /* The popup chat - hidden by default */
-.form-popup {
+.chat-popup {
   display: none;
   position: fixed;
   bottom: 0;
@@ -613,7 +613,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 /* Set a style for the submit/login button */
-.form-container .btn {
+.form-container .btn_msg {
   background-color: #04AA6D;
   color: white;
   padding: 16px 20px;
@@ -630,6 +630,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 /* Add some hover effects to buttons */
-.form-container .btn:hover, .open-button:hover {
+.form-container .btn_msg:hover {
   opacity: 1;
 }
