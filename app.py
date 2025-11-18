@@ -45,11 +45,12 @@ app.register_blueprint(item_blueprint)
 app.register_blueprint(profile_blueprint)
 app.register_blueprint(auth_blueprint)
 
-# auto create tables in local dev only
-if uri.startswith("sqlite:///"):
-    with app.app_context():
-        db.create_all()
 
 if __name__ == '__main__':
+    # auto create tables in local dev only
+    if uri.startswith("sqlite:///"):
+        with app.app_context():
+            db.create_all()
+    
     # app.run(debug=True)
     socketio.run(app, debug=True)

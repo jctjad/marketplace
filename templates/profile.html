@@ -7,25 +7,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
+<body data-page="profile">
   <header class="header">
     <div class="container header__inner">
-      <a class="brand" href="{{ url_for('main.goto_browse_items_page') }}">
-        <img class="brand__logo" src="{{ url_for('static', filename='assets/mulebay_logo.svg') }}" alt="Mulebay Logo">
+      <a class="brand" href="/">
+        <img class="brand__logo" src="/static/assets/mulebay_logo.svg" alt="Mulebay Logo">
         <span>Mulebay</span>
       </a>
       <nav class="nav" aria-label="Primary">
-        <a href="{{ url_for('main.goto_browse_items_page') }}">Browse</a>
-        <a href="{{ url_for('profile.goto_profile_page') }}" aria-current="page">Profile</a>
+        <a href="/">Browse</a>
+        <a href="/profile" aria-current="page">Profile</a>
       </nav>
       <div class="actions">
-        {% if current_user.is_authenticated %}
-          <a href="{{ url_for('auth.logout') }}" id="logout-button" class="badge">Logout</a>
-        {% else %}
-          <a href="{{ url_for('auth.login') }}" id="login-button" class="badge">Login</a>
-        {% endif %}
+        <a href="/logout" id="logout-button" class="badge">Logout</a>
       </div>
     </div>
   </header>
@@ -36,30 +32,26 @@
     <section class="profile">
       <div class="avatar">
         <img
-          src="{{ current_user.profile_image or url_for('static', filename='assets/avatar.svg') }}"
+          id="profile-avatar"
+          src="/static/assets/avatar.svg"
           alt="User profile image"
           class="profile__avatar">
       </div>
 
       <div class="prose">
-        <h2>
-          {{ (current_user.first_name ~ ' ' ~ current_user.last_name)|trim if current_user.is_authenticated else 'User' }}
-        </h2>
-
-        <p>
-          {{ current_user.profile_description or 'No bio yet. Click “Edit profile” to add a public bio.' }}
+        <h2 id="profile-name">User</h2>
+        <p id="profile-bio">
+          No bio yet. Click “Edit profile” to add a public bio.
         </p>
 
-        {% if current_user.is_authenticated %}
-          <p>
-            <a class="badge" href="{{ url_for('profile.goto_edit_profile_page') }}">Edit profile</a>
-          </p>
-        {% endif %}
+        <p>
+          <a class="badge" href="/profile/edit">Edit profile</a>
+        </p>
 
+        <!-- You can later add listings here by calling another API if desired -->
         <h3>Listings</h3>
         <ul>
-          {# TODO: Replace with real user listings (e.g., items owned by current_user) #}
-          <li><a href="{{ url_for('item.goto_item_page', item_id=1) }}">Example Listing</a></li>
+          <li>(Listings can be added here in the future.)</li>
         </ul>
       </div>
     </section>
@@ -68,10 +60,10 @@
   <footer class="footer">
     <div class="container footer__inner">
       <span>© <span id="year"></span> Mulebay</span>
-      <a href="{{ url_for('main.goto_browse_items_page') }}">Browse items</a>
+      <a href="/">Browse items</a>
     </div>
   </footer>
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script src="/static/script.js"></script>
 </body>
 </html>
