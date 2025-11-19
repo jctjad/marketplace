@@ -597,3 +597,121 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   background: #fff;
   box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
 }
+
+/* NEW: owner controls inside item cards */
+.item-card__owner-actions {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  margin-left: auto;
+}
+
+.link-button {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
+}
+
+/* === MODAL BACKDROP === */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  transition: opacity 0.25s ease;
+}
+
+.modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* === MODAL BOX === */
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+  animation: popup 0.25s ease;
+}
+
+@keyframes popup {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Buttons */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  background: #ddd;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+.btn-danger {
+  background: #ff4d4f;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+/* ================================
+   Owner Actions - Side by Side Small
+   ================================ */
+
+#owner-actions {
+  grid-column: 1 / -1;   /* span the entire grid width */
+  width: 100%;
+  display: flex;
+  justify-content: left;
+}
+
+.owner-actions-row {
+  display: flex;
+  justify-content: flex-start;   
+  gap: 12px;
+  width: 100%;
+}
+
+
+.owner-actions-row .btn {
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  width: 110px;         
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* Yellow Edit Button */
+.btn-edit {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  border: 1px solid #d97706;
+  color: white;
+  font-weight: 600;
+}
+
+/* Red Delete Button */
+.btn-delete {
+  background: #ef4444;
+  color: white;
+  font-weight: 600;
+}
+
+.btn-edit:hover,
+.btn-delete:hover {
+  transform: scale(1.03);
+}
