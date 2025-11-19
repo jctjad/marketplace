@@ -244,8 +244,7 @@ function initCreateItemPage() {
     }
   });
 
-  // keep your previewImage inline function from create_item.html if you like,
-  // or move it here (but not strictly needed to prove REST separation)
+  // (Optional) keep separate inline preview function in create_item.html if you like.
 }
 
 // ==============================
@@ -286,25 +285,118 @@ async function loadProfileData() {
   }
 }
 
-// If you want, you can also preview avatar on file change (optional).
+// ==============================
+// Edit profile avatar logic
+// ==============================
+
+// Global blob for cropped avatar
+let avatarCroppedBlob = null;
+
+// Crop an image object to a centered square on a canvas
+function cropImageToSquare(image) {
+  const size = Math.min(image.naturalWidth, image.naturalHeight);
+  const sx = (image.naturalWidth - size) / 2;
+  const sy = (image.naturalHeight - size) / 2;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(image, sx, sy, size, size, 0, 0, size, size);
+  return canvas;
+}
+
+// Preview + crop avatar client-side
 function bindEditAvatarPreview() {
-  const input = document.querySelector('input[name="avatar"]');
+  const input = document.getElementById("avatar-input");
   const preview = document.getElementById("edit-profile-avatar-preview");
   if (!input || !preview) return;
 
   input.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file.");
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (ev) => {
-      preview.src = ev.target.result;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = cropImageToSquare(img);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return;
+            avatarCroppedBlob = blob;
+            const url = URL.createObjectURL(blob);
+            preview.src = url;
+          },
+          "image/jpeg",
+          0.9
+        );
+      };
+      img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
   });
 }
 
+// Click overlay → open file picker
+function bindAvatarOverlayClick() {
+  const overlay = document.querySelector(".avatar-overlay");
+  const input = document.getElementById("avatar-input");
+  if (!overlay || !input) return;
+
+  overlay.addEventListener("click", () => {
+    input.click();
+  });
+}
+
+// Intercept form submit to send cropped blob
+function bindEditProfileFormSubmit() {
+  const form = document.getElementById("edit-profile-form");
+  const input = document.getElementById("avatar-input");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    // If user didn't pick a new avatar, let the normal form submit happen
+    if (!input || !input.files || !input.files.length || !avatarCroppedBlob) {
+      return;
+    }
+
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    // Replace original avatar file with cropped one
+    formData.delete("avatar");
+    const croppedFile = new File([avatarCroppedBlob], "avatar.jpg", {
+      type: "image/jpeg",
+    });
+    formData.append("avatar", croppedFile);
+
+    try {
+      const resp = await fetch(form.action, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (resp.redirected) {
+        window.location.href = resp.url;
+      } else {
+        // Fallback: reload page
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Error saving profile:", err);
+      alert("There was an error saving your profile.");
+    }
+  });
+}
+
 // ==============================
-// Bookmark toggle (kept from your old script)
+// Bookmark toggle
 // ==============================
 function bindBookmarkIcons() {
   document.querySelectorAll(".item-card__bookmark").forEach((icon) => {
@@ -345,6 +437,8 @@ document.addEventListener("DOMContentLoaded", () => {
     loadProfileData();
     if (page === "edit-profile") {
       bindEditAvatarPreview();
+      bindAvatarOverlayClick();
+      bindEditProfileFormSubmit();
     }
   }
 });
