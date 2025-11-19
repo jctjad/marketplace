@@ -127,17 +127,17 @@ function renderItemGrid(items) {
   bindBookmarkIcons();
 }
 
+// NEW: this was missing – it wires up search + initial fetch
 function initBrowsePage() {
-  // Search input → call API with ?q=
   const searchInput = document.querySelector(".search input");
   if (searchInput) {
     searchInput.addEventListener("input", () => {
-      const query = searchInput.value.trim().toLowerCase();
+      const query = searchInput.value.trim();
       loadItems(query);
     });
   }
 
-  // Initial load
+  // initial load of all items
   loadItems();
 }
 
@@ -145,7 +145,6 @@ function initBrowsePage() {
 // Item detail page – item.html
 // ==============================
 async function initItemPage() {
-  // Item id from path: /item/<id>
   const parts = window.location.pathname.split("/");
   const id = parts[parts.length - 1];
   if (!id) return;
@@ -154,7 +153,7 @@ async function initItemPage() {
     const data = await fetchJSON(`/api/items/${id}`);
     const item = data.item;
 
-    // Fill in fields
+    // Fill UI fields
     const titleEl = document.querySelector("#item-name");
     const priceEl = document.querySelector("#item-price");
     const imgEl = document.querySelector("#item-image");
@@ -175,6 +174,7 @@ async function initItemPage() {
     }
     if (descEl) descEl.textContent = item.description || "";
 
+    // Payment options
     if (paymentContainer) {
       paymentContainer.innerHTML = "";
       (item.payment_options || []).forEach((option) => {
@@ -201,6 +201,42 @@ async function initItemPage() {
         paymentContainer.appendChild(div);
       });
     }
+
+    if (item.is_owner) {
+      const actions = document.getElementById("owner-actions");
+      if (actions) actions.style.display = "block";
+
+      const editBtn = document.getElementById("edit-item-btn");
+      if (editBtn) editBtn.href = `/item/${item.id}/edit`;
+
+      const delBtn = document.getElementById("delete-item-btn");
+
+      // MODAL DELETE
+      const modal = document.getElementById("deleteModal");
+      const confirmBtn = document.getElementById("confirmDelete");
+      const cancelBtn = document.getElementById("cancelDelete");
+
+      delBtn.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+      });
+
+      cancelBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+
+      confirmBtn.addEventListener("click", async () => {
+        try {
+          const resp = await fetch(`/api/items/${item.id}`, {
+            method: "DELETE"
+          });
+          if (!resp.ok) throw new Error(await resp.text());
+          window.location.href = "/";
+        } catch (err) {
+          console.error("Delete failed:", err);
+          alert("There was an error deleting the item.");
+        }
+      });
+    }
   } catch (err) {
     console.error("Error loading item:", err);
     const main = document.querySelector("main");
@@ -208,7 +244,8 @@ async function initItemPage() {
       main.innerHTML = "<p>Sorry, this item could not be loaded.</p>";
     }
   }
-}
+} // ← IMPORTANT: closes initItemPage()
+
 
 // ==============================
 // Create item page – create_item.html
@@ -245,6 +282,88 @@ function initCreateItemPage() {
   });
 
   // (Optional) keep separate inline preview function in create_item.html if you like.
+}
+
+// ==============================
+// Edit item page – edit_item.html
+// ==============================
+async function initEditItemPage() {
+  // Extract item id from URL: /item/<id>/edit
+  const parts = window.location.pathname.split("/");
+  const id = parts[parts.length - 2]; 
+  if (!id) return;
+
+  // Get form fields
+  const form = document.getElementById("editForm");
+  if (!form) return;
+
+  const nameInput = form.querySelector('input[name="name"]');
+  const descInput = form.querySelector('textarea[name="description"]');
+  const priceInput = form.querySelector('input[name="price"]');
+  const conditionSelect = form.querySelector('select[name="condition"]');
+  const paymentCheckboxes = form.querySelectorAll('input[name="payment_options"]');
+
+  // 1. Load existing data
+  try {
+    const data = await fetchJSON(`/api/items/${id}`);
+    const item = data.item;
+
+    // Pre-fill fields
+    if (nameInput) nameInput.value = item.name || "";
+    if (descInput) descInput.value = item.description || "";
+    if (priceInput) priceInput.value = item.price || "";
+    if (conditionSelect) conditionSelect.value = item.condition || "New";
+
+    paymentCheckboxes.forEach(cb => {
+      cb.checked = item.payment_options.includes(cb.value);
+    });
+
+    // Load current image preview if you want (optional)
+    const imgPreview = document.getElementById("edit-image-preview");
+    if (imgPreview) {
+      imgPreview.src = item.item_photos || "/static/assets/item_placeholder.svg";
+    }
+
+  } catch (err) {
+    console.error("Failed to load item for editing:", err);
+  }
+
+  // 2. Handle Save Changes
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Collect updated fields
+    const updatedData = {
+      name: nameInput.value.trim(),
+      description: descInput.value.trim(),
+      price: priceInput.value.trim(),
+      condition: conditionSelect.value,
+      payment_options: Array.from(paymentCheckboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value)
+    };
+
+    try {
+      const resp = await fetch(`/api/items/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(updatedData)
+      });
+
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(text);
+      }
+
+      // Redirect back to item page
+      window.location.href = `/item/${id}`;
+    } catch (err) {
+      console.error("Update error:", err);
+      alert("There was an error saving your changes.");
+    }
+  });
 }
 
 // ==============================
@@ -440,5 +559,8 @@ document.addEventListener("DOMContentLoaded", () => {
       bindAvatarOverlayClick();
       bindEditProfileFormSubmit();
     }
+  } else if (page === "edit-item") {
+  initEditItemPage();
   }
+}
 });

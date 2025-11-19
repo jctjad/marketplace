@@ -39,7 +39,8 @@
         <h1 class="buybox__title" id="item-name">Loading…</h1>
         <div class="price" id="item-price">$0.00</div>
         <button class="btn" id="buy">Message Seller</button>
-
+        <!-- NEW: Owner-only actions, JS will show/hide -->
+        
         <div class="specs">
           <div><strong>Condition: </strong><span id="item-condition">—</span></div>
 
@@ -58,6 +59,13 @@
           <h2>Details</h2>
           <p id="item-description">Loading description…</p>
         </section>
+
+        <div id="owner-actions" class="owner-actions" style="display:none;">
+          <div class="owner-actions-row">
+              <a class="btn btn-edit" id="edit-item-btn">Edit Item</a>
+              <button class="btn btn-delete" id="delete-item-btn">Delete Item</button>
+          </div>
+        </div>
       </aside>
     </div>
   </main>
@@ -68,7 +76,18 @@
       <a href="/">Back to browse</a>
     </div>
   </footer>
+  <!-- Delete confirmation modal -->
+  <div id="deleteModal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Delete Item?</h2>
+        <p>This action cannot be undone.</p>
 
+        <div class="modal-buttons">
+            <button id="cancelDelete" class="btn-secondary">Cancel</button>
+            <button id="confirmDelete" class="btn-danger">Delete</button>
+        </div>
+    </div>
+  </div>
   <script src="/static/script.js"></script>
 </body>
 </html>
