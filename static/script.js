@@ -1,6 +1,13 @@
 // static/script.js
 
 // ==============================
+// Global Variables (tracks items being displayed)
+// ==============================
+let allItems = [];
+let currentFilter = "all"; // "all" or "bookmarks" (will extend to items being sold too)
+
+
+// ==============================
 // Helper: detect page
 // ==============================
 function getPageType() {
@@ -61,6 +68,15 @@ function renderItemGrid(items) {
     bookmark.className = "item-card__bookmark";
     bookmark.src = "/static/assets/bookmark.svg";
     bookmark.dataset.altSrc = "/static/assets/bookmark-filled.svg";
+    bookmark.dataset.itemId = item.id;
+    bookmark.dataset.bookmarked = item.bookmarked ? "true" : "false";
+     if (item.bookmarked) { // show as filled if already bookmarked
+      bookmark.src = "/static/assets/bookmark-filled.svg";
+      bookmark.dataset.altSrc = "/static/assets/bookmark.svg";
+    } else {  // default unfilled
+      bookmark.src = "/static/assets/bookmark.svg";
+      bookmark.dataset.altSrc = "/static/assets/bookmark-filled.svg";
+    }
     bookmark.alt = "Bookmark";
 
     const body = document.createElement("div");
@@ -339,20 +355,59 @@ function bindEditAvatarPreview() {
 })();
 
 // ==============================
-// Handles bookmark icon switch (kept from old script)
+// Handles bookmark icon switch with REST
 // ==============================
 function bindBookmarkIcons() {
   document.querySelectorAll(".item-card__bookmark").forEach((icon) => {
     icon.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
+
+      // 1. Swap the icon image
       const current = icon.getAttribute("src");
       const alt = icon.dataset.altSrc;
       icon.setAttribute("src", alt);
       icon.dataset.altSrc = current;
+
+      // 2. Toggle bookmark state in a data attribute
+      const wasBookmarked = icon.dataset.bookmarked === "true";
+      const isNowBookmarked = !wasBookmarked;
+      icon.dataset.bookmarked = isNowBookmarked ? "true" : "false";
+
+      // 3. Get item id and send REST request
+      const itemId = icon.dataset.itemId;
+      updateBookmarkOnServer(itemId, isNowBookmarked);
     });
   });
 }
+
+
+// ==============================
+// Updates bookmark_items field in user table
+// ==============================
+async function updateBookmarkOnServer(itemId, isBookmarked) {
+  try {
+    const response = await fetch("/api/bookmark", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      credentials: "include", // send cookies/session
+      body: JSON.stringify({
+        item_id: itemId,
+        bookmarked: isBookmarked,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("Failed to update bookmark", await response.text());
+    }
+  } catch (err) {
+    console.error("Error updating bookmark", err);
+  }
+}
+
 
 // ==============================
 // Misc: year stamp

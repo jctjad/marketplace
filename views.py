@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, redirect, url_for, request, flash, current_app, send_file
+    Blueprint, render_template, redirect, url_for, request, flash, current_app, send_file, jsonify
 )
 from models import db, User, Item, Chat
 from flask_login import current_user, login_required
@@ -303,7 +303,8 @@ def api_list_items():
         )
 
     items = query.order_by(Item.date_created.desc()).all()
-    return {"items": [item.to_dict() for item in items]}
+    bookmarked_ids = set(current_user.bookmark_items or []) # Sets bookmark value
+    return {"items": [item.to_dict(bookmarked=(item.id in bookmarked_ids)) for item in items]}
 
 
 @main_blueprint.route("/api/items/<int:item_id>", methods=["GET"])
@@ -313,7 +314,8 @@ def api_get_item(item_id):
     NEW: REST endpoint for a single item, used by item.html via JS.
     """
     item = Item.query.get_or_404(item_id)
-    return {"item": item.to_dict()}
+    bookmarked_ids = set(current_user.bookmark_items or [])
+    return {"item": item.to_dict(bookmarked=(item.id in bookmarked_ids))}
 
 
 @main_blueprint.route("/api/items", methods=["POST"])
@@ -369,6 +371,39 @@ def api_create_item():
     db.session.commit()
 
     return {"item": new_item.to_dict()}, 201
+
+
+@main_blueprint.route("/api/bookmark", methods=["POST"])
+@login_required
+def api_bookmark():
+    """
+    NEW: REST endpoint for bookmarked items.
+    Used by index.html to store user bookmarks and sort by 
+    bookmarked items via JS.
+    """
+    data = request.get_json() or {}
+    item_id = data.get("item_id")
+    bookmarked = data.get("bookmarked")
+
+    if item_id is None or bookmarked is None:
+        return jsonify({"error": "Invalid payload"}), 400
+
+    item = Item.query.get(item_id)
+    if not item:
+        return jsonify({"error": "Item not found"}), 404
+
+    bookmarks = current_user.bookmark_items or []
+    bookmarks = [int(b) for b in bookmarks]     # Normalize to ints
+    if bookmarked:
+        if item_id not in bookmarks:
+            bookmarks.append(item_id)
+    else:
+        bookmarks = [b for b in bookmarks if b != item_id]
+
+    current_user.bookmark_items = bookmarks
+
+    db.session.commit()
+    return jsonify({"status": "ok", "bookmarked": bookmarked, "bookmarks": bookmarks})
 
 
 @profile_blueprint.route("/api/profile/me", methods=["GET"])

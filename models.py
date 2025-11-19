@@ -53,6 +53,7 @@ class Item(db.Model):
     price = db.Column(db.Float, nullable=False)
     condition = db.Column(db.String(50))
     payment_options = db.Column(db.JSON, default=list)  # List of payment options for transaction
+    bookmarked = db.Column(db.Boolean, default=False)
     live_on_market = db.Column(db.Boolean, default=True, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
@@ -60,7 +61,7 @@ class Item(db.Model):
     seller = db.relationship("User", back_populates="items", lazy=True)
 
     # NEW: dict representation for REST API
-    def to_dict(self, include_seller=True):
+    def to_dict(self, include_seller=True, bookmarked=False):
         data = {
             "id": self.id,
             "seller_id": self.seller_id,
@@ -70,6 +71,7 @@ class Item(db.Model):
             "price": self.price,
             "condition": self.condition,
             "payment_options": self.payment_options or [],
+            "bookmarked": bool(bookmarked),
             "live_on_market": self.live_on_market,
             "date_created": self.date_created.isoformat() if self.date_created else None,
         }
