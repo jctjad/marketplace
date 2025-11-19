@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from views import main_blueprint, item_blueprint, profile_blueprint
 from models import db, User
+from authlib.integrations.flask_client import OAuth
 
 #Auth Libraries
 from auth import auth_blueprint
@@ -23,7 +24,28 @@ app.config["SQLALCHEMY_DATABASE_URI"] = uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
 
+#Client for Google Clode
+app.config["GOOGLE_CLIENT_ID"] = os.environ.get("GOOGLE_CLIENT_ID")
+app.config["GOOGLE_SECRET_KEY"] = os.environ.get("GOOGLE_SECRET_KEY")
+
 db.init_app(app)
+
+#OAuth Section
+
+#Defining OAuth client manager
+oauth = OAuth(app)
+
+#Registers Google as an Identity Provider / don't forget to set the client id and key in heroku
+google = oauth.register( #So this is google working for us
+    name = 'google',
+    client_id=app.config["GOOGLE_CLIENT_ID"],
+    client_secret=app.config["GOOGLE_SECRET_KEY"],
+    server_metadata_url = "https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs = {'scope': 'openid profile email'}
+)
+
+#Adding app.config to register google. Helps auth.py use google too
+app.config["GOOGLE_CLIENT"] = google
 
 #Auth Section
 login_man = LoginManager(app)

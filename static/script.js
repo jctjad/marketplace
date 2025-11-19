@@ -286,6 +286,27 @@ async function loadProfileData() {
   }
 }
 
+
+// ==============================
+// Signup page – signup.html
+// ==============================
+
+function initSignupPage() {
+
+  const form = document.getElementById("signup_form");
+  if (!form) return; //Empty Form Catch
+
+  form.addEventListener("submit", )
+
+
+
+}
+
+// ==============================
+// Login page – login.html
+// ==============================
+
+
 // If you want, you can also preview avatar on file change (optional).
 function bindEditAvatarPreview() {
   const input = document.querySelector('input[name="avatar"]');

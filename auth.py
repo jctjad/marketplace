@@ -3,6 +3,8 @@ from flask import request
 from models import db, User
 from flask_login import login_user, login_required, logout_user
 from datetime import datetime
+from flask import current_app
+import os
 
 #Auth Blueprint
 auth_blueprint = Blueprint('auth', __name__)
@@ -14,6 +16,11 @@ def signup():
         password = request.form.get('password')
         firstName = request.form.get('firstName')
         lastName = request.form.get('lastName')
+
+        #Restricing to College Domain
+        if not email.endswith("@colby.edu"):
+            return {"error": "Access Denied: You must use a colby email"}, 403
+
 
         #Checking if User already exists
         existing_user = User.query.filter_by(email=email).first()
@@ -51,4 +58,58 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+
+# =====================================================
+# GOOGLE AUTH
+# =====================================================
+
+
+#Check if this works, might not due to redirect url from google cloud side
+#Creating login for google
+@auth_blueprint.route("/login/google/")
+def login_google():
+    google = current_app.config["GOOGLE_CLIENT"]
+    try:
+        redirect_uri = url_for('auth.authorize_google', _external = True) #External window pop up to authorize
+        return google.authorize_redirect(redirect_uri) #Redirecting authorize to page url on google cloud project
+    except Exception as e:
+        current_app.logger.error(f"Error During Login:{str(e)}")
+        return {"error": "Error occurred during login"}, 400
+
+
+#Creating authorize for google
+@auth_blueprint.route("/login/google/callback")
+def authorize_google():
+    google = current_app.config["GOOGLE_CLIENT"]
+    #Grabbing data needed to create new user
+    token = google.authorize_access_token()
+    userInfo_endpoint = google.server_metadata.get('userinfo_endpoint')
+    resp = google.get(userInfo_endpoint)
+    userInfo = resp.json()
+
+    #Grabbing user details
+    # email = userInfo['email'] #Grabs email user plugged in
+    email = userInfo.get('email')
+    first_name = userInfo.get('given_name', "")
+    last_name = userInfo.get('family_name', "")
+
+    #Restricing to College Domain
+    if not email.endswith("@colby.edu"):
+        return {"error": "Access Denied: You must use a colby email"}, 403
+
+    user = User.query.filter_by(email = email).first()
+    if not user: #If we don't have a user
+        user = User(
+            email = email,
+            first_name = first_name,
+            last_name = last_name)
+        #user.set_password(os.urandom(16).hex()) #Random hex pass - google auth doesn't need pass
+        db.session.add(user)
+        db.session.commit()
+
+    #Logging user into flask-login
+    login_user(user)
+
+    return redirect(url_for('main.goto_browse_items_page')) #redirects towards dashboard route - 
 
