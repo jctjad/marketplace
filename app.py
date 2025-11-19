@@ -1,13 +1,19 @@
+import eventlet
+eventlet.monkey_patch()
+
 import os
 from flask import Flask
 from views import main_blueprint, item_blueprint, profile_blueprint
 from models import db, User
 
+#Messaging import
+from setup_socket import app, socketio
+
 #Auth Libraries
 from auth import auth_blueprint
 from flask_login import LoginManager
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
 uri = os.getenv("DATABASE_URL")  # Heroku sets this automatically
 
@@ -34,6 +40,8 @@ login_man.login_message = None
 def load_user(id):
     return User.query.get(int(id))
 
+# socketio = SocketIO(app) # wrapping our app in SocektIO to enable WebSocket capabilities
+
 #Blue Register Section
 app.register_blueprint(main_blueprint)
 app.register_blueprint(item_blueprint)
@@ -47,4 +55,6 @@ if __name__ == '__main__':
         with app.app_context():
             db.create_all()
     
-    app.run(debug=True)
+    # app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, debug=True, port=port)

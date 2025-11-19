@@ -531,6 +531,74 @@ function bindBookmarkIcons() {
 }
 
 // ==============================
+// Messaging 
+// ==============================
+let socket;
+
+// Open chat box
+async function openForm(){
+  const chat_form = document.getElementById("chatForm");
+  const chat_screen = document.getElementById("messages");
+  chat_form.style.display = "block";
+  chat_screen.style.display = "grid";
+  // Item id from path: /item/<id>
+  const parts = window.location.pathname.split("/");
+  const id = parts[parts.length - 1];
+  
+  const data_user = await fetchJSON("/api/profile/me");
+  const user = data_user.user;
+
+  const data_item = await fetchJSON(`/api/items/${id}`);
+  const item = data_item.item; 
+  
+  socket = io();
+  socket.emit("join", item, user);
+  socket.on("message", function(data) {
+    var messages = document.getElementById('messages');
+    messages.innerHTML += `<span>${data}</span>`;
+  });
+
+  chat_form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    // var message_to_add;
+    
+    // const msg_info = { user_data:user, item_data:item, message:message_to_add};
+
+    // const resp = await fetch("api/messages", {
+    //   method: "POST",
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify(msg_info)
+    // });
+    // const data = await resp.json();
+
+  });
+}
+
+// Close chat box
+async function closeForm(){
+  document.getElementById("chatForm").style.display = "none";
+  const data_user = await fetchJSON("/api/profile/me");
+  const user = data_user.user;
+}
+
+// Function to send messages
+async function sendMessage(){
+  const data = await fetchJSON("/api/profile/me");
+  const user = data.user;
+
+  var msgInput = document.getElementById("msg");
+  var message = msgInput.value;
+
+
+  socket.send(message, user);
+  msgInput.value = "";
+}
+
+/* USER PROFILE */
+// ==============================
 // Misc: year stamp
 // ==============================
 function updateYear() {
