@@ -202,40 +202,41 @@ async function initItemPage() {
       });
     }
 
-    // OWNER-ONLY ACTIONS...
     if (item.is_owner) {
       const actions = document.getElementById("owner-actions");
       if (actions) actions.style.display = "block";
 
       const editBtn = document.getElementById("edit-item-btn");
-      if (editBtn) {
-        editBtn.href = `/item/${item.id}/edit`;
-      }
+      if (editBtn) editBtn.href = `/item/${item.id}/edit`;
 
       const delBtn = document.getElementById("delete-item-btn");
-      if (delBtn) {
-        delBtn.addEventListener("click", async () => {
-          if (!confirm("Are you sure you want to delete this item?")) return;
 
-          try {
-            const resp = await fetch(`/api/items/${item.id}`, {
-              method: "DELETE"
-            });
+      // MODAL DELETE
+      const modal = document.getElementById("deleteModal");
+      const confirmBtn = document.getElementById("confirmDelete");
+      const cancelBtn = document.getElementById("cancelDelete");
 
-            if (!resp.ok) {
-              const text = await resp.text();
-              throw new Error(text);
-            }
+      delBtn.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+      });
 
-            window.location.href = "/";
-          } catch (err) {
-            console.error("Delete failed:", err);
-            alert("There was an error deleting the item.");
-          }
-        });
-      }
+      cancelBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+
+      confirmBtn.addEventListener("click", async () => {
+        try {
+          const resp = await fetch(`/api/items/${item.id}`, {
+            method: "DELETE"
+          });
+          if (!resp.ok) throw new Error(await resp.text());
+          window.location.href = "/";
+        } catch (err) {
+          console.error("Delete failed:", err);
+          alert("There was an error deleting the item.");
+        }
+      });
     }
-
   } catch (err) {
     console.error("Error loading item:", err);
     const main = document.querySelector("main");
@@ -243,7 +244,7 @@ async function initItemPage() {
       main.innerHTML = "<p>Sorry, this item could not be loaded.</p>";
     }
   }
-}
+} // ← IMPORTANT: closes initItemPage()
 
 
 // ==============================
