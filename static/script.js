@@ -8,20 +8,6 @@ let currentFilter = "all"; // "all" or "bookmarks" (will extend to items being s
 let currentUserId = null;
 
 // ==============================
-// Loads current user, used by item filtering display
-// ==============================
-async function loadCurrentUser() {
-  try {
-    const res = await fetch("/api/profile/me");
-    const data = await res.json();
-    currentUserId = data.user.id;
-    console.log("Current user ID:", currentUserId);
-  } catch (err) {
-    console.error("Failed to load current user:", err);
-  }
-}
-
-// ==============================
 // Helper: detect page
 // ==============================
 function getPageType() {
@@ -39,6 +25,20 @@ async function fetchJSON(url, options = {}) {
     throw new Error(`HTTP ${resp.status}: ${text}`);
   }
   return resp.json();
+}
+
+// ==============================
+// Browse page – index.html (load current user from backend)
+// ==============================
+async function loadCurrentUser() {
+  try {
+    const res = await fetch("/api/profile/me");
+    const data = await res.json();
+    currentUserId = data.user.id;
+    console.log("Current user ID:", currentUserId);
+  } catch (err) {
+    console.error("Failed to load current user:", err);
+  }
 }
 
 // ==============================
