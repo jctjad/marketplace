@@ -66,10 +66,10 @@
       
     </div>
     <div class="chat-popup" id="chatForm">
-      <form class="form-container" method="POST" enctype="multipart/form-data">
+      <form class="form-container" method="POST">
         <h1> Chat </h1>
         <label for="msg"> <b> Message </b> </label>
-        <textarea placeholder="Type message..." id="msg" required></textarea>
+        <textarea placeholder="Type message..." id="msg"></textarea>
         <button type="submit" class="btn_msg" id="send_btn" onclick="sendMessage()"> Send </button>
         <button type="button" class="btn_msg cancel" onclick="closeForm()"> Close </button>
       </form>
@@ -77,7 +77,7 @@
     <!-- Added this src so we can use io() -->
     <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
     <!-- This is where the messages from the popup will go -->
-    <div id="messages"> </div>
+    <div class="buybox card" id="messages"> </div>
 
   </main>
 
