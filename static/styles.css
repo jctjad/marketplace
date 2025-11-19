@@ -185,7 +185,44 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .search input {
   border: 0; background: transparent; color: var(--text); width: 100%; outline: none;
 }
-.filter { background: var(--elev); border:1px solid var(--bd); padding: 8px 12px; border-radius: 10px; color: var(--muted); }
+
+
+.filter { /* Filter items button */ 
+  background: var(--elev);
+  border:1px solid var(--bd);
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: var(--muted);
+  width: 150px;
+  text-align: right;
+}
+.filter-menu {  /* Dropdown menu */
+  display: none;
+  position: absolute;
+  top: calc(70% + 6px);
+  right: 0;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.12);
+  z-index: 30;
+  min-width: 160px;
+}
+.filter-menu li button {  /* Buttons inside menu dropdown */
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+}
+.filter-menu li button:hover { background: var(--elev); }
+.filter[aria-expanded="true"] + .filter-menu { display: block; }  /* Show when the button is expanded */
 
 /* Footer */
 .footer { border-top: 1px solid var(--bd); margin-top: 36px; }
