@@ -28,16 +28,36 @@ async function fetchJSON(url, options = {}) {
 }
 
 // ==============================
-// Browse page – index.html
+// Browse page – index.html (load items from backend)
 // ==============================
 async function loadItems(query = "") {
   try {
-    const url = query ? `/api/items?q=${encodeURIComponent(query)}` : "/api/items";
-    const data = await fetchJSON(url);
-    renderItemGrid(data.items || []);
+    const params = query ? `?q=${encodeURIComponent(query)}` : "";
+    const res = await fetch(`/api/items${params}`);
+
+    if (!res.ok) {
+      console.error("Failed to load items", await res.text());
+      return;
+    }
+
+    const data = await res.json();
+
+    allItems = data.items || [];
+    applyFilterAndRender();
   } catch (err) {
     console.error("Error loading items:", err);
   }
+}
+
+// Apply currentFilter, then render
+function applyFilterAndRender() {
+  let itemsToShow = allItems;
+
+  if (currentFilter === "bookmarks") {
+    itemsToShow = allItems.filter((item) => item.bookmarked);
+  }
+
+  renderItemGrid(itemsToShow);
 }
 
 function renderItemGrid(items) {
@@ -355,6 +375,27 @@ function bindEditAvatarPreview() {
 })();
 
 // ==============================
+// Hook up filter dropdown to change the items being displayed
+// ==============================
+const categoryFilterBtn = document.getElementById("categoryFilter");
+const categoryMenu = document.getElementById("categoryMenu");
+
+if (categoryMenu && categoryFilterBtn) {
+  categoryMenu.querySelectorAll("button[data-value]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const value = btn.dataset.value; // "all" or "bookmarks"
+      currentFilter = value;
+
+      // update button text
+      categoryFilterBtn.textContent = 
+        value === "bookmarks" ? "Bookmarks ▾" : "All Items ▾";
+
+      applyFilterAndRender();
+    });
+  });
+}
+
+// ==============================
 // Handles bookmark icon switch with REST
 // ==============================
 function bindBookmarkIcons() {
@@ -374,13 +415,26 @@ function bindBookmarkIcons() {
       const isNowBookmarked = !wasBookmarked;
       icon.dataset.bookmarked = isNowBookmarked ? "true" : "false";
 
-      // 3. Get item id and send REST request
+      // 3. Update local JS state (allItems) so it stays in sync with UI
       const itemId = icon.dataset.itemId;
+      const itemIdNum = Number(itemId);
+      const itemObj = allItems.find((i) => i.id === itemIdNum);
+
+      if (itemObj) {
+        itemObj.bookmarked = isNowBookmarked;
+      }
+
+      // 4. Re-apply the filter so it disappears from the grid.
+      if (currentFilter === "bookmarks" && !isNowBookmarked) {
+        applyFilterAndRender();
+        return;
+      }
+
+      // 5. Send REST request to backend
       updateBookmarkOnServer(itemId, isNowBookmarked);
     });
   });
 }
-
 
 // ==============================
 // Updates bookmark_items field in user table
@@ -407,7 +461,6 @@ async function updateBookmarkOnServer(itemId, isBookmarked) {
     console.error("Error updating bookmark", err);
   }
 }
-
 
 // ==============================
 // Misc: year stamp

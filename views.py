@@ -364,7 +364,6 @@ def api_create_item():
     db.session.add(new_item)
     db.session.commit()
 
-    # Optional: update user's selling_items list
     selling = current_user.selling_items or []
     selling.append(new_item.id)
     current_user.selling_items = selling
@@ -381,29 +380,41 @@ def api_bookmark():
     Used by index.html to store user bookmarks and sort by 
     bookmarked items via JS.
     """
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
+
     item_id = data.get("item_id")
     bookmarked = data.get("bookmarked")
 
     if item_id is None or bookmarked is None:
         return jsonify({"error": "Invalid payload"}), 400
 
+    # Ensure item exists
+    try:
+        item_id = int(item_id)
+    except (TypeError, ValueError):
+        return jsonify({"error": "item_id must be an integer"}), 400
     item = Item.query.get(item_id)
-    if not item:
+    if item is None:
         return jsonify({"error": "Item not found"}), 404
 
+    # Normalize bookmark list
     bookmarks = current_user.bookmark_items or []
-    bookmarks = [int(b) for b in bookmarks]     # Normalize to ints
-    if bookmarked:
+    try:
+        bookmarks = [int(b) for b in bookmarks]
+    except (TypeError, ValueError):
+        bookmarks = []
+
+    # Toggle bookmark
+    if bool(bookmarked):
         if item_id not in bookmarks:
             bookmarks.append(item_id)
     else:
         bookmarks = [b for b in bookmarks if b != item_id]
 
     current_user.bookmark_items = bookmarks
-
     db.session.commit()
-    return jsonify({"status": "ok", "bookmarked": bookmarked, "bookmarks": bookmarks})
+
+    return jsonify({"status": "ok", "bookmarked": bool(bookmarked), "bookmarks": bookmarks,}), 200
 
 
 @profile_blueprint.route("/api/profile/me", methods=["GET"])
