@@ -317,7 +317,7 @@ def api_list_items():
         ]
     }
 
-@main_blueprint.route("/api/items/<int:item_id>", methods=["GET"])
+@main_blueprint.route("/api/items/<int:item_id>", methods=["GET"], endpoint="api_get_item_v2")
 @login_required
 def api_get_item(item_id):
     """
