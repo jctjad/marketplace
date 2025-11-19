@@ -17,6 +17,10 @@ def signup():
         firstName = request.form.get('firstName')
         lastName = request.form.get('lastName')
 
+        #Restricting to Colby emails
+        if not email.endswith("@colby.edu"):
+            return {"error": "not valid email address"}, 400
+
         #Checking if User already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
@@ -40,6 +44,10 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+
+        #Restricting to Colby emails
+        if not email.endswith("@colby.edu"):
+            return {"error": "not valid email address"}, 400
 
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
@@ -67,7 +75,7 @@ def login_google():
     google = current_app.config["GOOGLE_CLIENT"]
     try:
         redirect_uri = url_for('auth.authorize_google', _external = True) #External window pop up to authorize
-        return google.authorize_redirect(redirect_uri) #Redirecting authorize to page url on google cloud project
+        return google.authorize_redirect(redirect_uri, prompt = "select_account") #Redirecting authorize to page url on google cloud project
     except Exception as e:
         current_app.logger.error(f"Error During Login:{str(e)}")
         return {"error": "Error occurred during login"}, 400
