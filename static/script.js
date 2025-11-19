@@ -5,7 +5,21 @@
 // ==============================
 let allItems = [];
 let currentFilter = "all"; // "all" or "bookmarks" (will extend to items being sold too)
+let currentUserId = null;
 
+// ==============================
+// Loads current user, used by item filtering display
+// ==============================
+async function loadCurrentUser() {
+  try {
+    const res = await fetch("/api/profile/me");
+    const data = await res.json();
+    currentUserId = data.user.id;
+    console.log("Current user ID:", currentUserId);
+  } catch (err) {
+    console.error("Failed to load current user:", err);
+  }
+}
 
 // ==============================
 // Helper: detect page
@@ -55,6 +69,8 @@ function applyFilterAndRender() {
 
   if (currentFilter === "bookmarks") {
     itemsToShow = allItems.filter((item) => item.bookmarked);
+  } else if (currentFilter === "selling-items") {
+    itemsToShow = allItems.filter(item => item.seller_id === currentUserId);
   }
 
   renderItemGrid(itemsToShow);
@@ -174,6 +190,7 @@ function initBrowsePage() {
   }
 
   // Initial load
+  loadCurrentUser();
   loadItems();
 }
 
@@ -383,12 +400,16 @@ const categoryMenu = document.getElementById("categoryMenu");
 if (categoryMenu && categoryFilterBtn) {
   categoryMenu.querySelectorAll("button[data-value]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const value = btn.dataset.value; // "all" or "bookmarks"
+      const value = btn.dataset.value; // "all" or "bookmarks" or "selling-items"
       currentFilter = value;
 
-      // update button text
-      categoryFilterBtn.textContent = 
-        value === "bookmarks" ? "Bookmarks ▾" : "All Items ▾";
+      if (value === "bookmarks") {
+        categoryFilterBtn.textContent = "Bookmarks ▾";
+      } else if (value === "selling-items") {
+        categoryFilterBtn.textContent = "Your Items ▾";
+      } else {
+        categoryFilterBtn.textContent = "All Items ▾";
+      }
 
       applyFilterAndRender();
     });
