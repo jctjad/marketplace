@@ -8,6 +8,8 @@ from datetime import datetime
 import os
 import csv
 import imghdr
+from flask_socketio import SocketIO, send, emit, join_room, leave_room
+from setup_socket import socketio # to access socketio
 
 # --- Blueprints ---
 main_blueprint = Blueprint('main', __name__)
@@ -74,6 +76,27 @@ def create_item_page():
     called via fetch() in script.js.
     """
     return render_template("create_item.html")
+
+@socketio.on("join")
+def handle_join(item, user):
+    item_id = item["id"]
+    user_id = user["id"]
+    seller_id = item["seller_id"]
+    # room_id = str(item_id) + '_' + str(user_id) + '_' + str(seller_id)
+    room_id = item_id
+    join_room(room_id)
+    emit("message", f"{user['first_name']} {user['last_name']} has joined the chat", room=room_id)
+    
+# Handle user messages
+@socketio.on("message")
+def handle_message(data, user):
+    emit("message", f"{user['first_name']} {user['last_name']}: {data}", broadcast=True)
+
+# Handle disconnects
+@socketio.on("disconnect")
+def handle_disconnect():
+    user = User.query.filter_by(id=current_user.id).first()
+    emit("message", f" {user.first_name} {user.last_name} left the chat", broadcast=True)
 
 
 # NEW: Edit page shell (JS will fetch item + save via /api/items/<id>)
@@ -475,3 +498,34 @@ def api_profile_me():
     Used by profile.html and edit_profile.html via JS.
     """
     return {"user": current_user.to_dict()}
+
+@item_blueprint.route("/api/messages/<string:room_id>", methods=["GET"])
+@login_required
+def api_get_messages(room_id):
+    return
+
+@item_blueprint.route("/api/messages", methods=["POST"])
+@login_required
+def api_add_message():
+    user_data = request.form.get("user_data")
+    item_data = request.form.get("item_data")
+    msg_data = request.form.get("message")
+
+    user_id = user_data['id']
+    item_id = item_data['id']
+    seller_id = item_data['seller_id']
+    
+    # check to see if the chat between the buyer and seller for the item exists
+    find_chat = Chat.query.filter_by(item_id=item_id, seller_id=seller_id, buyers_id=[user_id]).first()
+    if(not find_chat):
+        new_message = Chat(
+            item_id=item_id,
+            seller_id=seller_id,
+            buyer_ids=[seller_id]
+        )
+        new_message.messages['head'] = new_message.id
+        # new_message.messages['tail'] = new_message.id
+        new_message.messages['nodes'] = {"msg_data":msg_data, "id":user_id, "next":None}
+    # else:
+        # find_chat.messages['nodes']["next"]
+    return
