@@ -44,7 +44,11 @@
           aria-label="Search items"
         >
       </div>
-      <button class="filter" aria-haspopup="listbox" aria-expanded="false">All categories ▾</button>
+        <button class="filter" id="categoryFilter" aria-haspopup="listbox" aria-expanded="false">All Items ▾</button>
+        <ul class="filter-menu" id="categoryMenu" role="listbox">
+          <li role="option"><button data-value="all">All Items</button></li>
+          <li role="option"><button data-value="bookmarks">Bookmarks</button></li>
+        </ul>
     </div>
 
     <!-- CHANGED: empty grid, populated entirely via script.js calling /api/items -->
