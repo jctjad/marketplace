@@ -7,3 +7,4 @@ Werkzeug==3.1.3
 gunicorn==23.0.0
 psycopg2-binary
 Flask-SocketIO==5.5.1
+eventlet==0.40.3

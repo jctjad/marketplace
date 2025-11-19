@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 import os
 from flask import Flask
 from views import main_blueprint, item_blueprint, profile_blueprint
@@ -53,4 +56,5 @@ if __name__ == '__main__':
             db.create_all()
     
     # app.run(debug=True)
-    socketio.run(app, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, debug=True, port=port)
