@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, redirect, url_for, request, flash, current_app, send_file
+    Blueprint, render_template, redirect, url_for, request, flash, current_app, send_from_directory
 )
 from models import db, User, Item, Chat
 from flask_login import current_user, login_required
@@ -39,6 +39,17 @@ def allowed_file(filename: str) -> bool:
 # =====================================================
 # HTML ROUTES (NO JINJA DATA) – FRONTEND SHELL ONLY
 # =====================================================
+
+# =========================
+# Favicon
+# =========================
+@main_blueprint.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        'static/assets',
+        'favicon.ico',
+        mimetype='image/x-icon'
+    )
 
 # =========================
 # Main / Browse
