@@ -177,7 +177,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   padding: 26px 0 40px;
 }
 .page__title { margin: 10px 0 14px; font-size: clamp(22px, 3.6vw, 36px); font-weight: 900; letter-spacing: .2px; }
-.bar { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; gap: 12px; }
+.bar {position: relative; display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; gap: 12px; }
 .search {
   display:flex; align-items:center; gap:8px; width: 100%; max-width: 520px;
   background: var(--panel); border: 1px solid var(--bd); border-radius: 12px; padding: 8px 10px;
@@ -185,7 +185,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .search input {
   border: 0; background: transparent; color: var(--text); width: 100%; outline: none;
 }
-
 
 .filter { /* Filter items button */ 
   background: var(--elev);

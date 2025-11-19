@@ -304,7 +304,42 @@ function bindEditAvatarPreview() {
 }
 
 // ==============================
-// Bookmark toggle (kept from your old script)
+// Category dropdown button
+// ==============================
+(function () {
+  const btn = document.getElementById('categoryFilter');
+  const menu = document.getElementById('categoryMenu');
+  if (!btn || !menu) return;
+
+  const closeMenu = () => {
+    btn.setAttribute('aria-expanded', 'false');
+  };
+
+  btn.addEventListener('click', (e) => {
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!expanded));
+  });
+
+  menu.addEventListener('click', (e) => {
+    const target = e.target.closest('button[data-value]');
+    if (!target) return;
+    const label = target.textContent.trim();
+    btn.innerHTML = `${label} ▾`;
+    closeMenu();
+  });
+
+  // Close popup
+  document.addEventListener('click', (e) => {
+    if (e.target === btn || menu.contains(e.target)) return;
+    closeMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+})();
+
+// ==============================
+// Handles bookmark icon switch (kept from old script)
 // ==============================
 function bindBookmarkIcons() {
   document.querySelectorAll(".item-card__bookmark").forEach((icon) => {
