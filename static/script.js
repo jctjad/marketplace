@@ -323,48 +323,90 @@ function bindBookmarkIcons() {
 // Messaging 
 // ==============================
 let socket;
+
 // Open chat box
-function openForm(){
+async function openForm(){
   const chat_form = document.getElementById("chatForm");
   chat_form.style.display = "block";
   // Item id from path: /item/<id>
   const parts = window.location.pathname.split("/");
-  const item_id = parts[parts.length - 1];
+  const id = parts[parts.length - 1];
+  
+  const data_user = await fetchJSON("/api/profile/me");
+  const user = data_user.user;
+
+  const data_item = await fetchJSON(`/api/items/${id}`);
+  const item = data_item.item; 
   
   socket = io();
-  joinRoom(item_id);
-  lookForMessages();
+  socket.emit("join", item, user);
 
-  chat_form.addEventListener("submit", (e) => {
+  chat_form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    // sendMessage();
-  });
-}
+    
+    var message_to_add;
+    socket.on("message", function(data) {
+      var messages = document.getElementById('messages');
+      messages.innerHTML += `<p>${data}</p>`;
+      message_to_add = data;
+    });
+    
+    const msg_info = { user_data:user, item_data:item, message:message_to_add};
 
-function joinRoom(item_id){
-  socket.emit("join", item_id);
-}
+    const resp = await fetch("api/messages", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(msg_info)
+    });
+    const data = await resp.json();
 
-function lookForMessages(){
-  socket.on("message", function(data) {
-  var messages = document.getElementByID('messages');
-  messages.innerHTML += `<p>${data}</p>`;
-  console.log(messages);
+
   });
 }
 
 // Close chat box
-function closeForm(){
+async function closeForm(){
   document.getElementById("chatForm").style.display = "none";
+  socket.disconnect();
 }
 
+// function lookForMessages(){
+//   socket.on("message", function(data) {
+//   var messages = document.getElementById('messages');
+//   messages.innerHTML += `<p>${data}</p>`;
+//   });
+// }
+
 // Function to send messages
-function sendMessage(){
+async function sendMessage(){
+  const data = await fetchJSON("/api/profile/me");
+  const user = data.user;
+
   var msgInput = document.getElementById("msg");
   var message = msgInput.value;
-  socket.send(message);
+
+  // createMessage in db here
+
+  socket.send(message, user);
   msgInput.value = "";
 }
+
+// Function to add message to our db
+// we pass in the textarea element from sendMessage()
+// async function addMessage(){
+//   const parts = window.location.pathname.split("/");
+//   const id = parts[parts.length - 1];
+
+//   const data_user = await fetchJSON("/api/profile/me");
+//   const user = data_user.user;
+
+//   const data_item = await fetchJSON(`/api/items/${id}`);
+//   const item = data_item.item; 
+// }
+
+
 
 /* USER PROFILE */
 // ==============================
