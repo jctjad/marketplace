@@ -17,11 +17,6 @@ def signup():
         firstName = request.form.get('firstName')
         lastName = request.form.get('lastName')
 
-        #Restricing to College Domain
-        if not email.endswith("@colby.edu"):
-            return {"error": "Access Denied: You must use a colby email"}, 403
-
-
         #Checking if User already exists
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
@@ -93,10 +88,6 @@ def authorize_google():
     email = userInfo.get('email')
     first_name = userInfo.get('given_name', "")
     last_name = userInfo.get('family_name', "")
-
-    #Restricing to College Domain
-    if not email.endswith("@colby.edu"):
-        return {"error": "Access Denied: You must use a colby email"}, 403
 
     user = User.query.filter_by(email = email).first()
     if not user: #If we don't have a user
