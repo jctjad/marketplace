@@ -630,5 +630,4 @@ document.addEventListener("DOMContentLoaded", () => {
   } else if (page === "edit-item") {
   initEditItemPage();
   }
-}
 });
