@@ -94,8 +94,9 @@ def handle_message(data, user):
 
 # Handle disconnects
 @socketio.on("disconnect")
-def handle_disconnect(user):
-    emit("message", f"{user['first_name']} {user['last_name']} left the chat", broadcast=True)
+def handle_disconnect():
+    user = User.query.filter_by(id=current_user.id).first()
+    emit("message", f" {user.first_name} {user.last_name} left the chat", broadcast=True)
 
 
 # =========================
