@@ -38,6 +38,12 @@ def allowed_file(filename: str) -> bool:
 # HTML ROUTES (NO JINJA DATA) – FRONTEND SHELL ONLY
 # =====================================================
 
+@main_blueprint.route("/init-db")
+def init_db():
+    from app import db  # if not already imported here
+    db.create_all()
+    return "DB initialized"
+
 # =========================
 # Main / Browse
 # =========================
