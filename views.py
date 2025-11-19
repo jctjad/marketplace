@@ -76,6 +76,12 @@ def create_item_page():
     return render_template("create_item.html")
 
 
+# NEW: Edit page shell (JS will fetch item + save via /api/items/<id>)
+@item_blueprint.route('/item/<int:item_id>/edit')
+@login_required
+def edit_item_page(item_id):
+    return render_template('edit_item.html')
+
 # =========================
 # Profile (View + Edit)
 # =========================
@@ -283,66 +289,53 @@ def populate_Chat_Data():
 # REST API ROUTES – REAL “BACKEND”
 # =====================================================
 
-@main_blueprint.route("/api/items", methods=["GET"])
+# =========================
+# REST API: Items
+# =========================
+
+@item_blueprint.route("/api/items", methods=["GET"])
 @login_required
 def api_list_items():
-    """
-    NEW: REST endpoint for listing items.
-    Optional ?q= search param to filter by name, description, condition.
-    """
-    q = (request.args.get("q") or "").strip().lower()
+    q = request.args.get("q", "").strip().lower()
 
-    query = Item.query.filter_by(live_on_market=True)
-
+    query = Item.query
     if q:
-        like = f"%{q}%"
         query = query.filter(
-            (Item.name.ilike(like))
-            | (Item.description.ilike(like))
-            | (Item.condition.ilike(like))
+            Item.name.ilike(f"%{q}%") |
+            Item.description.ilike(f"%{q}%") |
+            Item.condition.ilike(f"%{q}%")
         )
 
     items = query.order_by(Item.date_created.desc()).all()
-    return {"items": [item.to_dict() for item in items]}
+
+    return {
+        "items": [
+            item.to_dict(include_seller=True, current_user_id=current_user.id)
+            for item in items
+        ]
+    }
 
 
-@main_blueprint.route("/api/items/<int:item_id>", methods=["GET"])
-@login_required
-def api_get_item(item_id):
-    """
-    NEW: REST endpoint for a single item, used by item.html via JS.
-    """
-    item = Item.query.get_or_404(item_id)
-    return {"item": item.to_dict()}
 
-
-@main_blueprint.route("/api/items", methods=["POST"])
+@item_blueprint.route("/api/items", methods=["POST"])
 @login_required
 def api_create_item():
-    """
-    NEW: REST endpoint for creating an item.
-    Accepts multipart form-data (image + fields) from create_item.html via fetch().
-    """
-    name = request.form.get("name", "").strip()
-    description = request.form.get("description", "").strip()
-    price_raw = request.form.get("price")
-    condition = request.form.get("condition", "").strip()
+    # Accept multipart/form-data
+    name = request.form.get("name")
+    description = request.form.get("description")
+    price = request.form.get("price")
+    condition = request.form.get("condition")
     payment_options = request.form.getlist("payment_options")
 
-    if not name or not price_raw:
-        return {"error": "Name and price are required."}, 400
+    if not name or not price:
+        return {"error": "Missing name or price"}, 400
 
-    try:
-        price = float(price_raw)
-    except ValueError:
-        return {"error": "Price must be a valid number."}, 400
-
-    # Handle image upload
+    # handle file upload
     image_file = request.files.get("image_file")
-    if image_file and image_file.filename and allowed_file(image_file.filename):
-        filename = secure_filename(image_file.filename)
-        save_path = os.path.join(UPLOAD_FOLDER, filename)
-        image_file.save(save_path)
+    if image_file and image_file.filename:
+        filename = secure_filename(f"{current_user.id}_{image_file.filename}")
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        image_file.save(filepath)
         image_path = f"/static/uploads/{filename}"
     else:
         image_path = "/static/assets/item_placeholder.svg"
@@ -351,24 +344,67 @@ def api_create_item():
         seller_id=current_user.id,
         name=name,
         description=description,
-        item_photos=image_path,
-        price=price,
+        price=float(price),
         condition=condition,
         payment_options=payment_options,
-        live_on_market=True,
-        date_created=datetime.today(),
+        item_photos=image_path,
     )
 
     db.session.add(new_item)
     db.session.commit()
 
-    # Optional: update user's selling_items list
-    selling = current_user.selling_items or []
-    selling.append(new_item.id)
-    current_user.selling_items = selling
-    db.session.commit()
+    return {"item": new_item.to_dict(current_user_id=current_user.id)}, 201
 
-    return {"item": new_item.to_dict()}, 201
+
+@main_blueprint.route('/api/items/<int:item_id>', methods=['GET'])
+@login_required
+def api_get_item(item_id):
+    """NEW: Get a single item by id."""
+    item = Item.query.get_or_404(item_id)
+    return {"item": item.to_dict(current_user_id=current_user.id)}
+
+
+@main_blueprint.route('/api/items/<int:item_id>', methods=['PUT', 'PATCH'])
+@login_required
+def api_update_item(item_id):
+    """NEW: Update an item you own."""
+    item = Item.query.get_or_404(item_id)
+
+    if item.seller_id != current_user.id:
+        return {"error": "You can only edit your own items."}, 403
+
+    data = request.get_json() or {}
+
+    if 'name' in data:
+        item.name = (data['name'] or '').strip()
+    if 'description' in data:
+        item.description = (data['description'] or '').strip()
+    if 'price' in data:
+        try:
+            item.price = float(data['price'])
+        except (TypeError, ValueError):
+            return {"error": "Price must be a number"}, 400
+    if 'condition' in data:
+        item.condition = data['condition']
+    if 'payment_options' in data:
+        item.payment_options = data['payment_options'] or []
+
+    db.session.commit()
+    return {"item": item.to_dict(current_user_id=current_user.id)}
+
+
+@main_blueprint.route('/api/items/<int:item_id>', methods=['DELETE'])
+@login_required
+def api_delete_item(item_id):
+    """NEW: Hard delete an item you own."""
+    item = Item.query.get_or_404(item_id)
+
+    if item.seller_id != current_user.id:
+        return {"error": "You can only delete your own items."}, 403
+
+    db.session.delete(item)
+    db.session.commit()
+    return {"status": "deleted", "id": item_id}
 
 
 @profile_blueprint.route("/api/profile/me", methods=["GET"])
