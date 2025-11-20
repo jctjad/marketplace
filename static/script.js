@@ -694,6 +694,7 @@ async function updateBookmarkOnServer(itemId, isBookmarked) {
   }
 }
 
+// ==============================
 // Messaging 
 // ==============================
 let socket;
