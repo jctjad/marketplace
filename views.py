@@ -336,7 +336,7 @@ def api_list_items():
 
     items = query.order_by(Item.date_created.desc()).all()
     bookmarked_ids = set(current_user.bookmark_items or []) # Sets bookmark value
-    return {"items": [item.to_dict(bookmarked=(item.id in bookmarked_ids)) for item in items]}
+    return {"items": [item.to_dict(include_seller=True,bookmarked=(item.id in bookmarked_ids), current_user_id=current_user.id) for item in items]}
 
     return {
         "items": [
@@ -353,7 +353,7 @@ def api_get_item(item_id):
     """
     item = Item.query.get_or_404(item_id)
     bookmarked_ids = set(current_user.bookmark_items or [])
-    return {"item": item.to_dict(bookmarked=(item.id in bookmarked_ids))}
+    return {"item": item.to_dict(include_seller=True,bookmarked=(item.id in bookmarked_ids), current_user_id=current_user.id)}
 
 
 @item_blueprint.route("/api/items", methods=["POST"])
