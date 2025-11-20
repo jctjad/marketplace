@@ -1,6 +1,13 @@
 // static/script.js
 
 // ==============================
+// Global Variables (tracks items being displayed)
+// ==============================
+let allItems = [];
+let currentFilter = "all"; // "all" or "bookmarks" (will extend to items being sold too)
+let currentUserId = null;
+
+// ==============================
 // Helper: detect page
 // ==============================
 function getPageType() {
@@ -21,16 +28,52 @@ async function fetchJSON(url, options = {}) {
 }
 
 // ==============================
-// Browse page – index.html
+// Browse page – index.html (load current user from backend)
+// ==============================
+async function loadCurrentUser() {
+  try {
+    const res = await fetch("/api/profile/me");
+    const data = await res.json();
+    currentUserId = data.user.id;
+    console.log("Current user ID:", currentUserId);
+  } catch (err) {
+    console.error("Failed to load current user:", err);
+  }
+}
+
+// ==============================
+// Browse page – index.html (load items from backend)
 // ==============================
 async function loadItems(query = "") {
   try {
-    const url = query ? `/api/items?q=${encodeURIComponent(query)}` : "/api/items";
-    const data = await fetchJSON(url);
-    renderItemGrid(data.items || []);
+    const params = query ? `?q=${encodeURIComponent(query)}` : "";
+    const res = await fetch(`/api/items${params}`);
+
+    if (!res.ok) {
+      console.error("Failed to load items", await res.text());
+      return;
+    }
+
+    const data = await res.json();
+
+    allItems = data.items || [];
+    applyFilterAndRender();
   } catch (err) {
     console.error("Error loading items:", err);
   }
+}
+
+// Apply currentFilter, then render
+function applyFilterAndRender() {
+  let itemsToShow = allItems;
+
+  if (currentFilter === "bookmarks") {
+    itemsToShow = allItems.filter((item) => item.bookmarked);
+  } else if (currentFilter === "selling-items") {
+    itemsToShow = allItems.filter(item => item.seller_id === currentUserId);
+  }
+
+  renderItemGrid(itemsToShow);
 }
 
 function renderItemGrid(items) {
@@ -61,6 +104,15 @@ function renderItemGrid(items) {
     bookmark.className = "item-card__bookmark";
     bookmark.src = "/static/assets/bookmark.svg";
     bookmark.dataset.altSrc = "/static/assets/bookmark-filled.svg";
+    bookmark.dataset.itemId = item.id;
+    bookmark.dataset.bookmarked = item.bookmarked ? "true" : "false";
+     if (item.bookmarked) { // show as filled if already bookmarked
+      bookmark.src = "/static/assets/bookmark-filled.svg";
+      bookmark.dataset.altSrc = "/static/assets/bookmark.svg";
+    } else {  // default unfilled
+      bookmark.src = "/static/assets/bookmark.svg";
+      bookmark.dataset.altSrc = "/static/assets/bookmark-filled.svg";
+    }
     bookmark.alt = "Bookmark";
 
     const body = document.createElement("div");
@@ -137,7 +189,8 @@ function initBrowsePage() {
     });
   }
 
-  // initial load of all items
+  // Initial load
+  loadCurrentUser();
   loadItems();
 }
 
@@ -281,8 +334,7 @@ function initCreateItemPage() {
     }
   });
 
-  // keep your previewImage inline function from create_item.html if you like,
-  // or move it here (but not strictly needed to prove REST separation)
+  // (Optional) keep separate inline preview function in create_item.html if you like.
 }
 
 // ==============================
@@ -405,40 +457,243 @@ async function loadProfileData() {
   }
 }
 
-// If you want, you can also preview avatar on file change (optional).
+// ==============================
+// Edit profile avatar logic
+// ==============================
+
+// Global blob for cropped avatar
+let avatarCroppedBlob = null;
+
+// Crop an image object to a centered square on a canvas
+function cropImageToSquare(image) {
+  const size = Math.min(image.naturalWidth, image.naturalHeight);
+  const sx = (image.naturalWidth - size) / 2;
+  const sy = (image.naturalHeight - size) / 2;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(image, sx, sy, size, size, 0, 0, size, size);
+  return canvas;
+}
+
+// Preview + crop avatar client-side
 function bindEditAvatarPreview() {
-  const input = document.querySelector('input[name="avatar"]');
+  const input = document.getElementById("avatar-input");
   const preview = document.getElementById("edit-profile-avatar-preview");
   if (!input || !preview) return;
 
   input.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file.");
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (ev) => {
-      preview.src = ev.target.result;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = cropImageToSquare(img);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return;
+            avatarCroppedBlob = blob;
+            const url = URL.createObjectURL(blob);
+            preview.src = url;
+          },
+          "image/jpeg",
+          0.9
+        );
+      };
+      img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
   });
 }
 
+// Click overlay → open file picker
+function bindAvatarOverlayClick() {
+  const overlay = document.querySelector(".avatar-overlay");
+  const input = document.getElementById("avatar-input");
+  if (!overlay || !input) return;
+
+  overlay.addEventListener("click", () => {
+    input.click();
+  });
+}
+
+// Intercept form submit to send cropped blob
+function bindEditProfileFormSubmit() {
+  const form = document.getElementById("edit-profile-form");
+  const input = document.getElementById("avatar-input");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    // If user didn't pick a new avatar, let the normal form submit happen
+    if (!input || !input.files || !input.files.length || !avatarCroppedBlob) {
+      return;
+    }
+
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    // Replace original avatar file with cropped one
+    formData.delete("avatar");
+    const croppedFile = new File([avatarCroppedBlob], "avatar.jpg", {
+      type: "image/jpeg",
+    });
+    formData.append("avatar", croppedFile);
+
+    try {
+      const resp = await fetch(form.action, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (resp.redirected) {
+        window.location.href = resp.url;
+      } else {
+        // Fallback: reload page
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Error saving profile:", err);
+      alert("There was an error saving your profile.");
+    }
+  });
+}
+
 // ==============================
-// Bookmark toggle (kept from your old script)
+// Category dropdown button
+// ==============================
+(function () {
+  const btn = document.getElementById('categoryFilter');
+  const menu = document.getElementById('categoryMenu');
+  if (!btn || !menu) return;
+
+  const closeMenu = () => {
+    btn.setAttribute('aria-expanded', 'false');
+  };
+
+  btn.addEventListener('click', (e) => {
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!expanded));
+  });
+
+  menu.addEventListener('click', (e) => {
+    const target = e.target.closest('button[data-value]');
+    if (!target) return;
+    const label = target.textContent.trim();
+    btn.innerHTML = `${label} ▾`;
+    closeMenu();
+  });
+
+  // Close popup
+  document.addEventListener('click', (e) => {
+    if (e.target === btn || menu.contains(e.target)) return;
+    closeMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+})();
+
+// ==============================
+// Hook up filter dropdown to change the items being displayed
+// ==============================
+const categoryFilterBtn = document.getElementById("categoryFilter");
+const categoryMenu = document.getElementById("categoryMenu");
+
+if (categoryMenu && categoryFilterBtn) {
+  categoryMenu.querySelectorAll("button[data-value]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const value = btn.dataset.value; // "all" or "bookmarks" or "selling-items"
+      currentFilter = value;
+
+      if (value === "bookmarks") {
+        categoryFilterBtn.textContent = "Bookmarks ▾";
+      } else if (value === "selling-items") {
+        categoryFilterBtn.textContent = "Your Items ▾";
+      } else {
+        categoryFilterBtn.textContent = "All Items ▾";
+      }
+
+      applyFilterAndRender();
+    });
+  });
+}
+
+// ==============================
+// Handles bookmark icon switch with REST
 // ==============================
 function bindBookmarkIcons() {
   document.querySelectorAll(".item-card__bookmark").forEach((icon) => {
     icon.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
+
+      // 1. Swap the icon image
       const current = icon.getAttribute("src");
       const alt = icon.dataset.altSrc;
       icon.setAttribute("src", alt);
       icon.dataset.altSrc = current;
+
+      // 2. Toggle bookmark state in a data attribute
+      const wasBookmarked = icon.dataset.bookmarked === "true";
+      const isNowBookmarked = !wasBookmarked;
+      icon.dataset.bookmarked = isNowBookmarked ? "true" : "false";
+
+      // 3. Update local JS state (allItems) so it stays in sync with UI
+      const itemId = icon.dataset.itemId;
+      const itemIdNum = Number(itemId);
+      const itemObj = allItems.find((i) => i.id === itemIdNum);
+
+      if (itemObj) {
+        itemObj.bookmarked = isNowBookmarked;
+      }
+
+      // 4. Re-apply the filter so it disappears from the grid.
+      if (currentFilter === "bookmarks" && !isNowBookmarked) {
+        applyFilterAndRender();
+        return;
+      }
+
+      // 5. Send REST request to backend
+      updateBookmarkOnServer(itemId, isNowBookmarked);
     });
   });
 }
 
 // ==============================
+// Updates bookmark_items field in user table
+// ==============================
+async function updateBookmarkOnServer(itemId, isBookmarked) {
+  try {
+    const response = await fetch("/api/bookmark", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      credentials: "include", // send cookies/session
+      body: JSON.stringify({
+        item_id: itemId,
+        bookmarked: isBookmarked,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("Failed to update bookmark", await response.text());
+    }
+  } catch (err) {
+    console.error("Error updating bookmark", err);
+  }
+}
+
 // Messaging 
 // ==============================
 let socket;
@@ -532,9 +787,10 @@ document.addEventListener("DOMContentLoaded", () => {
     loadProfileData();
     if (page === "edit-profile") {
       bindEditAvatarPreview();
+      bindAvatarOverlayClick();
+      bindEditProfileFormSubmit();
     }
   } else if (page === "edit-item") {
   initEditItemPage();
   }
-
 });
