@@ -172,6 +172,68 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .prose { color: var(--text); }
 .muted { color: var(--muted); }
 
+/* Avatar hover overlay on edit profile page */
+.avatar-frame {
+  position: relative;
+  border-radius: calc(var(--radius) + 6px);
+  overflow: hidden;
+}
+
+.profile__avatar {
+  width: 100%;
+  display: block;
+  border-radius: inherit;
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.avatar-frame:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.avatar {
+  position: relative;
+}
+
+.profile__avatar {
+  width: 100%;
+  display: block;
+  border-radius: calc(var(--radius) + 6px);
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+  border-radius: calc(var(--radius) + 4px);
+}
+
+.avatar:hover .avatar-overlay {
+  opacity: 1;
+}
+
 /* Page scaffolding */
 .page {
   padding: 26px 0 40px;

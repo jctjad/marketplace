@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
 import csv
-import imghdr
+from PIL import Image
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from setup_socket import socketio # to access socketio
 
@@ -152,8 +152,13 @@ def save_profile_edits():
         f.save(dest)
 
         # Magic-bytes sanity check
-        kind = imghdr.what(dest)
-        if kind not in ("png", "jpeg", "jpg"):
+        try:
+            with Image.open(dest) as img:
+                if img.format not in ("PNG", "JPEG", "JPG"):
+                    os.remove(dest)
+                    flash("Invalid image file.", "error")
+                    return redirect(url_for("profile.goto_edit_profile_page"))
+        except Exception:
             os.remove(dest)
             flash("Invalid image file.", "error")
             return redirect(url_for("profile.goto_edit_profile_page"))
