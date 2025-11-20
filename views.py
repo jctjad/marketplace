@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, redirect, url_for, request, flash, current_app, send_file
+    Blueprint, render_template, redirect, url_for, request, flash, current_app, send_file, jsonify
 )
 from models import db, User, Item, Chat
 from flask_login import current_user, login_required
@@ -335,6 +335,8 @@ def api_list_items():
         )
 
     items = query.order_by(Item.date_created.desc()).all()
+    bookmarked_ids = set(current_user.bookmark_items or []) # Sets bookmark value
+    return {"items": [item.to_dict(include_seller=True,bookmarked=(item.id in bookmarked_ids), current_user_id=current_user.id) for item in items]}
 
     return {
         "items": [
@@ -343,6 +345,15 @@ def api_list_items():
         ]
     }
 
+@main_blueprint.route("/api/items/<int:item_id>", methods=["GET"], endpoint="api_get_item_v2")
+@login_required
+def api_get_item(item_id):
+    """
+    NEW: REST endpoint for a single item, used by item.html via JS.
+    """
+    item = Item.query.get_or_404(item_id)
+    bookmarked_ids = set(current_user.bookmark_items or [])
+    return {"item": item.to_dict(include_seller=True,bookmarked=(item.id in bookmarked_ids), current_user_id=current_user.id)}
 
 
 @item_blueprint.route("/api/items", methods=["POST"])
@@ -381,6 +392,10 @@ def api_create_item():
     db.session.add(new_item)
     db.session.commit()
 
+    selling = current_user.selling_items or []
+    selling.append(new_item.id)
+    current_user.selling_items = selling
+    
     return {"item": new_item.to_dict(current_user_id=current_user.id)}, 201
 
 
@@ -433,6 +448,51 @@ def api_delete_item(item_id):
     db.session.delete(item)
     db.session.commit()
     return {"status": "deleted", "id": item_id}
+
+
+@main_blueprint.route("/api/bookmark", methods=["POST"])
+@login_required
+def api_bookmark():
+    """
+    NEW: REST endpoint for bookmarked items.
+    Used by index.html to store user bookmarks and sort by 
+    bookmarked items via JS.
+    """
+    data = request.get_json(silent=True) or {}
+
+    item_id = data.get("item_id")
+    bookmarked = data.get("bookmarked")
+
+    if item_id is None or bookmarked is None:
+        return jsonify({"error": "Invalid payload"}), 400
+
+    # Ensure item exists
+    try:
+        item_id = int(item_id)
+    except (TypeError, ValueError):
+        return jsonify({"error": "item_id must be an integer"}), 400
+    item = Item.query.get(item_id)
+    if item is None:
+        return jsonify({"error": "Item not found"}), 404
+
+    # Normalize bookmark list
+    bookmarks = current_user.bookmark_items or []
+    try:
+        bookmarks = [int(b) for b in bookmarks]
+    except (TypeError, ValueError):
+        bookmarks = []
+
+    # Toggle bookmark
+    if bool(bookmarked):
+        if item_id not in bookmarks:
+            bookmarks.append(item_id)
+    else:
+        bookmarks = [b for b in bookmarks if b != item_id]
+
+    current_user.bookmark_items = bookmarks
+    db.session.commit()
+
+    return jsonify({"status": "ok", "bookmarked": bool(bookmarked), "bookmarks": bookmarks,}), 200
 
 
 @profile_blueprint.route("/api/profile/me", methods=["GET"])
