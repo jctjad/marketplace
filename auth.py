@@ -90,16 +90,21 @@ def authorize_google():
 
     try:
         token = google.authorize_access_token()
+        current_app.logger.info(f"Token received: {token}")
+        resp = google.get('userinfo')
+        resp.raise_for_status() 
+        userInfo = resp.json()
+        current_app.logger.info(f"UserInfo: {userInfo}")
     except Exception as e:
         current_app.logger.error(f"Token exchange failed: {str(e)}")
         return {"error": "Google login failed"}, 500
 
-    try:
-        resp = google.get('userinfo')
-        userInfo = resp.json()
-    except Exception as e:
-        current_app.logger.error(f"Fetching user info failed: {str(e)}")
-        return {"error": "Failed to fetch user info"}, 500
+    # try:
+    #     resp = google.get('userinfo')
+    #     userInfo = resp.json()
+    # except Exception as e:
+    #     current_app.logger.error(f"Fetching user info failed: {str(e)}")
+    #     return {"error": "Failed to fetch user info"}, 500
 
     email = userInfo.get('email')
     first_name = userInfo.get('given_name', "")
