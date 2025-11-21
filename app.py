@@ -41,7 +41,7 @@ google = oauth.register( #So this is google working for us
     client_id=app.config["GOOGLE_CLIENT_ID"],
     client_secret=app.config["GOOGLE_SECRET_KEY"],
     server_metadata_url = "https://accounts.google.com/.well-known/openid-configuration",
-    client_kwargs = {'scope': 'openid profile email'}
+    client_kwargs = {'scope': 'openid profile email'},
     redirect_uri = 'https://swe-marketplace-40889ddb879e.herokuapp.com/login/google/callback'
 )
 
