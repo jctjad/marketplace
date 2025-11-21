@@ -47,6 +47,9 @@ google = oauth.register( #So this is google working for us
 #Adding app.config to register google. Helps auth.py use google too
 app.config["GOOGLE_CLIENT"] = google
 
+print("CLIENT ID:", app.config["GOOGLE_CLIENT_ID"])
+
+
 #Auth Section
 login_man = LoginManager(app)
 login_man.login_view = 'auth.signup'

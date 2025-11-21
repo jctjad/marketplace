@@ -1,10 +1,11 @@
-from flask import Blueprint, render_template, redirect, url_for
-from flask import request
-from models import db, User
-from flask_login import login_user, login_required, logout_user
-from datetime import datetime
-from flask import current_app
 import os
+from datetime import datetime
+
+from flask import (Blueprint, current_app, redirect, render_template, request,
+                   url_for)
+from flask_login import login_required, login_user, logout_user
+
+from models import User, db
 
 #Auth Blueprint
 auth_blueprint = Blueprint('auth', __name__)
@@ -19,7 +20,7 @@ def signup():
 
         #Restricting to Colby emails
         if not email.endswith("@colby.edu"):
-            return {"error": "not valid email address"}, 400
+            return {"error": "Access Restricted to Colby Students"}, 400
 
         #Checking if User already exists
         existing_user = User.query.filter_by(email=email).first()
@@ -96,6 +97,10 @@ def authorize_google():
     email = userInfo.get('email')
     first_name = userInfo.get('given_name', "")
     last_name = userInfo.get('family_name', "")
+
+    if not email.endswith("@colby.edu"):
+        return {"error": "Access restricted to Colby students."}, 403
+
 
     user = User.query.filter_by(email = email).first()
     if not user: #If we don't have a user
