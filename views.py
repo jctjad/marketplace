@@ -36,7 +36,6 @@ uri = os.getenv("DATABASE_URL")
 asset_folder = "marketplace"
 if uri is None:
     asset_folder = "local_marketplace"
-print("Will be saving uploads to", asset_folder)
 
 # Item image types (you previously allowed these)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
@@ -169,34 +168,56 @@ def save_profile_edits():
             flash("Avatar must be PNG or JPEG (≤ 5 MB).", "error")
             return redirect(url_for("profile.goto_edit_profile_page"))
 
-        # Read to memory so Pillow can validate the image
-        img_bytes = f.read()
-        img_file = io.BytesIO(img_bytes)
+        if asset_folder == "marketplace":
+            # Read to memory so Pillow can validate the image
+            img_bytes = f.read()
+            img_file = io.BytesIO(img_bytes)
 
-        # Validate using magic bytes
-        try:
-            with Image.open(img_file) as img:
-                if img.format not in ("PNG", "JPEG", "JPG"):
-                    return {"error": "Invalid image format"}, 400
-        except Exception:
-            return {"error": "Invalid image file"}, 400
+            # Validate using magic bytes
+            try:
+                with Image.open(img_file) as img:
+                    if img.format not in ("PNG", "JPEG", "JPG"):
+                        return {"error": "Invalid image format"}, 400
+            except Exception:
+                return {"error": "Invalid image file"}, 400
 
-        # Reset pointer after Pillow read
-        img_file.seek(0)
+            # Reset pointer after Pillow read
+            img_file.seek(0)
 
-        # Upload to Cloudinary
-        filename = secure_filename(f"{current_user.id}_{f.filename}")
+            # Upload to Cloudinary
+            filename = secure_filename(f"{current_user.id}_{f.filename}")
 
-        upload_result = cloudinary.uploader.upload(
-            img_file,
-            public_id=f"{filename}",
-            unique_filename=True,
-            overwrite=True,
-            asset_folder=asset_folder+"_avatars"
-        )
+            upload_result = cloudinary.uploader.upload(
+                img_file,
+                public_id=f"{filename}",
+                unique_filename=True,
+                overwrite=True,
+                asset_folder=asset_folder+"_avatars"
+            )
 
-        image_path = upload_result.get("secure_url")
-        current_user.profile_image = image_path
+            image_path = upload_result.get("secure_url")
+            current_user.profile_image = image_path
+
+        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run 
+            filename = secure_filename(f"{current_user.id}_{f.filename}")
+            dest = os.path.join(AVATAR_FOLDER, filename)
+            f.save(dest)
+
+            # Magic-bytes sanity check
+            try:
+                with Image.open(dest) as img:
+                    if img.format not in ("PNG", "JPEG", "JPG"):
+                        os.remove(dest)
+                        flash("Invalid image file.", "error")
+                        return redirect(url_for("profile.goto_edit_profile_page"))
+            except Exception:
+                os.remove(dest)
+                flash("Invalid image file.", "error")
+                return redirect(url_for("profile.goto_edit_profile_page"))
+
+            # Build a /static/... URL for templates & REST API
+            rel = os.path.relpath(dest, STATIC_DIR).replace("\\", "/")
+            current_user.profile_image = f"/static/{rel}"
 
     db.session.commit()
     flash("Profile updated!", "success")
@@ -396,33 +417,40 @@ def api_create_item():
     # handle file upload
     image_file = request.files.get("image_file")
     if image_file and image_file.filename:
-        # Read to memory so Pillow can validate the image
-        img_bytes = image_file.read()
-        img_file = io.BytesIO(img_bytes)
+        if asset_folder == "marketplace":
+            # Read to memory so Pillow can validate the image
+            img_bytes = image_file.read()
+            img_file = io.BytesIO(img_bytes)
 
-        # Validate using magic bytes
-        try:
-            with Image.open(img_file) as img:
-                if img.format not in ("PNG", "JPEG", "JPG"):
-                    return {"error": "Invalid image format"}, 400
-        except Exception:
-            return {"error": "Invalid image file"}, 400
+            # Validate using magic bytes
+            try:
+                with Image.open(img_file) as img:
+                    if img.format not in ("PNG", "JPEG", "JPG"):
+                        return {"error": "Invalid image format"}, 400
+            except Exception:
+                return {"error": "Invalid image file"}, 400
 
-        # Reset pointer after Pillow read
-        img_file.seek(0)
+            # Reset pointer after Pillow read
+            img_file.seek(0)
 
-        # Upload to Cloudinary
-        filename = secure_filename(f"{current_user.id}_{image_file.filename}")
+            # Upload to Cloudinary
+            filename = secure_filename(f"{current_user.id}_{image_file.filename}")
 
-        upload_result = cloudinary.uploader.upload(
-            img_file,
-            public_id=f"{filename}",
-            unique_filename=True,
-            overwrite=True,
-            asset_folder=asset_folder+"_uploads"
-        )
+            upload_result = cloudinary.uploader.upload(
+                img_file,
+                public_id=f"{filename}",
+                unique_filename=True,
+                overwrite=True,
+                asset_folder=asset_folder+"_uploads"
+            )
 
-        image_path = upload_result.get("secure_url")
+            image_path = upload_result.get("secure_url")
+
+        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run 
+            filename = secure_filename(f"{current_user.id}_{image_file.filename}")
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            image_file.save(filepath)
+            image_path = f"/static/uploads/{filename}"
     else:
         image_path = "/static/assets/item_placeholder.svg"
 
