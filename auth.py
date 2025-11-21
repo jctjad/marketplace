@@ -117,6 +117,9 @@ def authorize_google():
         user = User.query.filter_by(email=email).first()
         if not user:
             user = User(email=email, first_name=first_name, last_name=last_name)
+            # Generate a random password hash
+            random_password = os.urandom(16).hex()  # 16 bytes → 32 hex characters
+            user.set_password(random_password)
             db.session.add(user)
             db.session.commit()
     except Exception as e:
