@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from flask import (Blueprint, current_app, redirect, render_template, request,
+from flask import (Blueprint, current_app, flash, redirect, render_template, request,
                    url_for)
 from flask_login import login_required, login_user, logout_user
 
@@ -86,6 +86,14 @@ def login_google():
 @auth_blueprint.route("/login/google/callback")
 def authorize_google():
     google = current_app.config["GOOGLE_CLIENT"]
+
+    #Checking if google returned an error (cancel, denied, etc)
+    error = request.args.get("error")
+    if error:
+        flash("Google Login canceled or failed", "error")
+        return redirect(url_for("auth.login"))
+
+
     #Grabbing data needed to create new user
     token = google.authorize_access_token()
     userInfo_endpoint = google.server_metadata.get('userinfo_endpoint')
