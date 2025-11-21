@@ -10,6 +10,10 @@ import csv
 from PIL import Image
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from setup_socket import socketio # to access socketio
+import cloudinary # to send our images to cloudinary
+import cloudinary.uploader
+
+import io # for our file
 
 # --- Blueprints ---
 main_blueprint = Blueprint('main', __name__)
@@ -158,25 +162,33 @@ def save_profile_edits():
             flash("Avatar must be PNG or JPEG (≤ 5 MB).", "error")
             return redirect(url_for("profile.goto_edit_profile_page"))
 
-        filename = secure_filename(f"{current_user.id}_{f.filename}")
-        dest = os.path.join(AVATAR_FOLDER, filename)
-        f.save(dest)
+        # Read to memory so Pillow can validate the image
+        img_bytes = f.read()
+        img_file = io.BytesIO(img_bytes)
 
-        # Magic-bytes sanity check
+        # Validate using magic bytes
         try:
-            with Image.open(dest) as img:
+            with Image.open(img_file) as img:
                 if img.format not in ("PNG", "JPEG", "JPG"):
-                    os.remove(dest)
-                    flash("Invalid image file.", "error")
-                    return redirect(url_for("profile.goto_edit_profile_page"))
+                    return {"error": "Invalid image format"}, 400
         except Exception:
-            os.remove(dest)
-            flash("Invalid image file.", "error")
-            return redirect(url_for("profile.goto_edit_profile_page"))
+            return {"error": "Invalid image file"}, 400
 
-        # Build a /static/... URL for templates & REST API
-        rel = os.path.relpath(dest, STATIC_DIR).replace("\\", "/")
-        current_user.profile_image = f"/static/{rel}"
+        # Reset pointer after Pillow read
+        img_file.seek(0)
+
+        # Upload to Cloudinary
+        filename = secure_filename(f"{current_user.id}_{f.filename}")
+
+        upload_result = cloudinary.uploader.upload(
+            img_file,
+            public_id=f"{filename}",
+            unique_filename=True,
+            overwrite=True
+        )
+
+        image_path = upload_result.get("secure_url")
+        current_user.profile_image = image_path
 
     db.session.commit()
     flash("Profile updated!", "success")
@@ -349,13 +361,6 @@ def api_list_items():
     bookmarked_ids = set(current_user.bookmark_items or []) # Sets bookmark value
     return {"items": [item.to_dict(include_seller=True,bookmarked=(item.id in bookmarked_ids), current_user_id=current_user.id) for item in items]}
 
-    return {
-        "items": [
-            item.to_dict(include_seller=True, current_user_id=current_user.id)
-            for item in items
-        ]
-    }
-
 @main_blueprint.route("/api/items/<int:item_id>", methods=["GET"], endpoint="api_get_item_v2")
 @login_required
 def api_get_item(item_id):
@@ -383,10 +388,32 @@ def api_create_item():
     # handle file upload
     image_file = request.files.get("image_file")
     if image_file and image_file.filename:
+        # Read to memory so Pillow can validate the image
+        img_bytes = image_file.read()
+        img_file = io.BytesIO(img_bytes)
+
+        # Validate using magic bytes
+        try:
+            with Image.open(img_file) as img:
+                if img.format not in ("PNG", "JPEG", "JPG"):
+                    return {"error": "Invalid image format"}, 400
+        except Exception:
+            return {"error": "Invalid image file"}, 400
+
+        # Reset pointer after Pillow read
+        img_file.seek(0)
+
+        # Upload to Cloudinary
         filename = secure_filename(f"{current_user.id}_{image_file.filename}")
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        image_file.save(filepath)
-        image_path = f"/static/uploads/{filename}"
+
+        upload_result = cloudinary.uploader.upload(
+            img_file,
+            public_id=f"{filename}",
+            unique_filename=True,
+            overwrite=True
+        )
+
+        image_path = upload_result.get("secure_url")
     else:
         image_path = "/static/assets/item_placeholder.svg"
 
@@ -397,7 +424,7 @@ def api_create_item():
         price=float(price),
         condition=condition,
         payment_options=payment_options,
-        item_photos=image_path,
+        item_photos=image_path
     )
 
     db.session.add(new_item)

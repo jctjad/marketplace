@@ -16,6 +16,9 @@ from flask_login import LoginManager
 #Cloudinary
 import cloudinary
 
+from dotenv import load_dotenv # need this for local server, make sure to add .env file when running
+load_dotenv()
+
 # app = Flask(__name__)
 
 uri = os.getenv("DATABASE_URL")  # Heroku sets this automatically
