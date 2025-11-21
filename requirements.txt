@@ -10,3 +10,4 @@ Flask-SocketIO==5.5.1
 eventlet==0.40.3
 pillow==10.3.0
 cloudinary==1.44.1
+python-dotenv==1.2.1
