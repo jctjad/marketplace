@@ -469,6 +469,9 @@ def api_update_item(item_id):
         item.name = (data['name'] or '').strip()
     if 'description' in data:
         item.description = (data['description'] or '').strip()
+    if 'item_photos' in data:
+        print(data['item_photos'])
+        item.item_photos = data['item_photos']
     if 'price' in data:
         try:
             item.price = float(data['price'])
