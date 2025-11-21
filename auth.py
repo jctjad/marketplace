@@ -1,10 +1,8 @@
 import os
 from datetime import datetime
-
-from flask import (Blueprint, current_app, flash, redirect, render_template, request,
-                   url_for)
+from flask import (Blueprint, current_app, flash, redirect, render_template, request, url_for)
 from flask_login import login_required, login_user, logout_user
-
+from authlib.integrations.base_client.errors import OAuthError
 from models import User, db
 
 #Auth Blueprint
@@ -94,8 +92,16 @@ def authorize_google():
         return redirect(url_for("auth.login"))
 
 
+    #Wrapping token in error net
+    try:
+        token = google.authorize_access_token()
+    except OAuthError as e: #Catches OAuth specific errors
+        error = request.args.get("error")
+        flash(f"Google Login Failed: {error or e.description}", "error")
+        return redirect(url_for("auth.login"))
+
     #Grabbing data needed to create new user
-    token = google.authorize_access_token()
+    
     userInfo_endpoint = google.server_metadata.get('userinfo_endpoint')
     resp = google.get(userInfo_endpoint)
     userInfo = resp.json()
