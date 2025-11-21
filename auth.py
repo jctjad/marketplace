@@ -99,7 +99,8 @@ def authorize_google():
         return redirect(url_for("auth.login"))
 
     try:
-        resp = google.get('userinfo')
+        userInfo_endpoint = google.server_metadata.get('userinfo_endpoint')
+        resp = google.get(userInfo_endpoint)
         userInfo = resp.json()
     except Exception as e:
         current_app.logger.error(f"Fetching user info failed: {str(e)}")
