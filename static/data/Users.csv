@@ -1,4 +1,2 @@
 User ID,Email,Password Hash,First Name,Last Name,Profile Image,Profile Description,Bookmarks,Items Selling,Date Created
-1,jas,scrypt:32768:8:1$6S959tC0W5dPEe2G$106b09ee8847df7e3fcfc241547cd28d9a516556fedc27f0a19bb2cde6bcde47ed2dfd681a3ffc01b75f9fb95105f31d32f02f06fb3e316031085406c0beb005,Joao,Pedro,,,[],[],2025-11-08 00:31:14.863837
-2,as1,scrypt:32768:8:1$WPFgiaaRv03XAsj4$327a9f6b9183685e7cff1cde2a0182fdb413f828cc43e640bec113f5d90eb041108710ef90970874ce5c3bab6fc34e9f6f41be9c409572f5db0ff4a6b7e35ed9,Alex,Pedro,,,[],[],2025-11-08 00:37:20.789000
-3,spheal@mail.com,scrypt:32768:8:1$95C9j7DWP41PxTnU$96708aeee6ab65eef46fc7ce7b87b03537a852faacfd5796f132ff20378c94c6bb106f41bea532d230b65ae1eea59c453d239635a77370be6ddbbd437ff257a8,Spheal,Tester,,,[],[],2025-11-16 15:32:58.753533
+1,spheal@mail.com,scrypt:32768:8:1$wbsfiRitDL8UKIct$1cb8f4cb8e18c2803e4f7abf4047ae74a4e0c34b8252e13d08774915722f1ccd1e2ee63e4ad43f1c1b53319d93a95815224fcf12247c0087ee566bf6ca55bb2b,Tester,Spheal,https://res.cloudinary.com/dejecxsby/image/upload/v1763699681/1_avatar.jpg.jpg,,[1],[],2025-11-19 19:35:00.365200

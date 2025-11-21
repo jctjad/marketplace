@@ -31,6 +31,13 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(AVATAR_FOLDER, exist_ok=True)
 os.makedirs(DATA_FOLDER, exist_ok=True)
 
+# Want to check if it is being run locally or on Heroku
+uri = os.getenv("DATABASE_URL")
+asset_folder = "marketplace"
+if uri is None:
+    asset_folder = "local_marketplace"
+print("Will be saving uploads to", asset_folder)
+
 # Item image types (you previously allowed these)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
@@ -184,7 +191,8 @@ def save_profile_edits():
             img_file,
             public_id=f"{filename}",
             unique_filename=True,
-            overwrite=True
+            overwrite=True,
+            asset_folder=asset_folder+"_avatars"
         )
 
         image_path = upload_result.get("secure_url")
@@ -410,7 +418,8 @@ def api_create_item():
             img_file,
             public_id=f"{filename}",
             unique_filename=True,
-            overwrite=True
+            overwrite=True,
+            asset_folder=asset_folder+"_uploads"
         )
 
         image_path = upload_result.get("secure_url")

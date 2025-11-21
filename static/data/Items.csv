@@ -1,1 +1,7 @@
 Item ID,Seller ID,Item Name,Item Description,Item Photos,Price,Condition,Payment Options,Live On Market,Date Created
+1,1,Guitar,An old guitar of mine that I don't use anymore. Good for any beginner.,/static/uploads/1_guitar.jpg,40.0,Used — good,"['Cash', 'Venmo', 'Zelle']",True,2025-11-20 00:35:49.194825
+2,1,Fancy Lamp,A fancy lamp that has three different light settings and adjustable height!,/static/uploads/1_lamp.jpeg,50.0,Used — like new,"['Venmo', 'Zelle']",True,2025-11-20 00:40:34.282114
+3,1,couch,"fancy couch, don't need it anymore",https://res.cloudinary.com/dejecxsby/image/upload/v1763693082/items/1_couch.jpeg.jpg,100.0,Used — good,"['Cash', 'Venmo', 'Zelle']",True,2025-11-21 02:44:43.468563
+4,1,crutch tips,for crutches,https://res.cloudinary.com/dejecxsby/image/upload/v1763694469/1_crutch_tips.jpg.jpg,10.0,New,"['Cash', 'Venmo']",True,2025-11-21 03:07:50.098834
+5,1,Funny meme,dolphin squishing pufferfish to get high,https://res.cloudinary.com/dejecxsby/image/upload/v1763699011/1_dolphin_squishing.png.png,10.0,New,"['Cash', 'Venmo']",True,2025-11-21 04:23:32.346434
+6,1,Fresh ramen,Ramen straight from Japan,https://res.cloudinary.com/dejecxsby/image/upload/v1763699543/1_ramen.jpeg.jpg,3.0,New,"['Cash', 'Venmo', 'Zelle']",True,2025-11-21 04:32:23.810725
