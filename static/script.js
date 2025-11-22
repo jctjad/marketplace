@@ -384,23 +384,43 @@ async function initEditItemPage() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const updatedData = {
-      name: nameInput.value.trim(),
-      description: descInput.value.trim(),
-      price: priceInput.value.trim(),
-      condition: conditionSelect.value,
-      payment_options: Array.from(paymentCheckboxes)
-        .filter((cb) => cb.checked)
-        .map((cb) => cb.value),
-    };
+    // Collect updated fields
+    const formData = new FormData();
+    formData.append("name", nameInput.value.trim());
+    formData.append("description", descInput.value.trim());
+    formData.append("price", priceInput.value.trim());
+    formData.append("condition", conditionSelect.value);
+
+    Array.from(paymentCheckboxes)
+      .filter(cb => cb.checked)
+      .forEach(cb => formData.append("payment_options", cb.value));
+
+    const fileInput = document.getElementById("fileInput");
+    if (fileInput.files.length) {
+      formData.append("image_file", fileInput.files[0]);
+    }
+    // const updatedData = {
+    //   name: nameInput.value.trim(),
+    //   description: descInput.value.trim(),
+    //   item_photos: uploaded_photo,
+    //   price: priceInput.value.trim(),
+    //   condition: conditionSelect.value,
+    //   payment_options: Array.from(paymentCheckboxes)
+    //     .filter(cb => cb.checked)
+    //     .map(cb => cb.value)
+    // };
 
     try {
+      // const resp = await fetch(`/api/items/${id}`, {
+      //   method: "PATCH",
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify(updatedData)
+      // });
       const resp = await fetch(`/api/items/${id}`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
+        body: formData
       });
 
       if (!resp.ok) {
@@ -839,7 +859,7 @@ async function updateBookmarkOnServer(itemId, isBookmarked) {
 }
 
 // ==============================
-// Messaging
+// Messaging 
 // ==============================
 let socket;
 

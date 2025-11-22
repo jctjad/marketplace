@@ -10,7 +10,11 @@ import os
 import csv
 from PIL import Image
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
-from setup_socket import socketio  # to access socketio
+from setup_socket import socketio # to access socketio
+import cloudinary # to send our images to cloudinary
+import cloudinary.uploader
+
+import io # for our file
 
 # --- Blueprints ---
 main_blueprint = Blueprint('main', __name__)
@@ -28,7 +32,13 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(AVATAR_FOLDER, exist_ok=True)
 os.makedirs(DATA_FOLDER, exist_ok=True)
 
-# Item image types
+# Want to check if it is being run locally or on Heroku
+uri = os.getenv("DATABASE_URL")
+asset_folder = "marketplace"
+if uri is None:
+    asset_folder = "local_marketplace"
+
+# Item image types (you previously allowed these)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 # Avatar (profile) strict mimetypes
@@ -165,26 +175,57 @@ def save_profile_edits():
         if f.mimetype not in AVATAR_ALLOWED_MIMES:
             flash("Avatar must be PNG or JPEG (≤ 5 MB).", "error")
             return redirect(url_for("profile.goto_edit_profile_page"))
+        print(asset_folder)
+        if asset_folder == "marketplace":
+            # Read to memory so Pillow can validate the image
+            img_bytes = f.read()
+            img_file = io.BytesIO(img_bytes)
 
-        filename = secure_filename(f"{current_user.id}_{f.filename}")
-        dest = os.path.join(AVATAR_FOLDER, filename)
-        f.save(dest)
+            # Validate using magic bytes
+            try:
+                with Image.open(img_file) as img:
+                    if img.format not in ("PNG", "JPEG", "JPG"):
+                        return {"error": "Invalid image format"}, 400
+            except Exception:
+                return {"error": "Invalid image file"}, 400
 
-        # Magic-bytes sanity check using Pillow
-        try:
-            with Image.open(dest) as img:
-                if img.format not in ("PNG", "JPEG", "JPG"):
-                    os.remove(dest)
-                    flash("Invalid image file.", "error")
-                    return redirect(url_for("profile.goto_edit_profile_page"))
-        except Exception:
-            os.remove(dest)
-            flash("Invalid image file.", "error")
-            return redirect(url_for("profile.goto_edit_profile_page"))
+            # Reset pointer after Pillow read
+            img_file.seek(0)
 
-        # Build a /static/... URL for templates & REST API
-        rel = os.path.relpath(dest, STATIC_DIR).replace("\\", "/")
-        current_user.profile_image = f"/static/{rel}"
+            # Upload to Cloudinary
+            filename = secure_filename(f"{current_user.id}_{f.filename}")
+
+            upload_result = cloudinary.uploader.upload(
+                img_file,
+                public_id=f"{filename}",
+                unique_filename=True,
+                overwrite=True,
+                asset_folder=asset_folder+"_avatars"
+            )
+
+            image_path = upload_result.get("secure_url")
+            current_user.profile_image = image_path
+
+        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run 
+            filename = secure_filename(f"{current_user.id}_{f.filename}")
+            dest = os.path.join(AVATAR_FOLDER, filename)
+            f.save(dest)
+
+            # Magic-bytes sanity check
+            try:
+                with Image.open(dest) as img:
+                    if img.format not in ("PNG", "JPEG", "JPG"):
+                        os.remove(dest)
+                        flash("Invalid image file.", "error")
+                        return redirect(url_for("profile.goto_edit_profile_page"))
+            except Exception:
+                os.remove(dest)
+                flash("Invalid image file.", "error")
+                return redirect(url_for("profile.goto_edit_profile_page"))
+
+            # Build a /static/... URL for templates & REST API
+            rel = os.path.relpath(dest, STATIC_DIR).replace("\\", "/")
+            current_user.profile_image = f"/static/{rel}"
 
     db.session.commit()
     flash("Profile updated!", "success")
@@ -492,10 +533,40 @@ def api_create_item():
     # handle file upload
     image_file = request.files.get("image_file")
     if image_file and image_file.filename:
-        filename = secure_filename(f"{current_user.id}_{image_file.filename}")
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        image_file.save(filepath)
-        image_path = f"/static/uploads/{filename}"
+        if asset_folder == "marketplace":
+            # Read to memory so Pillow can validate the image
+            img_bytes = image_file.read()
+            img_file = io.BytesIO(img_bytes)
+
+            # Validate using magic bytes
+            try:
+                with Image.open(img_file) as img:
+                    if img.format not in ("PNG", "JPEG", "JPG"):
+                        return {"error": "Invalid image format"}, 400
+            except Exception:
+                return {"error": "Invalid image file"}, 400
+
+            # Reset pointer after Pillow read
+            img_file.seek(0)
+
+            # Upload to Cloudinary
+            filename = secure_filename(f"{current_user.id}_{image_file.filename}")
+
+            upload_result = cloudinary.uploader.upload(
+                img_file,
+                public_id=f"{filename}",
+                unique_filename=True,
+                overwrite=True,
+                asset_folder=asset_folder+"_uploads"
+            )
+
+            image_path = upload_result.get("secure_url")
+
+        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run 
+            filename = secure_filename(f"{current_user.id}_{image_file.filename}")
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            image_file.save(filepath)
+            image_path = f"/static/uploads/{filename}"
     else:
         image_path = "/static/assets/item_placeholder.svg"
 
@@ -506,7 +577,7 @@ def api_create_item():
         price=float(price),
         condition=condition,
         payment_options=payment_options,
-        item_photos=image_path,
+        item_photos=image_path
     )
 
     db.session.add(new_item)
@@ -536,21 +607,79 @@ def api_update_item(item_id):
     if item.seller_id != current_user.id:
         return {"error": "You can only edit your own items."}, 403
 
-    data = request.get_json() or {}
+    request.content_type.startswith("multipart/form-data")
+    name = request.form.get("name")
+    description = request.form.get("description")
+    price = request.form.get("price")
+    condition = request.form.get("condition")
+    payment_options = request.form.getlist("payment_options")
 
-    if 'name' in data:
-        item.name = (data['name'] or '').strip()
-    if 'description' in data:
-        item.description = (data['description'] or '').strip()
-    if 'price' in data:
-        try:
-            item.price = float(data['price'])
-        except (TypeError, ValueError):
-            return {"error": "Price must be a number"}, 400
-    if 'condition' in data:
-        item.condition = data['condition']
-    if 'payment_options' in data:
-        item.payment_options = data['payment_options'] or []
+    f = request.files.get("image_file")
+    if f and f.filename:
+        image_file = request.files.get("image_file")
+
+        if asset_folder == "marketplace":
+            # Read to memory so Pillow can validate the image
+            img_bytes = image_file.read()
+            img_file = io.BytesIO(img_bytes)
+
+            # Validate using magic bytes
+            try:
+                with Image.open(img_file) as img:
+                    if img.format not in ("PNG", "JPEG", "JPG"):
+                        return {"error": "Invalid image format"}, 400
+            except Exception:
+                return {"error": "Invalid image file"}, 400
+
+            # Reset pointer after Pillow read
+            img_file.seek(0)
+
+            # Upload to Cloudinary
+            filename = secure_filename(f"{current_user.id}_{image_file.filename}")
+
+            upload_result = cloudinary.uploader.upload(
+                img_file,
+                public_id=f"{filename}",
+                unique_filename=True,
+                overwrite=True,
+                asset_folder=asset_folder+"_uploads"
+            )
+
+            image_path = upload_result.get("secure_url")
+
+        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run 
+            filename = secure_filename(f"{current_user.id}_{image_file.filename}")
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            image_file.save(filepath)
+            image_path = f"/static/uploads/{filename}"
+    else:
+        image_path = "/static/assets/item_placeholder.svg"
+
+    item.name = name
+    item.description = description
+    item.price = float(price)
+    item.condition = condition
+    item.payment_options = payment_options
+    item.item_photos = image_path
+    # data = request.get_json() or {}
+
+    # if 'name' in data:
+    #     item.name = (data['name'] or '').strip()
+    # if 'description' in data:
+    #     item.description = (data['description'] or '').strip()
+    # if 'item_photos' in data:
+    #     print("updating item's photos")
+    #     print(data['item_photos'])
+    #     item.item_photos = data['item_photos']
+    # if 'price' in data:
+    #     try:
+    #         item.price = float(data['price'])
+    #     except (TypeError, ValueError):
+    #         return {"error": "Price must be a number"}, 400
+    # if 'condition' in data:
+    #     item.condition = data['condition']
+    # if 'payment_options' in data:
+    #     item.payment_options = data['payment_options'] or []
 
     db.session.commit()
     return {"item": item.to_dict(current_user_id=current_user.id)}

@@ -13,6 +13,12 @@ from setup_socket import app, socketio
 from auth import auth_blueprint
 from flask_login import LoginManager
 
+#Cloudinary
+import cloudinary
+
+from dotenv import load_dotenv # need this for local server, make sure to add .env file when running
+load_dotenv()
+
 # app = Flask(__name__)
 
 uri = os.getenv("DATABASE_URL")  # Heroku sets this automatically
@@ -29,6 +35,14 @@ app.config["SQLALCHEMY_DATABASE_URI"] = uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
 
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    api_key = os.environ.get('CLOUDINARY_API_KEY'),
+    api_secret = os.environ.get('CLOUDINARY_API_SECRET'),
+    secure = True # Ensures URLs are HTTPS
+)
+
 db.init_app(app)
 
 #Auth Section
@@ -39,8 +53,6 @@ login_man.login_message = None
 @login_man.user_loader
 def load_user(id):
     return User.query.get(int(id))
-
-# socketio = SocketIO(app) # wrapping our app in SocektIO to enable WebSocket capabilities
 
 #Blue Register Section
 app.register_blueprint(main_blueprint)
