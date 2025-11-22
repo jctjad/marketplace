@@ -31,25 +31,23 @@
     <div class="product">
       <section class="gallery" aria-label="Image gallery">
         <div class="gallery__stage">
-          <!-- NEW: JS fills src/alt from /api/items/<id> -->
+          <!-- JS fills src/alt from /api/items/<id> -->
           <img id="item-image" src="/static/assets/item_placeholder.svg" alt="Item image" class="item-image">
         </div>
       </section>
 
-      <!-- Here is the html element for the popp chat, it will be hidden for now until the 
-       user presses the "Message Seller" button! -->
-
+      <!-- Chat popup is controlled via JS "Message Seller" button -->
       <aside class="buybox card" aria-label="Purchase panel">
         <h1 class="buybox__title" id="item-name">Loading…</h1>
         <div class="price" id="item-price">$0.00</div>
-        <button class="btn" id="buy" onclick="openForm()" >Message Seller</button>
-        <!-- NEW: Owner-only actions, JS will show/hide -->
-        
+        <button class="btn" id="buy" onclick="openForm()">Message Seller</button>
+
         <div class="specs">
           <div><strong>Condition: </strong><span id="item-condition">—</span></div>
 
           <div><strong>Seller:</strong>
-            <a href="/profile" id="seller-name">Seller</a>
+            <!-- href is set dynamically to /profile/<seller_id> -->
+            <a href="#" id="seller-name">Seller</a>
           </div>
 
           <div><strong>Payment Options:</strong>
@@ -66,28 +64,30 @@
 
         <div id="owner-actions" class="owner-actions" style="display:none;">
           <div class="owner-actions-row">
-              <a class="btn btn-edit" id="edit-item-btn">Edit Item</a>
-              <button class="btn btn-delete" id="delete-item-btn">Delete Item</button>
+            <a class="btn btn-edit" id="edit-item-btn">Edit Item</a>
+            <button class="btn btn-delete" id="delete-item-btn">Delete Item</button>
           </div>
         </div>
       </aside>
-
-      
     </div>
+
     <div class="chat-popup card" id="chatForm">
       <form class="form-container">
-        <h1> Chat </h1>
-        <label for="msg"> <b> Message </b> </label>
+        <h1>Chat</h1>
+        <label for="msg"><b>Message</b></label>
         <textarea placeholder="Type message..." id="msg"></textarea>
-        <button type="submit" class="btn_msg" id="send_btn" onclick="sendMessage()"> Send </button>
-        <button type="button" class="btn_msg cancel" onclick="closeForm()"> Close </button>
+        <button type="submit" class="btn_msg" id="send_btn" onclick="sendMessage()">Send</button>
+        <button type="button" class="btn_msg cancel" onclick="closeForm()">Close</button>
       </form>
     </div>
-    <!-- Added this src so we can use io() -->
-    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
-    <!-- This is where the messages from the popup will go -->
-    <div class="buybox card" id="messages"> </div>
 
+    <!-- Socket.IO client -->
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"
+            integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+            crossorigin="anonymous"></script>
+
+    <!-- Where chat messages will appear -->
+    <div class="buybox card" id="messages"></div>
   </main>
 
   <footer class="footer">
@@ -96,18 +96,20 @@
       <a href="/">Back to browse</a>
     </div>
   </footer>
+
   <!-- Delete confirmation modal -->
   <div id="deleteModal" class="modal hidden">
     <div class="modal-content">
-        <h2>Delete Item?</h2>
-        <p>This action cannot be undone.</p>
+      <h2>Delete Item?</h2>
+      <p>This action cannot be undone.</p>
 
-        <div class="modal-buttons">
-            <button id="cancelDelete" class="btn-secondary">Cancel</button>
-            <button id="confirmDelete" class="btn-danger">Delete</button>
-        </div>
+      <div class="modal-buttons">
+        <button id="cancelDelete" class="btn-secondary">Cancel</button>
+        <button id="confirmDelete" class="btn-danger">Delete</button>
+      </div>
     </div>
   </div>
+
   <script src="/static/script.js"></script>
 </body>
 </html>

@@ -162,12 +162,33 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .specs { margin-top: 8px; border-top: 1px solid var(--bd); padding-top: 12px; color: var(--muted); }
 
 /* Profile */
+/* Profile layout: avatar column + content column */
 .profile {
-  display: grid;
-  grid-template-columns: 220px 1fr;
+  display: flex;
   gap: 24px;
+  align-items: flex-start; /* prevents the avatar card from stretching vertically */
 }
-@media (max-width: 720px){ .profile { grid-template-columns: 1fr; } }
+
+/* Left column: avatar box stays fixed width, height = its content only */
+.profile > .avatar {
+  flex: 0 0 220px; /* 220px wide, no stretching */
+}
+
+/* Right column: bio + listings take remaining space */
+.profile > .prose {
+  flex: 1 1 auto;
+}
+
+/* Stack on small screens */
+@media (max-width: 720px) {
+  .profile {
+    flex-direction: column;
+  }
+  .profile > .avatar {
+    flex: 0 0 auto;
+  }
+}
+
 .avatar { border-radius: calc(var(--radius) + 6px); border:1px solid var(--bd); background: var(--panel); padding: 8px; }
 .prose { color: var(--text); }
 .muted { color: var(--muted); }
