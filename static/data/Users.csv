@@ -1,0 +1,2 @@
+User ID,Email,Password Hash,First Name,Last Name,Profile Image,Profile Description,Bookmarks,Items Selling,Date Created
+1,spheal@mail.com,scrypt:32768:8:1$wbsfiRitDL8UKIct$1cb8f4cb8e18c2803e4f7abf4047ae74a4e0c34b8252e13d08774915722f1ccd1e2ee63e4ad43f1c1b53319d93a95815224fcf12247c0087ee566bf6ca55bb2b,Tester,Spheal,https://res.cloudinary.com/dejecxsby/image/upload/v1763699681/1_avatar.jpg.jpg,,[1],[],2025-11-19 19:35:00.365200

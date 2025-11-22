@@ -1,14 +1,26 @@
+import eventlet
+eventlet.monkey_patch()
+
 import os
 from flask import Flask
 from views import main_blueprint, item_blueprint, profile_blueprint
 from models import db, User
 from authlib.integrations.flask_client import OAuth
 
+#Messaging import
+from setup_socket import app, socketio
+
 #Auth Libraries
 from auth import auth_blueprint
 from flask_login import LoginManager
 
-app = Flask(__name__)
+#Cloudinary
+import cloudinary
+
+from dotenv import load_dotenv # need this for local server, make sure to add .env file when running
+load_dotenv()
+
+# app = Flask(__name__)
 
 uri = os.getenv("DATABASE_URL")  # Heroku sets this automatically
 
@@ -27,6 +39,14 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
 #Client for Google Clode
 app.config["GOOGLE_CLIENT_ID"] = os.environ.get("GOOGLE_CLIENT_ID")
 app.config["GOOGLE_SECRET_KEY"] = os.environ.get("GOOGLE_SECRET_KEY")
+
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    api_key = os.environ.get('CLOUDINARY_API_KEY'),
+    api_secret = os.environ.get('CLOUDINARY_API_SECRET'),
+    secure = True # Ensures URLs are HTTPS
+)
 
 db.init_app(app)
 
@@ -72,4 +92,6 @@ if __name__ == '__main__':
         with app.app_context():
             db.create_all()
     
-    app.run(debug=True)
+    # app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, debug=True, port=port)

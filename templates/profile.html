@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
+  <link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico">
 </head>
 <body data-page="profile">
   <header class="header">
@@ -21,7 +22,7 @@
         <a href="/profile" aria-current="page">Profile</a>
       </nav>
       <div class="actions">
-        <a href="/logout" id="logout-button" class="badge">Logout</a>
+        <a href="/logout" class="badge">Logout</a>
       </div>
     </div>
   </header>
@@ -30,29 +31,34 @@
     <h1 class="page__title">Profile</h1>
 
     <section class="profile">
+      <!-- Left column: avatar + basic info -->
       <div class="avatar">
         <img
           id="profile-avatar"
           src="/static/assets/avatar.svg"
-          alt="User profile image"
+          alt="Profile avatar"
           class="profile__avatar">
       </div>
 
+      <!-- Right column: name, bio, listings -->
       <div class="prose">
         <h2 id="profile-name">User</h2>
-        <p id="profile-bio">
-          No bio yet. Click “Edit profile” to add a public bio.
+        <p id="profile-bio" class="muted">
+          Loading profile…
         </p>
 
         <p>
           <a class="badge" href="/profile/edit">Edit profile</a>
         </p>
 
-        <!-- You can later add listings here by calling another API if desired -->
+        <!-- Seller listings -->
         <h3>Listings</h3>
-        <ul>
-          <li>(Listings can be added here in the future.)</li>
-        </ul>
+
+        <div id="profile-listings-empty" class="muted">
+          This user has no active listings yet.
+        </div>
+
+        <div id="profile-listings" class="grid" aria-label="Seller listings"></div>
       </div>
     </section>
   </main>

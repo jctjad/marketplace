@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Item — Mulebay</title>
+  <title>Mulebay</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
+  <link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico">
 </head>
 <body data-page="item">
   <header class="header">
@@ -30,21 +31,23 @@
     <div class="product">
       <section class="gallery" aria-label="Image gallery">
         <div class="gallery__stage">
-          <!-- NEW: JS fills src/alt from /api/items/<id> -->
+          <!-- JS fills src/alt from /api/items/<id> -->
           <img id="item-image" src="/static/assets/item_placeholder.svg" alt="Item image" class="item-image">
         </div>
       </section>
 
+      <!-- Chat popup is controlled via JS "Message Seller" button -->
       <aside class="buybox card" aria-label="Purchase panel">
         <h1 class="buybox__title" id="item-name">Loading…</h1>
         <div class="price" id="item-price">$0.00</div>
-        <button class="btn" id="buy">Message Seller</button>
+        <button class="btn" id="buy" onclick="openForm()">Message Seller</button>
 
         <div class="specs">
           <div><strong>Condition: </strong><span id="item-condition">—</span></div>
 
           <div><strong>Seller:</strong>
-            <a href="/profile" id="seller-name">Seller</a>
+            <!-- href is set dynamically to /profile/<seller_id> -->
+            <a href="#" id="seller-name">Seller</a>
           </div>
 
           <div><strong>Payment Options:</strong>
@@ -58,8 +61,33 @@
           <h2>Details</h2>
           <p id="item-description">Loading description…</p>
         </section>
+
+        <div id="owner-actions" class="owner-actions" style="display:none;">
+          <div class="owner-actions-row">
+            <a class="btn btn-edit" id="edit-item-btn">Edit Item</a>
+            <button class="btn btn-delete" id="delete-item-btn">Delete Item</button>
+          </div>
+        </div>
       </aside>
     </div>
+
+    <div class="chat-popup card" id="chatForm">
+      <form class="form-container">
+        <h1>Chat</h1>
+        <label for="msg"><b>Message</b></label>
+        <textarea placeholder="Type message..." id="msg"></textarea>
+        <button type="submit" class="btn_msg" id="send_btn" onclick="sendMessage()">Send</button>
+        <button type="button" class="btn_msg cancel" onclick="closeForm()">Close</button>
+      </form>
+    </div>
+
+    <!-- Socket.IO client -->
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"
+            integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+            crossorigin="anonymous"></script>
+
+    <!-- Where chat messages will appear -->
+    <div class="buybox card" id="messages"></div>
   </main>
 
   <footer class="footer">
@@ -68,6 +96,19 @@
       <a href="/">Back to browse</a>
     </div>
   </footer>
+
+  <!-- Delete confirmation modal -->
+  <div id="deleteModal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Delete Item?</h2>
+      <p>This action cannot be undone.</p>
+
+      <div class="modal-buttons">
+        <button id="cancelDelete" class="btn-secondary">Cancel</button>
+        <button id="confirmDelete" class="btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
 
   <script src="/static/script.js"></script>
 </body>

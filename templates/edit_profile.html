@@ -4,9 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Edit Profile</title>
+
+  <!-- Fonts + main styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="/static/styles.css">
+  <link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico">
 </head>
 <body data-page="edit-profile">
+  <!-- Header -->
   <header class="header">
     <div class="container header__inner">
       <a class="brand" href="/">
@@ -15,7 +23,7 @@
       </a>
       <nav class="nav" aria-label="Primary">
         <a href="/">Browse</a>
-        <a href="/profile">Profile</a>
+        <a href="/profile" aria-current="page">Profile</a>
       </nav>
       <div class="actions">
         <a href="/logout" class="badge">Logout</a>
@@ -23,36 +31,74 @@
     </div>
   </header>
 
+  <!-- Main -->
   <main class="page container">
-    <h1 class="page__title">Edit Profile</h1>
+    <h1 class="page__title">Edit profile</h1>
 
-    <form action="/profile/edit" method="post" enctype="multipart/form-data" class="form">
-      <div class="form__row">
-        <label class="form__label">Avatar</label>
-        <div class="form__control">
+    <section class="profile">
+      <!-- Left: avatar preview with hover overlay -->
+      <div class="avatar">
+        <div class="avatar-frame">
           <img
             id="edit-profile-avatar-preview"
             src="/static/assets/avatar.svg"
-            alt="avatar"
-            class="w-16 h-16 rounded-full object-cover border">
-          <input type="file" name="avatar" accept="image/png,image/jpeg">
-          <p class="muted">PNG or JPEG up to 5 MB.</p>
+            alt="Profile avatar preview"
+            class="profile__avatar">
+
+          <div class="avatar-overlay">
+            <span>Change photo</span>
+          </div>
         </div>
+
+        <p class="muted" style="margin-top: 8px;">
+          Hover and click to upload a new photo.
+        </p>
       </div>
 
-      <div class="form__row">
-        <label for="edit-profile-bio" class="form__label">Public Bio</label>
-        <textarea id="edit-profile-bio" name="profile_description" rows="4" maxlength="2000" class="textarea"
-                  placeholder="Tell buyers a bit about you…"></textarea>
-      </div>
+      <!-- Right: form -->
+      <div class="prose">
+        <form
+          id="edit-profile-form"
+          action="/profile/edit"
+          method="post"
+          enctype="multipart/form-data"
+          class="create-item-form">
 
-      <div class="form__actions">
-        <a class="button button--ghost" href="/profile">Cancel</a>
-        <button class="button" type="submit">Save changes</button>
+          <!-- Public bio -->
+          <label for="edit-profile-bio">
+            Public bio
+            <textarea
+              id="edit-profile-bio"
+              name="profile_description"
+              rows="4"
+              maxlength="2000"
+              placeholder="Tell buyers a bit about you, what you sell, or how you prefer to meet up.">
+            </textarea>
+          </label>
+
+          <!-- Hidden file input, triggered by hover overlay -->
+          <input
+            type="file"
+            id="avatar-input"
+            name="avatar"
+            accept="image/png,image/jpeg"
+            hidden>
+
+          <p class="muted">
+            Upload a square image if possible. Non-square images will be cropped to a square.
+          </p>
+
+          <!-- Actions -->
+          <div style="display:flex; gap:10px; margin-top: 10px;">
+            <a href="/profile" class="btn btn--ghost">Cancel</a>
+            <button type="submit" class="btn">Save changes</button>
+          </div>
+        </form>
       </div>
-    </form>
+    </section>
   </main>
 
+  <!-- Footer -->
   <footer class="footer">
     <div class="container footer__inner">
       <span>© <span id="year"></span> Mulebay</span>

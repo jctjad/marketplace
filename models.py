@@ -43,7 +43,6 @@ class User(db.Model, UserMixin): #Added UserMixin parameter
             "date_created": self.date_created.isoformat() if self.date_created else None,
         }
 
-
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     seller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -53,14 +52,15 @@ class Item(db.Model):
     price = db.Column(db.Float, nullable=False)
     condition = db.Column(db.String(50))
     payment_options = db.Column(db.JSON, default=list)  # List of payment options for transaction
+    bookmarked = db.Column(db.Boolean, default=False)
     live_on_market = db.Column(db.Boolean, default=True, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     # NEW: define seller relationship so we can access item.seller
     seller = db.relationship("User", back_populates="items", lazy=True)
 
-    # NEW: dict representation for REST API
-    def to_dict(self, include_seller=True):
+    # NEW: dict representation for REST API and current user id is added
+    def to_dict(self, include_seller=True, bookmarked=False, current_user_id=None):
         data = {
             "id": self.id,
             "seller_id": self.seller_id,
@@ -70,15 +70,22 @@ class Item(db.Model):
             "price": self.price,
             "condition": self.condition,
             "payment_options": self.payment_options or [],
+            "bookmarked": bool(bookmarked),
             "live_on_market": self.live_on_market,
             "date_created": self.date_created.isoformat() if self.date_created else None,
         }
+
         if include_seller and self.seller:
             data["seller"] = {
                 "id": self.seller.id,
                 "first_name": self.seller.first_name,
                 "last_name": self.seller.last_name,
             }
+
+        # NEW: add dynamic ownership flag (NOT stored in DB)
+        if current_user_id is not None:
+            data["is_owner"] = (self.seller_id == current_user_id)
+
         return data
 
 class Chat(db.Model):   # The seller and buyer can chat (message one another) ON ITEM PAGE about given item

@@ -162,22 +162,105 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .specs { margin-top: 8px; border-top: 1px solid var(--bd); padding-top: 12px; color: var(--muted); }
 
 /* Profile */
+/* Profile layout: avatar column + content column */
 .profile {
-  display: grid;
-  grid-template-columns: 220px 1fr;
+  display: flex;
   gap: 24px;
+  align-items: flex-start; /* prevents the avatar card from stretching vertically */
 }
-@media (max-width: 720px){ .profile { grid-template-columns: 1fr; } }
+
+/* Left column: avatar box stays fixed width, height = its content only */
+.profile > .avatar {
+  flex: 0 0 220px; /* 220px wide, no stretching */
+}
+
+/* Right column: bio + listings take remaining space */
+.profile > .prose {
+  flex: 1 1 auto;
+}
+
+/* Stack on small screens */
+@media (max-width: 720px) {
+  .profile {
+    flex-direction: column;
+  }
+  .profile > .avatar {
+    flex: 0 0 auto;
+  }
+}
+
 .avatar { border-radius: calc(var(--radius) + 6px); border:1px solid var(--bd); background: var(--panel); padding: 8px; }
 .prose { color: var(--text); }
 .muted { color: var(--muted); }
+
+/* Avatar hover overlay on edit profile page */
+.avatar-frame {
+  position: relative;
+  border-radius: calc(var(--radius) + 6px);
+  overflow: hidden;
+}
+
+.profile__avatar {
+  width: 100%;
+  display: block;
+  border-radius: inherit;
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.avatar-frame:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.avatar {
+  position: relative;
+}
+
+.profile__avatar {
+  width: 100%;
+  display: block;
+  border-radius: calc(var(--radius) + 6px);
+}
+
+.avatar-overlay {
+  position: absolute;
+  inset: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+  border-radius: calc(var(--radius) + 4px);
+}
+
+.avatar:hover .avatar-overlay {
+  opacity: 1;
+}
 
 /* Page scaffolding */
 .page {
   padding: 26px 0 40px;
 }
 .page__title { margin: 10px 0 14px; font-size: clamp(22px, 3.6vw, 36px); font-weight: 900; letter-spacing: .2px; }
-.bar { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; gap: 12px; }
+.bar {position: relative; display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; gap: 12px; }
 .search {
   display:flex; align-items:center; gap:8px; width: 100%; max-width: 520px;
   background: var(--panel); border: 1px solid var(--bd); border-radius: 12px; padding: 8px 10px;
@@ -185,7 +268,43 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .search input {
   border: 0; background: transparent; color: var(--text); width: 100%; outline: none;
 }
-.filter { background: var(--elev); border:1px solid var(--bd); padding: 8px 12px; border-radius: 10px; color: var(--muted); }
+
+.filter { /* Filter items button */ 
+  background: var(--elev);
+  border:1px solid var(--bd);
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: var(--muted);
+  width: 150px;
+  text-align: right;
+}
+.filter-menu {  /* Dropdown menu */
+  display: none;
+  position: absolute;
+  top: calc(70% + 6px);
+  right: 0;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.12);
+  z-index: 30;
+  min-width: 160px;
+}
+.filter-menu li button {  /* Buttons inside menu dropdown */
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+}
+.filter-menu li button:hover { background: var(--elev); }
+.filter[aria-expanded="true"] + .filter-menu { display: block; }  /* Show when the button is expanded */
 
 /* Footer */
 .footer { border-top: 1px solid var(--bd); margin-top: 36px; }
@@ -607,4 +726,178 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   width: 280px;
   background: #fff;
   box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
+}
+
+/* NEW: owner controls inside item cards */
+.item-card__owner-actions {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  margin-left: auto;
+}
+
+.link-button {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
+}
+
+/* === MODAL BACKDROP === */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  transition: opacity 0.25s ease;
+}
+
+.modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* === MODAL BOX === */
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+  animation: popup 0.25s ease;
+}
+
+@keyframes popup {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Buttons */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.btn-secondary {
+  background: #ddd;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+.btn-danger {
+  background: #ff4d4f;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
+
+/* ================================
+   Owner Actions - Side by Side Small
+   ================================ */
+
+#owner-actions {
+  grid-column: 1 / -1;   /* span the entire grid width */
+  width: 100%;
+  display: flex;
+  justify-content: left;
+}
+
+.owner-actions-row {
+  display: flex;
+  justify-content: flex-start;   
+  gap: 12px;
+  width: 100%;
+}
+
+
+.owner-actions-row .btn {
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  width: 110px;         
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* Yellow Edit Button */
+.btn-edit {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  border: 1px solid #d97706;
+  color: white;
+  font-weight: 600;
+}
+
+/* Red Delete Button */
+.btn-delete {
+  background: #ef4444;
+  color: white;
+  font-weight: 600;
+}
+
+.btn-edit:hover,
+.btn-delete:hover {
+  transform: scale(1.03);
+}
+
+/* The popup chat - hidden by default */
+.chat-popup {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  right: 15px;
+  border: 3px solid #f8f8f8;
+  z-index: 9;
+}
+
+/* Add styles to the form container */
+.form-container {
+  max-width: 300px;
+  padding: 10px;
+  background-color: white;
+}
+
+/* Full-width textarea */
+.form-container textarea {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  border: none;
+  background: #f8f8f8;
+  resize: none;
+  min-height: 200px;
+}
+
+/* When the textarea gets focus, do something */
+.form-container textarea:focus {
+  background-color: #f8f8f8;
+  outline: none;
+}
+
+/* Set a style for the submit/login button */
+.form-container .btn_msg {
+  background-color: #02AB0A;
+  color: #f8f8f8;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom:10px;
+}
+
+/* Add a red background color to the cancel button */
+.form-container .cancel {
+  background: #ef4444;
+  color: #f8f8f8;
+  font-weight: 600;
+}
+
+#messages {
+  display: none;
 }

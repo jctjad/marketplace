@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/static/styles.css">
   <link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico">
 </head>
-<body data-page="create-item">
+<body data-page="edit-item">
   <header class="header">
     <div class="container header__inner">
       <a class="brand" href="/">
@@ -24,22 +24,20 @@
   </header>
 
   <main class="page container">
-    <!-- ONE form spanning both columns -->
-    <form id="createForm" class="product" method="POST" enctype="multipart/form-data">
-      <!-- Left: image upload area -->
+    <form id="editForm" class="product">
       <section class="gallery" aria-label="Item image">
         <div class="gallery__stage upload-stage"
              onclick="document.getElementById('fileInput').click()">
-          <img id="stage" src="/static/assets/item_placeholder.svg" alt="">
+          <!-- JS will replace src with actual item image -->
+          <img id="edit-image-preview" src="/static/assets/item_placeholder.svg" alt="">
           <div class="upload-overlay"><span>Click to upload image</span></div>
         </div>
         <input type="file" id="fileInput" name="image_file"
                accept="image/*" style="display:none" onchange="previewImage(event)">
       </section>
 
-      <!-- Right: fields -->
       <aside class="buybox card">
-        <h1 class="buybox__title">Create a New Item</h1>
+        <h1 class="buybox__title">Edit Item</h1>
 
         <div class="create-item-form">
           <label>Name
@@ -70,7 +68,7 @@
             <label><input type="checkbox" name="payment_options" value="Zelle"> Zelle</label>
           </fieldset>
 
-          <button class="btn" type="submit">Create Item</button>
+          <button class="btn" type="submit">Save changes</button>
         </div>
       </aside>
     </form>
@@ -84,13 +82,12 @@
   </footer>
 
   <script>
-  // kept inline, just for preview; POST goes via script.js
   function previewImage(event) {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = function(e) {
-        const img = document.getElementById('stage');
+        const img = document.getElementById('edit-image-preview');
         img.src = e.target.result;
         img.classList.add('visible');
       };
