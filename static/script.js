@@ -355,6 +355,7 @@ async function initEditItemPage() {
   const priceInput = form.querySelector('input[name="price"]');
   const conditionSelect = form.querySelector('select[name="condition"]');
   const paymentCheckboxes = form.querySelectorAll('input[name="payment_options"]');
+  const fileInput = form.querySelectorAll('input[name="image_file"]');
 
   // 1. Load existing data
   try {
@@ -384,12 +385,17 @@ async function initEditItemPage() {
   // 2. Handle Save Changes
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const updatedImage = document.getElementById("edit-image-preview");
+    
+    // Checking to see if the user uploaded a new file
+    if (fileInput.files[0]) {
+      uploaded_photo = fileInput.files[0];
+    }
+
     // Collect updated fields
     const updatedData = {
       name: nameInput.value.trim(),
       description: descInput.value.trim(),
-      item_photos: updatedImage.src,
+      item_photos: uploaded_photo,
       price: priceInput.value.trim(),
       condition: conditionSelect.value,
       payment_options: Array.from(paymentCheckboxes)
