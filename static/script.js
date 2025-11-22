@@ -389,6 +389,7 @@ async function initEditItemPage() {
     // Checking to see if the user uploaded a new file
     if (fileInput.files[0]) {
       uploaded_photo = fileInput.files[0];
+      console.log(uploaded_photo);
     }
 
     // Collect updated fields
