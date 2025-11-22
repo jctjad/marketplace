@@ -491,25 +491,79 @@ def api_update_item(item_id):
     if item.seller_id != current_user.id:
         return {"error": "You can only edit your own items."}, 403
 
-    data = request.get_json() or {}
+    request.content_type.startswith("multipart/form-data")
+    name = request.form.get("name")
+    description = request.form.get("description")
+    price = request.form.get("price")
+    condition = request.form.get("condition")
+    payment_options = request.form.getlist("payment_options")
 
-    if 'name' in data:
-        item.name = (data['name'] or '').strip()
-    if 'description' in data:
-        item.description = (data['description'] or '').strip()
-    if 'item_photos' in data:
-        print("updating item's photo")
-        print(data['item_photos'])
-        item.item_photos = data['item_photos']
-    if 'price' in data:
-        try:
-            item.price = float(data['price'])
-        except (TypeError, ValueError):
-            return {"error": "Price must be a number"}, 400
-    if 'condition' in data:
-        item.condition = data['condition']
-    if 'payment_options' in data:
-        item.payment_options = data['payment_options'] or []
+    f = request.files.get("image_file")
+    if f and f.filename:
+        image_file = request.files.get("image_file")
+
+        if asset_folder == "marketplace":
+            # Read to memory so Pillow can validate the image
+            img_bytes = image_file.read()
+            img_file = io.BytesIO(img_bytes)
+
+            # Validate using magic bytes
+            try:
+                with Image.open(img_file) as img:
+                    if img.format not in ("PNG", "JPEG", "JPG"):
+                        return {"error": "Invalid image format"}, 400
+            except Exception:
+                return {"error": "Invalid image file"}, 400
+
+            # Reset pointer after Pillow read
+            img_file.seek(0)
+
+            # Upload to Cloudinary
+            filename = secure_filename(f"{current_user.id}_{image_file.filename}")
+
+            upload_result = cloudinary.uploader.upload(
+                img_file,
+                public_id=f"{filename}",
+                unique_filename=True,
+                overwrite=True,
+                asset_folder=asset_folder+"_uploads"
+            )
+
+            image_path = upload_result.get("secure_url")
+
+        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run 
+            filename = secure_filename(f"{current_user.id}_{image_file.filename}")
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            image_file.save(filepath)
+            image_path = f"/static/uploads/{filename}"
+    else:
+        image_path = "/static/assets/item_placeholder.svg"
+
+    item.name = name
+    item.description = description
+    item.price = float(price)
+    item.condition = condition
+    item.payment_options = payment_options
+    item.item_photos = image_path
+    # data = request.get_json() or {}
+
+    # if 'name' in data:
+    #     item.name = (data['name'] or '').strip()
+    # if 'description' in data:
+    #     item.description = (data['description'] or '').strip()
+    # if 'item_photos' in data:
+    #     print("updating item's photos")
+    #     print(data['item_photos'])
+    #     item.item_photos = data['item_photos']
+    # if 'price' in data:
+    #     try:
+    #         item.price = float(data['price'])
+    #     except (TypeError, ValueError):
+    #         return {"error": "Price must be a number"}, 400
+    # if 'condition' in data:
+    #     item.condition = data['condition']
+    # if 'payment_options' in data:
+    #     item.payment_options = data['payment_options'] or []
 
     db.session.commit()
     return {"item": item.to_dict(current_user_id=current_user.id)}

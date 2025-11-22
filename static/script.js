@@ -355,8 +355,6 @@ async function initEditItemPage() {
   const priceInput = form.querySelector('input[name="price"]');
   const conditionSelect = form.querySelector('select[name="condition"]');
   const paymentCheckboxes = form.querySelectorAll('input[name="payment_options"]');
-  const fileInput = form.querySelectorAll('input[name="image_file"]');
-  console.log(fileInput);
 
   // 1. Load existing data
   try {
@@ -386,32 +384,44 @@ async function initEditItemPage() {
   // 2. Handle Save Changes
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    
-    // Checking to see if the user uploaded a new file
-    if (fileInput.files[0]) {
-      uploaded_photo = fileInput.files[0];
-      console.log(uploaded_photo);
-    }
 
     // Collect updated fields
-    const updatedData = {
-      name: nameInput.value.trim(),
-      description: descInput.value.trim(),
-      item_photos: uploaded_photo,
-      price: priceInput.value.trim(),
-      condition: conditionSelect.value,
-      payment_options: Array.from(paymentCheckboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.value)
-    };
+    const formData = new FormData();
+    formData.append("name", nameInput.value.trim());
+    formData.append("description", descInput.value.trim());
+    formData.append("price", priceInput.value.trim());
+    formData.append("condition", conditionSelect.value);
+
+    Array.from(paymentCheckboxes)
+      .filter(cb => cb.checked)
+      .forEach(cb => formData.append("payment_options", cb.value));
+
+    const fileInput = document.getElementById("fileInput");
+    if (fileInput.files.length) {
+      formData.append("image_file", fileInput.files[0]);
+    }
+    // const updatedData = {
+    //   name: nameInput.value.trim(),
+    //   description: descInput.value.trim(),
+    //   item_photos: uploaded_photo,
+    //   price: priceInput.value.trim(),
+    //   condition: conditionSelect.value,
+    //   payment_options: Array.from(paymentCheckboxes)
+    //     .filter(cb => cb.checked)
+    //     .map(cb => cb.value)
+    // };
 
     try {
+      // const resp = await fetch(`/api/items/${id}`, {
+      //   method: "PATCH",
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify(updatedData)
+      // });
       const resp = await fetch(`/api/items/${id}`, {
         method: "PATCH",
-        // headers: {
-        //   "Content-Type": "application/json"
-        // },
-        body: JSON.stringify(updatedData)
+        body: formData
       });
 
       if (!resp.ok) {
