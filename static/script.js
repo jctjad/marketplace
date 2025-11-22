@@ -390,7 +390,7 @@ async function initEditItemPage() {
     const updatedData = {
       name: nameInput.value.trim(),
       description: descInput.value.trim(),
-      item_photos: updatedImage.src,
+      item_photos: updatedImage.getAttribute('src'),
       price: priceInput.value.trim(),
       condition: conditionSelect.value,
       payment_options: Array.from(paymentCheckboxes)
