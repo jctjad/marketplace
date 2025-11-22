@@ -355,7 +355,6 @@ async function initEditItemPage() {
   const priceInput = form.querySelector('input[name="price"]');
   const conditionSelect = form.querySelector('select[name="condition"]');
   const paymentCheckboxes = form.querySelectorAll('input[name="payment_options"]');
-  const updatedImage = document.getElementById("edit-image-preview");
 
   // 1. Load existing data
   try {
@@ -385,12 +384,12 @@ async function initEditItemPage() {
   // 2. Handle Save Changes
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
+    const updatedImage = document.getElementById("edit-image-preview");
     // Collect updated fields
     const updatedData = {
       name: nameInput.value.trim(),
       description: descInput.value.trim(),
-      item_photos: updatedImage.getAttribute('src'),
+      item_photos: updatedImage.src,
       price: priceInput.value.trim(),
       condition: conditionSelect.value,
       payment_options: Array.from(paymentCheckboxes)
