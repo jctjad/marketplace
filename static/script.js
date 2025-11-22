@@ -4,7 +4,7 @@
 // Global Variables (tracks items being displayed)
 // ==============================
 let allItems = [];
-let currentFilter = "all"; // "all" or "bookmarks" (will extend to items being sold too)
+let currentFilter = "all"; // "all", "bookmarks", or "selling-items"
 let currentUserId = null;
 
 // ==============================
@@ -70,7 +70,7 @@ function applyFilterAndRender() {
   if (currentFilter === "bookmarks") {
     itemsToShow = allItems.filter((item) => item.bookmarked);
   } else if (currentFilter === "selling-items") {
-    itemsToShow = allItems.filter(item => item.seller_id === currentUserId);
+    itemsToShow = allItems.filter((item) => item.seller_id === currentUserId);
   }
 
   renderItemGrid(itemsToShow);
@@ -102,14 +102,12 @@ function renderItemGrid(items) {
 
     const bookmark = document.createElement("img");
     bookmark.className = "item-card__bookmark";
-    bookmark.src = "/static/assets/bookmark.svg";
-    bookmark.dataset.altSrc = "/static/assets/bookmark-filled.svg";
     bookmark.dataset.itemId = item.id;
     bookmark.dataset.bookmarked = item.bookmarked ? "true" : "false";
-     if (item.bookmarked) { // show as filled if already bookmarked
+    if (item.bookmarked) {
       bookmark.src = "/static/assets/bookmark-filled.svg";
       bookmark.dataset.altSrc = "/static/assets/bookmark.svg";
-    } else {  // default unfilled
+    } else {
       bookmark.src = "/static/assets/bookmark.svg";
       bookmark.dataset.altSrc = "/static/assets/bookmark-filled.svg";
     }
@@ -179,7 +177,7 @@ function renderItemGrid(items) {
   bindBookmarkIcons();
 }
 
-// NEW: this was missing – it wires up search + initial fetch
+// NEW: wires up search + initial fetch
 function initBrowsePage() {
   const searchInput = document.querySelector(".search input");
   if (searchInput) {
@@ -216,14 +214,19 @@ async function initItemPage() {
     const descEl = document.querySelector("#item-description");
 
     if (titleEl) titleEl.textContent = item.name || "";
-    if (priceEl) priceEl.textContent = `$${Number(item.price || 0).toFixed(2)}`;
+    if (priceEl) {
+      priceEl.textContent = `$${Number(item.price || 0).toFixed(2)}`;
+    }
     if (imgEl) {
       imgEl.src = item.item_photos || "/static/assets/item_placeholder.svg";
       imgEl.alt = item.name || "Item image";
     }
     if (conditionEl) conditionEl.textContent = item.condition || "—";
     if (sellerEl && item.seller) {
-      sellerEl.textContent = `${item.seller.first_name || ""} ${item.seller.last_name || ""}`.trim();
+      sellerEl.textContent =
+        `${item.seller.first_name || ""} ${item.seller.last_name || ""}`.trim();
+      // NEW: link to seller profile
+      sellerEl.href = `/profile/${item.seller.id}`;
     }
     if (descEl) descEl.textContent = item.description || "";
 
@@ -280,7 +283,7 @@ async function initItemPage() {
       confirmBtn.addEventListener("click", async () => {
         try {
           const resp = await fetch(`/api/items/${item.id}`, {
-            method: "DELETE"
+            method: "DELETE",
           });
           if (!resp.ok) throw new Error(await resp.text());
           window.location.href = "/";
@@ -297,8 +300,7 @@ async function initItemPage() {
       main.innerHTML = "<p>Sorry, this item could not be loaded.</p>";
     }
   }
-} // ← IMPORTANT: closes initItemPage()
-
+}
 
 // ==============================
 // Create item page – create_item.html
@@ -333,8 +335,6 @@ function initCreateItemPage() {
       alert("There was an error creating the item.");
     }
   });
-
-  // (Optional) keep separate inline preview function in create_item.html if you like.
 }
 
 // ==============================
@@ -343,10 +343,9 @@ function initCreateItemPage() {
 async function initEditItemPage() {
   // Extract item id from URL: /item/<id>/edit
   const parts = window.location.pathname.split("/");
-  const id = parts[parts.length - 2]; 
+  const id = parts[parts.length - 2];
   if (!id) return;
 
-  // Get form fields
   const form = document.getElementById("editForm");
   if (!form) return;
 
@@ -354,29 +353,29 @@ async function initEditItemPage() {
   const descInput = form.querySelector('textarea[name="description"]');
   const priceInput = form.querySelector('input[name="price"]');
   const conditionSelect = form.querySelector('select[name="condition"]');
-  const paymentCheckboxes = form.querySelectorAll('input[name="payment_options"]');
+  const paymentCheckboxes = form.querySelectorAll(
+    'input[name="payment_options"]'
+  );
 
   // 1. Load existing data
   try {
     const data = await fetchJSON(`/api/items/${id}`);
     const item = data.item;
 
-    // Pre-fill fields
     if (nameInput) nameInput.value = item.name || "";
     if (descInput) descInput.value = item.description || "";
     if (priceInput) priceInput.value = item.price || "";
     if (conditionSelect) conditionSelect.value = item.condition || "New";
 
-    paymentCheckboxes.forEach(cb => {
+    paymentCheckboxes.forEach((cb) => {
       cb.checked = item.payment_options.includes(cb.value);
     });
 
-    // Load current image preview if you want (optional)
     const imgPreview = document.getElementById("edit-image-preview");
     if (imgPreview) {
-      imgPreview.src = item.item_photos || "/static/assets/item_placeholder.svg";
+      imgPreview.src =
+        item.item_photos || "/static/assets/item_placeholder.svg";
     }
-
   } catch (err) {
     console.error("Failed to load item for editing:", err);
   }
@@ -385,24 +384,23 @@ async function initEditItemPage() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // Collect updated fields
     const updatedData = {
       name: nameInput.value.trim(),
       description: descInput.value.trim(),
       price: priceInput.value.trim(),
       condition: conditionSelect.value,
       payment_options: Array.from(paymentCheckboxes)
-        .filter(cb => cb.checked)
-        .map(cb => cb.value)
+        .filter((cb) => cb.checked)
+        .map((cb) => cb.value),
     };
 
     try {
       const resp = await fetch(`/api/items/${id}`, {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedData)
+        body: JSON.stringify(updatedData),
       });
 
       if (!resp.ok) {
@@ -410,7 +408,6 @@ async function initEditItemPage() {
         throw new Error(text);
       }
 
-      // Redirect back to item page
       window.location.href = `/item/${id}`;
     } catch (err) {
       console.error("Update error:", err);
@@ -424,8 +421,33 @@ async function initEditItemPage() {
 // ==============================
 async function loadProfileData() {
   try {
-    const data = await fetchJSON("/api/profile/me");
-    const user = data.user;
+    const path = window.location.pathname;
+    const parts = path.split("/").filter(Boolean); // e.g. ["profile"], ["profile","edit"], ["profile","5"]
+
+    const isBaseProfile = parts[0] === "profile" && parts.length === 1;
+    const isEditProfile = parts[0] === "profile" && parts[1] === "edit";
+    const isOwnProfile = isBaseProfile || isEditProfile;
+
+    let user;
+    let viewedUserId = null;
+
+    if (isOwnProfile) {
+      const data = await fetchJSON("/api/profile/me");
+      user = data.user;
+      viewedUserId = user.id;
+    } else if (parts[0] === "profile" && parts.length === 2) {
+      viewedUserId = Number(parts[1]);
+      if (!Number.isFinite(viewedUserId)) {
+        console.error("Invalid profile id in URL");
+        return;
+      }
+      const data = await fetchJSON(`/api/profile/${viewedUserId}`);
+      user = data.user;
+    } else {
+      const data = await fetchJSON("/api/profile/me");
+      user = data.user;
+      viewedUserId = user.id;
+    }
 
     // Profile view
     const nameEl = document.getElementById("profile-name");
@@ -433,27 +455,158 @@ async function loadProfileData() {
     const avatarEl = document.getElementById("profile-avatar");
 
     if (nameEl) {
-      nameEl.textContent = `${user.first_name || ""} ${user.last_name || ""}`.trim() || "User";
+      nameEl.textContent =
+        `${user.first_name || ""} ${user.last_name || ""}`.trim() || "User";
     }
     if (bioEl) {
-      bioEl.textContent = user.profile_description || "No bio yet. Click “Edit profile” to add a public bio.";
+      bioEl.textContent =
+        user.profile_description ||
+        "No bio yet. Click “Edit profile” to add a public bio.";
     }
     if (avatarEl) {
       avatarEl.src = user.profile_image || "/static/assets/avatar.svg";
     }
 
+    // Hide "Edit profile" link when viewing someone else's profile
+    if (!isOwnProfile) {
+      const editLink = document.querySelector('a[href="/profile/edit"]');
+      if (editLink) {
+        editLink.style.display = "none";
+      }
+    }
+
     // Edit profile page (pre-fill)
     const editBio = document.getElementById("edit-profile-bio");
-    const editAvatarPreview = document.getElementById("edit-profile-avatar-preview");
+    const editAvatarPreview = document.getElementById(
+      "edit-profile-avatar-preview"
+    );
 
     if (editBio) {
       editBio.value = user.profile_description || "";
     }
     if (editAvatarPreview) {
-      editAvatarPreview.src = user.profile_image || "/static/assets/avatar.svg";
+      editAvatarPreview.src =
+        user.profile_image || "/static/assets/avatar.svg";
+    }
+
+    // Load seller listings if there's a listings grid
+    if (viewedUserId && document.getElementById("profile-listings")) {
+      loadProfileListings(viewedUserId);
     }
   } catch (err) {
     console.error("Error loading profile:", err);
+  }
+}
+
+// Load seller listings into the profile "Listings" grid
+async function loadProfileListings(sellerId) {
+  const grid = document.getElementById("profile-listings");
+  const emptyState = document.getElementById("profile-listings-empty");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+
+  try {
+    const data = await fetchJSON(`/api/items?seller_id=${sellerId}`);
+    const items = data.items || [];
+
+    if (!items.length) {
+      if (emptyState) emptyState.style.display = "block";
+      return;
+    }
+
+    if (emptyState) emptyState.style.display = "none";
+
+    items.forEach((item) => {
+      const a = document.createElement("a");
+      a.className = "card";
+      a.href = `/item/${item.id}`;
+
+      const imgThumb = document.createElement("img");
+      imgThumb.className = "item-card__thumb";
+      imgThumb.src =
+        item.item_photos || "/static/assets/item_placeholder.svg";
+      imgThumb.alt = item.name || "Item";
+
+      const bookmark = document.createElement("img");
+      bookmark.className = "item-card__bookmark";
+      bookmark.dataset.itemId = item.id;
+      bookmark.dataset.bookmarked = item.bookmarked ? "true" : "false";
+      if (item.bookmarked) {
+        bookmark.src = "/static/assets/bookmark-filled.svg";
+        bookmark.dataset.altSrc = "/static/assets/bookmark.svg";
+      } else {
+        bookmark.src = "/static/assets/bookmark.svg";
+        bookmark.dataset.altSrc = "/static/assets/bookmark-filled.svg";
+      }
+
+      const body = document.createElement("div");
+      body.className = "item-card__body";
+
+      const top = document.createElement("div");
+      top.className = "item-card__top";
+
+      const title = document.createElement("div");
+      title.className = "item-card__title";
+      title.textContent = item.name || "";
+
+      const price = document.createElement("div");
+      price.className = "item-card__price";
+      const p = Number(item.price || 0).toFixed(2);
+      price.textContent = `$${p}`;
+
+      top.appendChild(title);
+      top.appendChild(price);
+
+      const bottom = document.createElement("div");
+      bottom.className = "item-card__bottom";
+
+      const seller = document.createElement("div");
+      seller.className = "item-card__seller";
+      if (item.seller) {
+        seller.textContent = item.seller.first_name || "Seller";
+      } else {
+        seller.textContent = "Unknown Seller";
+      }
+
+      const paymentIcons = document.createElement("div");
+      paymentIcons.className = "item-card__payment-icons";
+
+      (item.payment_options || []).forEach((method) => {
+        let iconSrc = null;
+        if (method.includes("Venmo")) iconSrc = "/static/assets/venmo.svg";
+        else if (method.includes("Zelle")) iconSrc = "/static/assets/zelle.svg";
+        else if (method.includes("Cash")) iconSrc = "/static/assets/cash.svg";
+
+        if (iconSrc) {
+          const icon = document.createElement("img");
+          icon.className = "icon";
+          icon.src = iconSrc;
+          icon.alt = method;
+          paymentIcons.appendChild(icon);
+        }
+      });
+
+      bottom.appendChild(seller);
+      bottom.appendChild(paymentIcons);
+
+      body.appendChild(top);
+      body.appendChild(bottom);
+
+      a.appendChild(imgThumb);
+      a.appendChild(bookmark);
+      a.appendChild(body);
+
+      grid.appendChild(a);
+    });
+
+    bindBookmarkIcons();
+  } catch (err) {
+    console.error("Error loading seller listings:", err);
+    if (emptyState) {
+      emptyState.textContent = "There was an error loading listings.";
+      emptyState.style.display = "block";
+    }
   }
 }
 
@@ -533,7 +686,6 @@ function bindEditProfileFormSubmit() {
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
-    // If user didn't pick a new avatar, let the normal form submit happen
     if (!input || !input.files || !input.files.length || !avatarCroppedBlob) {
       return;
     }
@@ -541,7 +693,6 @@ function bindEditProfileFormSubmit() {
     e.preventDefault();
 
     const formData = new FormData(form);
-    // Replace original avatar file with cropped one
     formData.delete("avatar");
     const croppedFile = new File([avatarCroppedBlob], "avatar.jpg", {
       type: "image/jpeg",
@@ -557,7 +708,6 @@ function bindEditProfileFormSubmit() {
       if (resp.redirected) {
         window.location.href = resp.url;
       } else {
-        // Fallback: reload page
         window.location.reload();
       }
     } catch (err) {
@@ -571,34 +721,33 @@ function bindEditProfileFormSubmit() {
 // Category dropdown button
 // ==============================
 (function () {
-  const btn = document.getElementById('categoryFilter');
-  const menu = document.getElementById('categoryMenu');
+  const btn = document.getElementById("categoryFilter");
+  const menu = document.getElementById("categoryMenu");
   if (!btn || !menu) return;
 
   const closeMenu = () => {
-    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute("aria-expanded", "false");
   };
 
-  btn.addEventListener('click', (e) => {
-    const expanded = btn.getAttribute('aria-expanded') === 'true';
-    btn.setAttribute('aria-expanded', String(!expanded));
+  btn.addEventListener("click", () => {
+    const expanded = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-expanded", String(!expanded));
   });
 
-  menu.addEventListener('click', (e) => {
-    const target = e.target.closest('button[data-value]');
+  menu.addEventListener("click", (e) => {
+    const target = e.target.closest("button[data-value]");
     if (!target) return;
     const label = target.textContent.trim();
     btn.innerHTML = `${label} ▾`;
     closeMenu();
   });
 
-  // Close popup
-  document.addEventListener('click', (e) => {
+  document.addEventListener("click", (e) => {
     if (e.target === btn || menu.contains(e.target)) return;
     closeMenu();
   });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeMenu();
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
   });
 })();
 
@@ -609,9 +758,9 @@ const categoryFilterBtn = document.getElementById("categoryFilter");
 const categoryMenu = document.getElementById("categoryMenu");
 
 if (categoryMenu && categoryFilterBtn) {
-  categoryMenu.querySelectorAll("button[data-value]").forEach(btn => {
+  categoryMenu.querySelectorAll("button[data-value]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const value = btn.dataset.value; // "all" or "bookmarks" or "selling-items"
+      const value = btn.dataset.value;
       currentFilter = value;
 
       if (value === "bookmarks") {
@@ -636,18 +785,15 @@ function bindBookmarkIcons() {
       e.preventDefault();
       e.stopPropagation();
 
-      // 1. Swap the icon image
       const current = icon.getAttribute("src");
       const alt = icon.dataset.altSrc;
       icon.setAttribute("src", alt);
       icon.dataset.altSrc = current;
 
-      // 2. Toggle bookmark state in a data attribute
       const wasBookmarked = icon.dataset.bookmarked === "true";
       const isNowBookmarked = !wasBookmarked;
       icon.dataset.bookmarked = isNowBookmarked ? "true" : "false";
 
-      // 3. Update local JS state (allItems) so it stays in sync with UI
       const itemId = icon.dataset.itemId;
       const itemIdNum = Number(itemId);
       const itemObj = allItems.find((i) => i.id === itemIdNum);
@@ -656,13 +802,11 @@ function bindBookmarkIcons() {
         itemObj.bookmarked = isNowBookmarked;
       }
 
-      // 4. Re-apply the filter so it disappears from the grid.
       if (currentFilter === "bookmarks" && !isNowBookmarked) {
         applyFilterAndRender();
         return;
       }
 
-      // 5. Send REST request to backend
       updateBookmarkOnServer(itemId, isNowBookmarked);
     });
   });
@@ -679,7 +823,7 @@ async function updateBookmarkOnServer(itemId, isBookmarked) {
         "Content-Type": "application/json",
         "X-Requested-With": "XMLHttpRequest",
       },
-      credentials: "include", // send cookies/session
+      credentials: "include",
       body: JSON.stringify({
         item_id: itemId,
         bookmarked: isBookmarked,
@@ -694,73 +838,58 @@ async function updateBookmarkOnServer(itemId, isBookmarked) {
   }
 }
 
-// Messaging 
+// ==============================
+// Messaging
 // ==============================
 let socket;
 
 // Open chat box
-async function openForm(){
+async function openForm() {
   const chat_form = document.getElementById("chatForm");
   const chat_screen = document.getElementById("messages");
   chat_form.style.display = "block";
   chat_screen.style.display = "grid";
-  // Item id from path: /item/<id>
+
   const parts = window.location.pathname.split("/");
   const id = parts[parts.length - 1];
-  
+
   const data_user = await fetchJSON("/api/profile/me");
   const user = data_user.user;
 
   const data_item = await fetchJSON(`/api/items/${id}`);
-  const item = data_item.item; 
-  
+  const item = data_item.item;
+
   socket = io();
   socket.emit("join", item, user);
-  socket.on("message", function(data) {
-    var messages = document.getElementById('messages');
+  socket.on("message", function (data) {
+    const messages = document.getElementById("messages");
     messages.innerHTML += `<span>${data}</span>`;
   });
 
   chat_form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    
-    // var message_to_add;
-    
-    // const msg_info = { user_data:user, item_data:item, message:message_to_add};
-
-    // const resp = await fetch("api/messages", {
-    //   method: "POST",
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(msg_info)
-    // });
-    // const data = await resp.json();
-
+    // form submit currently just handled by sendMessage() onclick
   });
 }
 
 // Close chat box
-async function closeForm(){
+async function closeForm() {
   document.getElementById("chatForm").style.display = "none";
-  const data_user = await fetchJSON("/api/profile/me");
-  const user = data_user.user;
+  await fetchJSON("/api/profile/me"); // no-op, but keeps pattern
 }
 
 // Function to send messages
-async function sendMessage(){
+async function sendMessage() {
   const data = await fetchJSON("/api/profile/me");
   const user = data.user;
 
-  var msgInput = document.getElementById("msg");
-  var message = msgInput.value;
-
+  const msgInput = document.getElementById("msg");
+  const message = msgInput.value;
 
   socket.send(message, user);
   msgInput.value = "";
 }
 
-/* USER PROFILE */
 // ==============================
 // Misc: year stamp
 // ==============================
@@ -791,6 +920,6 @@ document.addEventListener("DOMContentLoaded", () => {
       bindEditProfileFormSubmit();
     }
   } else if (page === "edit-item") {
-  initEditItemPage();
+    initEditItemPage();
   }
 });

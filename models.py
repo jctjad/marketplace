@@ -52,7 +52,7 @@ class Item(db.Model):
     price = db.Column(db.Float, nullable=False)
     condition = db.Column(db.String(50))
     payment_options = db.Column(db.JSON, default=list)  # List of payment options for transaction
-    bookmarked = db.Column(db.Boolean, default=False)
+    #bookmarked = db.Column(db.Boolean, default=False)
     live_on_market = db.Column(db.Boolean, default=True, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
