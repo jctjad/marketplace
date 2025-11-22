@@ -356,6 +356,7 @@ async function initEditItemPage() {
   const conditionSelect = form.querySelector('select[name="condition"]');
   const paymentCheckboxes = form.querySelectorAll('input[name="payment_options"]');
   const fileInput = form.querySelectorAll('input[name="image_file"]');
+  console.log(fileInput);
 
   // 1. Load existing data
   try {
