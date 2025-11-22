@@ -535,12 +535,59 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   border-radius: 20px;
   text-align: center;
   display: block;
-  margin: 0 auto;
+  margin: 10px auto;
   width: 150px;
+  
 }
 
 .login-button:hover {
   background-color: #0fb480;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 15px 0;
+}
+
+.separator::before, .separator::after{
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #333;
+}
+
+.separator:not(:empty)::before {
+  margin-right: .5rem;
+}
+
+.separator:not(:empty)::after {
+  margin-left: .5rem;
+}
+
+.google-button {
+  background-color: #10d194;
+  border-color: #10d194;
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 10px auto;
+  width: 230px;
+  padding: 7px;
+  font-size: 18px;
+}
+
+.google-button:hover {
+  background-color: #0fb480;
+}
+
+.google-icon {
+  margin-right: 8px;
+  width: 21px;
+  height: 21px;
 }
 
 .login-p{

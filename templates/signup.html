@@ -21,7 +21,7 @@
       <div class="card-login-body">
         <h3 class="login-title">Sign Up</h3>
         <!-- CHANGED: no url_for, plain /signup -->
-        <form method="POST" action="/signup">
+        <form id = "signup_form" method="POST" action="/signup">
           <div class="row">
             <div class="form-group col-md-12">
               <input class="form-control input-lg" type="text" name="firstName" placeholder="First Name">
@@ -35,10 +35,22 @@
             <div class="form-group col-md-12">
               <input class="form-control input-lg" type="password" name="password" placeholder="Password">
             </div>
+
+
           </div>
 
           <div class="col-md-12">
             <button class="login-button" type="submit">Submit</button>
+            
+            <div class = "separator">
+              <span>OR</span>
+            </div>
+
+            <button type = "button" class = "google-button" onclick= "window.location.href = '/login/google/'">
+              <img src = "/static/assets/google_icon.jpg" alt="Google" class = "google-icon">
+              Sign Up With Google
+            </button>
+            
             <p class="login-p">
               Already have an Account?
               <a class="login-link" href="/login">Sign In</a>

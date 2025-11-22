@@ -11,7 +11,7 @@ db = SQLAlchemy()
 class User(db.Model, UserMixin): #Added UserMixin parameter
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(80), unique=True, nullable=False) #Acts like username
-    password_hash = db.Column(db.String(255), nullable=False) #Login Variable
+    password_hash = db.Column(db.String(255), nullable=False) #Login Variable, made it Nullable to allow OAuth users to sign up
     first_name = db.Column(db.String(40), nullable=False)
     last_name = db.Column(db.String(40), nullable=False)
     profile_image = db.Column(db.String(255))   # String: path to image (static/assets..)
