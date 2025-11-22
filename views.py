@@ -167,7 +167,7 @@ def save_profile_edits():
         if f.mimetype not in AVATAR_ALLOWED_MIMES:
             flash("Avatar must be PNG or JPEG (≤ 5 MB).", "error")
             return redirect(url_for("profile.goto_edit_profile_page"))
-
+        print(asset_folder)
         if asset_folder == "marketplace":
             # Read to memory so Pillow can validate the image
             img_bytes = f.read()
@@ -498,6 +498,7 @@ def api_update_item(item_id):
     if 'description' in data:
         item.description = (data['description'] or '').strip()
     if 'item_photos' in data:
+        print("updating item's photo")
         print(data['item_photos'])
         item.item_photos = data['item_photos']
     if 'price' in data:
