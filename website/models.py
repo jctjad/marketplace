@@ -6,7 +6,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
-db = SQLAlchemy()
+# db = SQLAlchemy()
 
 class User(db.Model, UserMixin): #Added UserMixin parameter
     id = db.Column(db.Integer, primary_key=True)
