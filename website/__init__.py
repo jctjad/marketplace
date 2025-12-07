@@ -5,26 +5,24 @@ import os
 from flask import Flask
 from authlib.integrations.flask_client import OAuth
 
-#Messaging import
-from setup_socket import app, socketio
-
 #Auth Libraries
 from flask_login import LoginManager
 
 #Cloudinary
 import cloudinary
 
+from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO
+
 from dotenv import load_dotenv # need this for local server, make sure to add .env file when running
 load_dotenv()
 
-from flask_sqlalchemy import SQLAlchemy
-
 db = SQLAlchemy()
-
-# db.init_app(app)
+socketio = SocketIO()
 
 def create_app():
     app = Flask(__name__)
+    socketio.init_app(app)
 
     from .views import main_blueprint, item_blueprint, profile_blueprint
     from .models import User
@@ -74,6 +72,8 @@ def create_app():
 
     print("CLIENT ID:", app.config["GOOGLE_CLIENT_ID"])
 
+    db.init_app(app)
+
     #Auth Section
     login_man = LoginManager(app)
     login_man.login_view = 'auth.signup'
@@ -93,8 +93,7 @@ def create_app():
     if uri.startswith("sqlite:///"):
         with app.app_context():
             db.create_all()
-        
-        # app.run(debug=True)
-        # port = int(os.environ.get("PORT", 5000))
-        # socketio.run(app, debug=True, port=port)
     return app
+
+if __name__ == '__main__':
+    create_app()
