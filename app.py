@@ -1,7 +1,7 @@
-from website import create_app, socketio
 import os
 from dotenv import load_dotenv
 load_dotenv()
+from website import create_app, socketio
 
 app = create_app()
 
