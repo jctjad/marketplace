@@ -1,19 +1,18 @@
-from flask import (
-    Blueprint, render_template, redirect, url_for, request, flash,
-    current_app, send_from_directory, jsonify
-)
-from .models import User, Item, Chat
+import os
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 from datetime import datetime
-import os
-import csv
 from PIL import Image
-from flask_socketio import emit, join_room
 import cloudinary # to send our images to cloudinary
 import cloudinary.uploader
 import io # for our file
+import csv
+from flask import (
+    Blueprint, render_template, redirect, url_for, request, flash, send_from_directory, jsonify
+)
+from flask_socketio import emit, join_room
 from website import db, socketio
+from .models import User, Item, Chat
 
 # --- Blueprints ---
 main_blueprint = Blueprint('main', __name__)
