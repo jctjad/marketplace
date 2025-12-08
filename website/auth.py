@@ -25,9 +25,10 @@ def signup():
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             return redirect(url_for('auth.login'))
-        
+
         #Creating a new User
-        new_user = User(email=email, first_name=firstName, last_name=lastName, date_created=datetime.today())
+        new_user = User(email=email, first_name=firstName, last_name=lastName, 
+                        date_created=datetime.today())
         new_user.set_password(password)
 
         #Add and commite new user to db
@@ -52,7 +53,8 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
             login_user(user)
-            return redirect(url_for('main.goto_browse_items_page')) #I believe it's main.index to render index.html
+            #I believe it's main.index to render index.html
+            return redirect(url_for('main.goto_browse_items_page')) 
         
     return render_template('login.html')
 
@@ -74,8 +76,10 @@ def logout():
 def login_google():
     google = current_app.config["GOOGLE_CLIENT"]
     try:
-        redirect_uri = url_for('auth.authorize_google', _external = True) #External window pop up to authorize
-        return google.authorize_redirect(redirect_uri, prompt = "select_account") #Redirecting authorize to page url on google cloud project
+        #External window pop up to authorize
+        redirect_uri = url_for('auth.authorize_google', _external = True) 
+        #Redirecting authorize to page url on google cloud project
+        return google.authorize_redirect(redirect_uri, prompt = "select_account") 
     except Exception as e:
         current_app.logger.error(f"Error During Login:{str(e)}")
         return {"error": "Error occurred during login"}, 400
