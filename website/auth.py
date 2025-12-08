@@ -1,10 +1,10 @@
-from website import db
 import os
 from datetime import datetime
 from flask import (Blueprint, current_app, flash, redirect, render_template, request, url_for)
 from flask_login import login_required, login_user, logout_user
 from .models import User
 from authlib.integrations.base_client.errors import OAuthError
+from website import db
 
 #Auth Blueprint
 auth_blueprint = Blueprint('auth', __name__)
@@ -14,8 +14,8 @@ def signup():
     if request.method == 'POST':
         email = request.form.get('email') #Email acts like our username
         password = request.form.get('password')
-        firstName = request.form.get('firstName')
-        lastName = request.form.get('lastName')
+        first_name = request.form.get('firstName')
+        last_name = request.form.get('lastName')
 
         #Restricting to Colby emails
         if not email.endswith("@colby.edu"):
@@ -27,7 +27,7 @@ def signup():
             return redirect(url_for('auth.login'))
 
         #Creating a new User
-        new_user = User(email=email, first_name=firstName, last_name=lastName, 
+        new_user = User(email=email, first_name=first_name, last_name=last_name,
                         date_created=datetime.today())
         new_user.set_password(password)
 
@@ -54,8 +54,8 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             #I believe it's main.index to render index.html
-            return redirect(url_for('main.goto_browse_items_page')) 
-        
+            return redirect(url_for('main.goto_browse_items_page'))
+
     return render_template('login.html')
 
 @auth_blueprint.route('/logout')
@@ -77,9 +77,9 @@ def login_google():
     google = current_app.config["GOOGLE_CLIENT"]
     try:
         #External window pop up to authorize
-        redirect_uri = url_for('auth.authorize_google', _external = True) 
+        redirect_uri = url_for('auth.authorize_google', _external = True)
         #Redirecting authorize to page url on google cloud project
-        return google.authorize_redirect(redirect_uri, prompt = "select_account") 
+        return google.authorize_redirect(redirect_uri, prompt = "select_account")
     except Exception as e:
         current_app.logger.error(f"Error During Login:{str(e)}")
         return {"error": "Error occurred during login"}, 400
@@ -103,16 +103,16 @@ def authorize_google():
         return redirect(url_for("auth.login"))
 
     try:
-        userInfo_endpoint = google.server_metadata.get('userinfo_endpoint')
-        resp = google.get(userInfo_endpoint)
-        userInfo = resp.json()
+        user_info_endpoint = google.server_metadata.get('userinfo_endpoint')
+        resp = google.get(user_info_endpoint)
+        user_info = resp.json()
     except Exception as e:
         current_app.logger.error(f"Fetching user info failed: {str(e)}")
         return {"error": "Failed to fetch user info"}, 500
 
-    email = userInfo.get('email')
-    first_name = userInfo.get('given_name', "")
-    last_name = userInfo.get('family_name', "")
+    email = user_info.get('email')
+    first_name = user_info.get('given_name', "")
+    last_name = user_info.get('family_name', "")
 
     if not email or not email.endswith("@colby.edu"):
         return {"error": "Access restricted to Colby students."}, 403
@@ -161,7 +161,7 @@ def authorize_google():
 #         return redirect(url_for("auth.login"))
 
 #     #Grabbing data needed to create new user
-    
+
 #     userInfo_endpoint = google.server_metadata.get('userinfo_endpoint')
 #     resp = google.get(userInfo_endpoint)
 #     userInfo = resp.json()
@@ -189,5 +189,4 @@ def authorize_google():
 #     #Logging user into flask-login
 #     login_user(user)
 
-#     return redirect(url_for('main.goto_browse_items_page')) #redirects towards dashboard route - 
-
+#     return redirect(url_for('main.goto_browse_items_page')) #redirects towards dashboard route -
