@@ -45,6 +45,9 @@ AVATAR_ALLOWED_MIMES = {'image/png', 'image/jpeg'}
 
 
 def allowed_file(filename: str) -> bool:
+    """
+    This function checks to see if the file type is allowed.
+    """
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
@@ -837,4 +840,4 @@ def api_add_message():
             "id": user_id,
             "next": None
         }
-    return
+    # return

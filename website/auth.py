@@ -11,6 +11,9 @@ auth_blueprint = Blueprint('auth', __name__)
 
 @auth_blueprint.route('/signup', methods = ['GET', 'POST'])
 def signup():
+    """
+    This function handles when a user is signing up.
+    """
     if request.method == 'POST':
         email = request.form.get('email') #Email acts like our username
         password = request.form.get('password')
@@ -41,6 +44,9 @@ def signup():
 
 @auth_blueprint.route('/login', methods = ['GET', 'POST'])
 def login():
+    """
+    This function handles when a user is trying to log in.
+    """
     #Doesn't account for how many times someone can log in
     if request.method == 'POST':
         email = request.form['email']
@@ -61,6 +67,9 @@ def login():
 @auth_blueprint.route('/logout')
 @login_required
 def logout():
+    """
+    This function handles when a user logs out.
+    """
     logout_user()
     return redirect(url_for('auth.login'))
 
@@ -74,6 +83,9 @@ def logout():
 #Creating login for google
 @auth_blueprint.route("/login/google/")
 def login_google():
+    """
+    This function creates the login for Google.
+    """
     google = current_app.config["GOOGLE_CLIENT"]
     try:
         #External window pop up to authorize
@@ -87,6 +99,11 @@ def login_google():
 
 @auth_blueprint.route("/login/google/callback")
 def authorize_google():
+    """This function uses Google to authorize the user before they
+    can login. 
+    If authorized, they are sent to the browse item page.
+    Otherwise, they must not be using a valid Colby email.
+    """
     google = current_app.config["GOOGLE_CLIENT"]
 
     error = request.args.get("error")
