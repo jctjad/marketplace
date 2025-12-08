@@ -21,6 +21,9 @@ db = SQLAlchemy()
 socketio = SocketIO()
 
 def create_app():
+    """
+    This function creates the Flask app and configures it as well.
+    """
     app = Flask(__name__)
     socketio.init_app(app)
 
