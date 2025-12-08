@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import (Blueprint, current_app, flash, redirect, render_template, request, url_for)
 from flask_login import login_required, login_user, logout_user
 from authlib.integrations.base_client.errors import OAuthError
-from website import db
+from website.extensions import db
 from .models import User
 
 #Auth Blueprint
