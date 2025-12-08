@@ -1,6 +1,3 @@
-import eventlet
-eventlet.monkey_patch()
-
 import os
 from flask import Flask
 from authlib.integrations.flask_client import OAuth
@@ -16,6 +13,9 @@ from flask_socketio import SocketIO
 
 from dotenv import load_dotenv # need this for local server, make sure to add .env file when running
 load_dotenv()
+
+import eventlet
+eventlet.monkey_patch()
 
 db = SQLAlchemy()
 socketio = SocketIO()
