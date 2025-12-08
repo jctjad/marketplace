@@ -1,6 +1,10 @@
 import os
+from dotenv import load_dotenv # need this for local server, make sure to add .env file when running
+load_dotenv()
+
 import eventlet
 eventlet.monkey_patch()
+
 from flask import Flask
 
 #Auth Libraries
@@ -13,9 +17,6 @@ import cloudinary
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
-
-from dotenv import load_dotenv # need this for local server, make sure to add .env file when running
-load_dotenv()
 
 
 db = SQLAlchemy()
@@ -86,7 +87,7 @@ def create_app():
     @login_man.user_loader
     def load_user(id):
         return User.query.get(int(id))
-    
+
     #Blueprint Register Section
     app.register_blueprint(main_blueprint)
     app.register_blueprint(item_blueprint)

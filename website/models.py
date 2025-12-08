@@ -111,7 +111,7 @@ class Chat(db.Model):
     buyer_ids = db.Column(db.JSON, default=list)
 
     # Messages node data: (1) Message (str), (2) id (user_id), (3) next (next node in list)
-    messages = db.Column(db.JSON, nullable=False, 
+    messages = db.Column(db.JSON, nullable=False,
                          default=lambda: {"head": None, "tail": None, "nodes": {}})
 
     # (We’re not using Chat in the REST API yet, so no to_dict here for now.)
