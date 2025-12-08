@@ -1,18 +1,18 @@
 # from flask_sqlalchemy import SQLAlchemy
 # from sqlalchemy.dialects.sqlite import JSON
 from datetime import datetime
-from website import db
 
 #Password Libraries
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
 
+from flask_login import UserMixin
+from website import db
 
 class User(db.Model, UserMixin): #Added UserMixin parameter
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(80), unique=True, nullable=False) #Acts like username
     #Login Variable, made it Nullable to allow OAuth users to sign up
-    password_hash = db.Column(db.String(255), nullable=False) 
+    password_hash = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(40), nullable=False)
     last_name = db.Column(db.String(40), nullable=False)
     profile_image = db.Column(db.String(255))   # String: path to image (static/assets..)
@@ -25,9 +25,17 @@ class User(db.Model, UserMixin): #Added UserMixin parameter
     items = db.relationship("Item", back_populates="seller", lazy=True)
 
     def set_password(self, password):
+        """
+        This function creates the password hash for the User.
+        Once created, it stores it in the db.
+        """
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        """
+        This function checks to see if the password given by the User,
+        matches the password hash in the db.
+        """
         return check_password_hash(self.password_hash, password)
 
     def to_dict(self):
