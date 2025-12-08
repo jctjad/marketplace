@@ -1,9 +1,12 @@
 import os
+import eventlet
+eventlet.monkey_patch()
 from flask import Flask
-from authlib.integrations.flask_client import OAuth
 
 #Auth Libraries
 from flask_login import LoginManager
+
+from authlib.integrations.flask_client import OAuth
 
 #Cloudinary
 import cloudinary
@@ -14,8 +17,6 @@ from flask_socketio import SocketIO
 from dotenv import load_dotenv # need this for local server, make sure to add .env file when running
 load_dotenv()
 
-import eventlet
-eventlet.monkey_patch()
 
 db = SQLAlchemy()
 socketio = SocketIO()

@@ -1,7 +1,7 @@
 # from flask_sqlalchemy import SQLAlchemy
 # from sqlalchemy.dialects.sqlite import JSON
-from website import db
 from datetime import datetime
+from website import db
 
 #Password Libraries
 from werkzeug.security import generate_password_hash, check_password_hash
