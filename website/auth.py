@@ -1,10 +1,10 @@
+from website import db
 import os
 from datetime import datetime
 from flask import (Blueprint, current_app, flash, redirect, render_template, request, url_for)
 from flask_login import login_required, login_user, logout_user
 from .models import User
 from authlib.integrations.base_client.errors import OAuthError
-from website import db
 
 #Auth Blueprint
 auth_blueprint = Blueprint('auth', __name__)

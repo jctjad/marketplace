@@ -57,6 +57,9 @@ def allowed_file(filename: str) -> bool:
 # =========================
 @main_blueprint.route('/favicon.ico')
 def favicon():
+    """
+    This sends the location of the favicon to the fetch request.
+    """
     return send_from_directory(
         'static/assets',
         'favicon.ico',
@@ -106,9 +109,12 @@ def create_item_page():
 # Socket.IO chat handlers
 @socketio.on("join")
 def handle_join(item, user):
+    """
+    This function handles when the user joins the chat room.
+    """
     item_id = item["id"]
-    user_id = user["id"]
-    seller_id = item["seller_id"]
+    # user_id = user["id"]
+    # seller_id = item["seller_id"]
     room_id = item_id
     join_room(room_id)
     emit("message", f"{user['first_name']} {user['last_name']} has joined the chat", room=room_id)
@@ -116,19 +122,27 @@ def handle_join(item, user):
 
 @socketio.on("message")
 def handle_message(data, user):
+    """
+    This function handles when the user sends a message to the chat room.
+    """
     emit("message", f"{user['first_name']} {user['last_name']}: {data}", broadcast=True)
 
 
 @socketio.on("disconnect")
 def handle_disconnect():
+    """
+    This function handles when the user leaves/disconenct from the page.
+    """
     user = User.query.filter_by(id=current_user.id).first()
     emit("message", f" {user.first_name} {user.last_name} left the chat", broadcast=True)
 
 
-# Edit page shell (JS will fetch item + save via /api/items/<id>)
 @item_blueprint.route('/item/<int:item_id>/edit')
 @login_required
 def edit_item_page(item_id):
+    """
+    This function wiil edit page shell (JS will fetch item + save via /api/items/<id>)
+    """
     return render_template('edit_item.html')
 
 
@@ -205,7 +219,7 @@ def save_profile_edits():
             image_path = upload_result.get("secure_url")
             current_user.profile_image = image_path
 
-        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run 
+        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run
             filename = secure_filename(f"{current_user.id}_{f.filename}")
             dest = os.path.join(AVATAR_FOLDER, filename)
             f.save(dest)
@@ -271,19 +285,26 @@ def api_profile_user(user_id):
 @main_blueprint.route('/export')
 @login_required
 def export():
-    get_User_Data()
-    get_Item_Data()
-    get_Chat_Data()
+    """
+    This function exports the database to a .csv.
+    Currently this function does not work.
+    """
+    get_user_data()
+    get_item_data()
+    get_chat_data()
     return redirect(url_for('main.goto_browse_items_page'))
 
 
 @main_blueprint.route('/import')
 @login_required
 def populate():
+    """
+    This function imports the database from a .csv to the current db.
+    """
     clear_data()
-    populate_User_Data()
-    populate_Item_Data()
-    populate_Chat_Data()
+    get_user_data()
+    get_item_data()
+    get_chat_data()
     return redirect(url_for('main.goto_browse_items_page'))
 
 
@@ -291,6 +312,9 @@ def populate():
 # Helpers: DB & Files
 # =========================
 def clear_data():
+    """
+    This helper function helps clear the data currently in the db.
+    """
     meta = db.metadata
     for table in reversed(meta.sorted_tables):
         print('Cleared table', table.name)
@@ -299,6 +323,9 @@ def clear_data():
 
 
 def clear_uploads():
+    """
+    This helper function helps removes the images from uploads not referenced by Items.
+    """
     # Example stub: remove images in uploads not referenced by Items
     upload_path = UPLOAD_FOLDER
     try:
@@ -316,7 +343,10 @@ def clear_uploads():
         print("clear_uploads skipped:", e)
 
 
-def get_User_Data():
+def get_user_data():
+    """
+    This helper function helps get all the User data in the db and writes it to a .csv.
+    """
     users = db.session.query(User).all()
     with open(os.path.join(DATA_FOLDER, 'Users.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
@@ -333,7 +363,10 @@ def get_User_Data():
             ])
 
 
-def get_Item_Data():
+def get_item_data():
+    """
+    This helper function helps get all the Item data in the db and writes it to a .csv.
+    """
     items = db.session.query(Item).all()
     with open(os.path.join(DATA_FOLDER, 'Items.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
@@ -350,7 +383,10 @@ def get_Item_Data():
             ])
 
 
-def get_Chat_Data():
+def get_chat_data():
+    """
+    This helper function helps get all the Chat data in the db and writes it to a .csv.
+    """
     chats = db.session.query(Chat).all()
     with open(os.path.join(DATA_FOLDER, 'Chats.csv'), 'w', newline='') as csvfile:
         csvwrite = csv.writer(csvfile, delimiter=',')
@@ -362,7 +398,11 @@ def get_Chat_Data():
             ])
 
 
-def generate_Fake_Data():
+def generate_fake_data():
+    """
+    This helper function helps set up a fake database for testing.
+    Currently, this function is useless.
+    """
     new_user1 = User(email='gru@minion.com', first_name='Gru',
                      last_name='Minion', date_created=datetime.today())
     new_user2 = User(email='ash@pokemon.com', first_name='Ash',
@@ -391,7 +431,10 @@ def generate_Fake_Data():
     db.session.commit()
 
 
-def populate_User_Data():
+def populate_user_data():
+    """
+    This helper function helps read in the User data from a .csv.
+    """
     try:
         with open(os.path.join(DATA_FOLDER, 'Users.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
@@ -412,7 +455,10 @@ def populate_User_Data():
         print("Cannot import Users.csv:", e)
 
 
-def populate_Item_Data():
+def populate_item_data():
+    """
+    This helper function helps read in the Item data from a .csv.
+    """
     try:
         with open(os.path.join(DATA_FOLDER, 'Items.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
@@ -433,7 +479,10 @@ def populate_Item_Data():
         print("Cannot import Items.csv:", e)
 
 
-def populate_Chat_Data():
+def populate_chat_data():
+    """
+    This helper function helps read in the Chat data from a .csv.
+    """
     try:
         with open(os.path.join(DATA_FOLDER, 'Chats.csv'), 'r', newline='') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
@@ -519,6 +568,9 @@ def api_get_item_v2(item_id):
 @item_blueprint.route("/api/items", methods=["POST"])
 @login_required
 def api_create_item():
+    """
+    REST endpoint for when creating an item.
+    """
     # Accept multipart/form-data
     name = request.form.get("name")
     description = request.form.get("description")
@@ -561,7 +613,7 @@ def api_create_item():
 
             image_path = upload_result.get("secure_url")
 
-        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run 
+        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run
             filename = secure_filename(f"{current_user.id}_{image_file.filename}")
             filepath = os.path.join(UPLOAD_FOLDER, filename)
             image_file.save(filepath)
@@ -646,7 +698,7 @@ def api_update_item(item_id):
 
             image_path = upload_result.get("secure_url")
 
-        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run 
+        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run
             filename = secure_filename(f"{current_user.id}_{image_file.filename}")
             filepath = os.path.join(UPLOAD_FOLDER, filename)
             image_file.save(filepath)
@@ -746,16 +798,21 @@ def api_bookmark():
     }), 200
 
 
-@item_blueprint.route("/api/messages/<string:room_id>", methods=["GET"])
-@login_required
-def api_get_messages(room_id):
-    return
+# @item_blueprint.route("/api/messages/<string:room_id>", methods=["GET"])
+# @login_required
+# def api_get_messages(room_id):
+#     return
 
 
 @item_blueprint.route("/api/messages", methods=["POST"])
 @login_required
 def api_add_message():
+    """
+    REST endpoint for messaging.
+    Currently, not functional.
+    """
     user_data = request.form.get("user_data")
+
     item_data = request.form.get("item_data")
     msg_data = request.form.get("message")
 
