@@ -1,4 +1,3 @@
-from website import db, socketio
 from flask import (
     Blueprint, render_template, redirect, url_for, request, flash,
     current_app, send_from_directory, jsonify
@@ -14,6 +13,7 @@ from flask_socketio import emit, join_room
 import cloudinary # to send our images to cloudinary
 import cloudinary.uploader
 import io # for our file
+from website import db, socketio
 
 # --- Blueprints ---
 main_blueprint = Blueprint('main', __name__)
