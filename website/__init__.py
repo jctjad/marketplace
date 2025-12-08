@@ -2,8 +2,12 @@ import os
 from dotenv import load_dotenv # need this for local server, make sure to add .env file when running
 load_dotenv()
 
-import eventlet
-eventlet.monkey_patch()
+if os.getenv("RUN_MAIN") != "pylint":  
+    import eventlet
+    eventlet.monkey_patch()
+
+# import eventlet
+# eventlet.monkey_patch()
 
 from flask import Flask
 
