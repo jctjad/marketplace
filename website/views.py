@@ -11,7 +11,7 @@ from flask import (
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 from flask_socketio import emit, join_room
-from website import db, socketio
+from website.extensions import db, socketio
 from .models import User, Item, Chat
 
 # --- Blueprints ---

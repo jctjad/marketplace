@@ -2,12 +2,8 @@ import os
 from dotenv import load_dotenv # need this for local server, make sure to add .env file when running
 load_dotenv()
 
-if os.getenv("RUN_MAIN") != "pylint":  
-    import eventlet
-    eventlet.monkey_patch()
-
-# import eventlet
-# eventlet.monkey_patch()
+import eventlet
+eventlet.monkey_patch()
 
 from flask import Flask
 
@@ -19,12 +15,7 @@ from authlib.integrations.flask_client import OAuth
 #Cloudinary
 import cloudinary
 
-from flask_sqlalchemy import SQLAlchemy
-from flask_socketio import SocketIO
-
-
-db = SQLAlchemy()
-socketio = SocketIO()
+from .extensions import db, socketio
 
 def create_app():
     """
