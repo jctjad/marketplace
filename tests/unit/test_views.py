@@ -5,7 +5,7 @@ from app import app, socketio
 # ==============================================
 # Messsaging Unit Tests
 # ==============================================
-def socketio_test():
+def test_socketio():
     """
     GIVEN
     WHEN
