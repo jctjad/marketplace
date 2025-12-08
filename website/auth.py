@@ -2,20 +2,23 @@ import os
 from datetime import datetime
 from flask import (Blueprint, current_app, flash, redirect, render_template, request, url_for)
 from flask_login import login_required, login_user, logout_user
-from models import User, db
 from authlib.integrations.base_client.errors import OAuthError
-
+from website.extensions import db
+from .models import User
 
 #Auth Blueprint
 auth_blueprint = Blueprint('auth', __name__)
 
 @auth_blueprint.route('/signup', methods = ['GET', 'POST'])
 def signup():
+    """
+    This function handles when a user is signing up.
+    """
     if request.method == 'POST':
         email = request.form.get('email') #Email acts like our username
         password = request.form.get('password')
-        firstName = request.form.get('firstName')
-        lastName = request.form.get('lastName')
+        first_name = request.form.get('firstName')
+        last_name = request.form.get('lastName')
 
         #Restricting to Colby emails
         if not email.endswith("@colby.edu"):
@@ -25,9 +28,10 @@ def signup():
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             return redirect(url_for('auth.login'))
-        
+
         #Creating a new User
-        new_user = User(email=email, first_name=firstName, last_name=lastName, date_created=datetime.today())
+        new_user = User(email=email, first_name=first_name, last_name=last_name,
+                        date_created=datetime.today())
         new_user.set_password(password)
 
         #Add and commite new user to db
@@ -40,6 +44,9 @@ def signup():
 
 @auth_blueprint.route('/login', methods = ['GET', 'POST'])
 def login():
+    """
+    This function handles when a user is trying to log in.
+    """
     #Doesn't account for how many times someone can log in
     if request.method == 'POST':
         email = request.form['email']
@@ -52,13 +59,17 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
             login_user(user)
-            return redirect(url_for('main.goto_browse_items_page')) #I believe it's main.index to render index.html
-        
+            #I believe it's main.index to render index.html
+            return redirect(url_for('main.goto_browse_items_page'))
+
     return render_template('login.html')
 
 @auth_blueprint.route('/logout')
 @login_required
 def logout():
+    """
+    This function handles when a user logs out.
+    """
     logout_user()
     return redirect(url_for('auth.login'))
 
@@ -72,10 +83,15 @@ def logout():
 #Creating login for google
 @auth_blueprint.route("/login/google/")
 def login_google():
+    """
+    This function creates the login for Google.
+    """
     google = current_app.config["GOOGLE_CLIENT"]
     try:
-        redirect_uri = url_for('auth.authorize_google', _external = True) #External window pop up to authorize
-        return google.authorize_redirect(redirect_uri, prompt = "select_account") #Redirecting authorize to page url on google cloud project
+        #External window pop up to authorize
+        redirect_uri = url_for('auth.authorize_google', _external = True)
+        #Redirecting authorize to page url on google cloud project
+        return google.authorize_redirect(redirect_uri, prompt = "select_account")
     except Exception as e:
         current_app.logger.error(f"Error During Login:{str(e)}")
         return {"error": "Error occurred during login"}, 400
@@ -83,6 +99,11 @@ def login_google():
 
 @auth_blueprint.route("/login/google/callback")
 def authorize_google():
+    """This function uses Google to authorize the user before they
+    can login. 
+    If authorized, they are sent to the browse item page.
+    Otherwise, they must not be using a valid Colby email.
+    """
     google = current_app.config["GOOGLE_CLIENT"]
 
     error = request.args.get("error")
@@ -99,16 +120,16 @@ def authorize_google():
         return redirect(url_for("auth.login"))
 
     try:
-        userInfo_endpoint = google.server_metadata.get('userinfo_endpoint')
-        resp = google.get(userInfo_endpoint)
-        userInfo = resp.json()
+        user_info_endpoint = google.server_metadata.get('userinfo_endpoint')
+        resp = google.get(user_info_endpoint)
+        user_info = resp.json()
     except Exception as e:
         current_app.logger.error(f"Fetching user info failed: {str(e)}")
         return {"error": "Failed to fetch user info"}, 500
 
-    email = userInfo.get('email')
-    first_name = userInfo.get('given_name', "")
-    last_name = userInfo.get('family_name', "")
+    email = user_info.get('email')
+    first_name = user_info.get('given_name', "")
+    last_name = user_info.get('family_name', "")
 
     if not email or not email.endswith("@colby.edu"):
         return {"error": "Access restricted to Colby students."}, 403
@@ -157,7 +178,7 @@ def authorize_google():
 #         return redirect(url_for("auth.login"))
 
 #     #Grabbing data needed to create new user
-    
+
 #     userInfo_endpoint = google.server_metadata.get('userinfo_endpoint')
 #     resp = google.get(userInfo_endpoint)
 #     userInfo = resp.json()
@@ -185,5 +206,4 @@ def authorize_google():
 #     #Logging user into flask-login
 #     login_user(user)
 
-#     return redirect(url_for('main.goto_browse_items_page')) #redirects towards dashboard route - 
-
+#     return redirect(url_for('main.goto_browse_items_page')) #redirects towards dashboard route -

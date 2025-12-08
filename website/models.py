@@ -1,17 +1,18 @@
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.sqlite import JSON
+# from flask_sqlalchemy import SQLAlchemy
+# from sqlalchemy.dialects.sqlite import JSON
 from datetime import datetime
 
 #Password Libraries
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
 
-db = SQLAlchemy()
+from flask_login import UserMixin
+from website.extensions import db
 
 class User(db.Model, UserMixin): #Added UserMixin parameter
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(80), unique=True, nullable=False) #Acts like username
-    password_hash = db.Column(db.String(255), nullable=False) #Login Variable, made it Nullable to allow OAuth users to sign up
+    #Login Variable, made it Nullable to allow OAuth users to sign up
+    password_hash = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(40), nullable=False)
     last_name = db.Column(db.String(40), nullable=False)
     profile_image = db.Column(db.String(255))   # String: path to image (static/assets..)
@@ -24,13 +25,23 @@ class User(db.Model, UserMixin): #Added UserMixin parameter
     items = db.relationship("Item", back_populates="seller", lazy=True)
 
     def set_password(self, password):
+        """
+        This function creates the password hash for the User.
+        Once created, it stores it in the db.
+        """
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        """
+        This function checks to see if the password given by the User,
+        matches the password hash in the db.
+        """
         return check_password_hash(self.password_hash, password)
-    
-    # NEW: Simple dict representation for REST API
+
     def to_dict(self):
+        """
+        Returns a simple dictionary represenation of the User for REST API.
+        """
         return {
             "id": self.id,
             "email": self.email,
@@ -61,6 +72,9 @@ class Item(db.Model):
 
     # NEW: dict representation for REST API and current user id is added
     def to_dict(self, include_seller=True, bookmarked=False, current_user_id=None):
+        """
+        Returns a simple dictionary represenation of the Item for REST API.
+        """
         data = {
             "id": self.id,
             "seller_id": self.seller_id,
@@ -84,17 +98,20 @@ class Item(db.Model):
 
         # NEW: add dynamic ownership flag (NOT stored in DB)
         if current_user_id is not None:
-            data["is_owner"] = (self.seller_id == current_user_id)
+            data["is_owner"] = self.seller_id == current_user_id
 
         return data
 
-class Chat(db.Model):   # The seller and buyer can chat (message one another) ON ITEM PAGE about given item
+# The seller and buyer can chat (message one another) ON ITEM PAGE about given item
+class Chat(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
     seller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    buyer_ids = db.Column(db.JSON, default=list)  # List of user_ids who message the seller on item page
-    
+    # List of user_ids who message the seller on item page
+    buyer_ids = db.Column(db.JSON, default=list)
+
     # Messages node data: (1) Message (str), (2) id (user_id), (3) next (next node in list)
-    messages = db.Column(db.JSON, nullable=False, default=lambda: {"head": None, "tail": None, "nodes": {}})
+    messages = db.Column(db.JSON, nullable=False,
+                         default=lambda: {"head": None, "tail": None, "nodes": {}})
 
     # (We’re not using Chat in the REST API yet, so no to_dict here for now.)
