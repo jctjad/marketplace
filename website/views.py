@@ -138,7 +138,7 @@ def handle_disconnect(item):
     user = User.query.filter_by(id=current_user.id).first()
     item_id = item["id"]
     room_id = item_id
-    emit("message", f" {user.first_name} {user.last_name} left the chat", broadcast=True)
+    emit("message", f"{user.first_name} {user.last_name} left the chat", broadcast=True)
     leave_room(room_id)
 
 
