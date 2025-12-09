@@ -312,6 +312,19 @@ function initCreateItemPage() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // client-side price validation
+    const priceInput = form.querySelector('input[name="price"]');
+    const priceVal = parseFloat(priceInput.value);
+
+    if (isNaN(priceVal)) {
+      alert("Please enter a valid price.");
+      return;
+    }
+    if (priceVal < 0) {
+      alert("Price cannot be negative.");
+      return;
+    }
+
     const formData = new FormData(form);
 
     try {
