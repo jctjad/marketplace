@@ -1011,51 +1011,88 @@ body[data-page="profile"] .profile {
 #messages {
   display: none;
 }
-
-/* === Edit profile layout (two columns) === */
+/* === Edit profile layout === */
 body[data-page="edit-profile"] .profile--edit {
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
   margin-top: 8px;
 }
 
-/* Left column: avatar card (similar size to original ~220–260px) */
-body[data-page="edit-profile"] .profile--edit .avatar {
+/* Card that contains avatar + form (matches profile styling vibes) */
+body[data-page="edit-profile"] .profile-edit-card {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  padding: 24px 28px;
+  background: var(--panel);
+  border: 1px solid var(--bd);
+  border-radius: calc(var(--radius) + 6px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+/* Avatar column inside the card */
+body[data-page="edit-profile"] .profile-edit-card .avatar {
   flex: 0 0 260px;
   border-radius: calc(var(--radius) + 6px);
-  border: 1px solid var(--bd);
-  background: var(--panel);
-  padding: 12px;
+  border: none;              /* border comes from the outer card now */
+  background: transparent;
+  padding: 0;
 }
 
-/* Gradient frame + square image */
-body[data-page="edit-profile"] .profile--edit .avatar-frame {
-  border-radius: calc(var(--radius) + 4px);
+body[data-page="edit-profile"] .profile-edit-card .avatar-frame {
+  border-radius: calc(var(--radius) + 6px);
   background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
-  padding: 14px;
+  padding: 16px;
 }
 
-body[data-page="edit-profile"] .profile--edit .profile__avatar {
+body[data-page="edit-profile"] .profile-edit-card .profile__avatar {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: calc(var(--radius) + 4px);
 }
 
-/* Right column: form stretches */
-body[data-page="edit-profile"] .profile--edit .prose {
+body[data-page="edit-profile"] .profile-edit-card .avatar .muted {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+/* Form column */
+body[data-page="edit-profile"] .profile-edit-card .prose {
   flex: 1 1 auto;
 }
 
-/* Responsive: stack on small screens */
+/* Slightly larger label + textarea text for "Public bio" */
+body[data-page="edit-profile"] .create-item-form label {
+  font-size: 1rem;
+}
+
+body[data-page="edit-profile"] #edit-profile-bio {
+  font-size: 1rem;
+}
+
+/* Make Cancel button red on this page only */
+body[data-page="edit-profile"] .btn--ghost {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+}
+
+body[data-page="edit-profile"] .btn--ghost:hover {
+  background: #dc2626;
+}
+
+/* Optional: keep the form from stretching too wide */
+body[data-page="edit-profile"] #edit-profile-form {
+  max-width: 640px;
+}
+
+/* Responsive stacking */
 @media (max-width: 720px) {
-  body[data-page="edit-profile"] .profile--edit {
+  body[data-page="edit-profile"] .profile-edit-card {
     flex-direction: column;
+    align-items: stretch;
   }
 
-  body[data-page="edit-profile"] .profile--edit .avatar {
-    flex: 0 0 auto;
+  body[data-page="edit-profile"] .profile-edit-card .avatar {
     max-width: 260px;
   }
 }

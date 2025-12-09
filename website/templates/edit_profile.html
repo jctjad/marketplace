@@ -36,66 +36,68 @@
     <h1 class="page__title">Edit profile</h1>
 
     <section class="profile profile--edit">
-      <!-- Left: avatar preview with hover overlay -->
-      <div class="avatar">
-        <div class="avatar-frame">
-          <img
-            id="edit-profile-avatar-preview"
-            src="/static/assets/avatar.svg"
-            alt="Profile avatar preview"
-            class="profile__avatar">
+      <div class="profile-edit-card">
+        <!-- Left: avatar preview with hover overlay -->
+        <div class="avatar">
+          <div class="avatar-frame">
+            <img
+              id="edit-profile-avatar-preview"
+              src="/static/assets/avatar.svg"
+              alt="Profile avatar preview"
+              class="profile__avatar">
 
-          <div class="avatar-overlay">
-            <span>Change photo</span>
+            <div class="avatar-overlay">
+              <span>Change photo</span>
+            </div>
           </div>
+
+          <p class="muted" style="margin-top: 8px;">
+            Hover and click to upload a new photo.
+          </p>
         </div>
 
-        <p class="muted" style="margin-top: 8px;">
-          Hover and click to upload a new photo.
-        </p>
-      </div>
+        <!-- Right: form -->
+        <div class="prose">
+          <form
+            id="edit-profile-form"
+            action="/profile/edit"
+            method="post"
+            enctype="multipart/form-data"
+            class="create-item-form">
 
-      <!-- Right: form -->
-      <div class="prose">
-        <form
-          id="edit-profile-form"
-          action="/profile/edit"
-          method="post"
-          enctype="multipart/form-data"
-          class="create-item-form">
+            <!-- Public bio -->
+            <label for="edit-profile-bio">
+              Public bio
+              <textarea
+                id="edit-profile-bio"
+                name="profile_description"
+                rows="4"
+                maxlength="2000"
+                placeholder="Tell buyers a bit about you, what you sell, or how you prefer to meet up."></textarea>
+            </label>
 
-          <!-- Public bio -->
-          <label for="edit-profile-bio">
-            Public bio
-            <textarea
-              id="edit-profile-bio"
-              name="profile_description"
-              rows="4"
-              maxlength="2000"
-              placeholder="Tell buyers a bit about you, what you sell, or how you prefer to meet up.">
-            </textarea>
-          </label>
+            <!-- Hidden file input, triggered by hover overlay -->
+            <input
+              type="file"
+              id="avatar-input"
+              name="avatar"
+              accept="image/png,image/jpeg"
+              hidden>
 
-          <!-- Hidden file input, triggered by hover overlay -->
-          <input
-            type="file"
-            id="avatar-input"
-            name="avatar"
-            accept="image/png,image/jpeg"
-            hidden>
+            <p class="muted">
+              Upload a square image if possible. Non-square images will be cropped to a square.
+            </p>
 
-          <p class="muted">
-            Upload a square image if possible. Non-square images will be cropped to a square.
-          </p>
-
-          <!-- Actions -->
-          <div style="display:flex; gap:10px; margin-top: 10px;">
-            <a href="/profile" class="btn btn--ghost">Cancel</a>
-            <button type="submit" class="btn">Save changes</button>
-          </div>
-        </form>
+            <!-- Actions -->
+            <div style="display:flex; gap:10px; margin-top: 10px;">
+              <a href="/profile" class="btn btn--ghost">Cancel</a>
+              <button type="submit" class="btn">Save changes</button>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
+
   </main>
 
   <!-- Footer -->
