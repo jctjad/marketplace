@@ -580,8 +580,17 @@ def api_create_item():
     condition = request.form.get("condition")
     payment_options = request.form.getlist("payment_options")
 
-    if not name or not price:
+    if not name or price is None or price == "":
         return {"error": "Missing name or price"}, 400
+
+    # Validate price
+    try:
+        price_val = float(price)
+    except (TypeError, ValueError):
+        return {"error": "Price must be a number"}, 400
+
+    if price_val < 0:
+        return {"error": "Price cannot be negative"}, 400
 
     # handle file upload
     image_file = request.files.get("image_file")
@@ -627,11 +636,12 @@ def api_create_item():
         seller_id=current_user.id,
         name=name,
         description=description,
-        price=float(price),
+        price=price_val,
         condition=condition,
         payment_options=payment_options,
         item_photos=image_path
     )
+
 
     db.session.add(new_item)
     db.session.commit()
@@ -710,7 +720,17 @@ def api_update_item(item_id):
 
     item.name = name
     item.description = description
-    item.price = float(price)
+    # Only update price if provided; validate it
+    if price is not None and price != "":
+        try:
+            price_val = float(price)
+        except (TypeError, ValueError):
+            return {"error": "Price must be a number"}, 400
+
+        if price_val < 0:
+            return {"error": "Price cannot be negative"}, 400
+
+        item.price = price_val
     item.condition = condition
     item.payment_options = payment_options
     item.item_photos = image_path
