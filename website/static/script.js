@@ -505,7 +505,7 @@ async function loadProfileData() {
     if (bioEl) {
       bioEl.textContent =
         user.profile_description ||
-        "No bio yet. Click “Edit profile” to add a public bio.";
+        "Hello Mules!";
     }
     if (avatarEl) {
       avatarEl.src = user.profile_image || "/static/assets/avatar.svg";

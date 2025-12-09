@@ -162,13 +162,14 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .specs { margin-top: 8px; border-top: 1px solid var(--bd); padding-top: 12px; color: var(--muted); }
 
 /* Profile */
-/* === Profile layout === */
-.profile {
+/* === Profile layout (view profile page) === */
+body[data-page="profile"] .profile {
   display: flex;
   flex-direction: column;
   gap: 28px;
   margin-top: 8px;
 }
+
 
 /* Profile card: avatar + text */
 .profile-card {
@@ -1009,4 +1010,52 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 #messages {
   display: none;
+}
+
+/* === Edit profile layout (two columns) === */
+body[data-page="edit-profile"] .profile--edit {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-top: 8px;
+}
+
+/* Left column: avatar card (similar size to original ~220–260px) */
+body[data-page="edit-profile"] .profile--edit .avatar {
+  flex: 0 0 260px;
+  border-radius: calc(var(--radius) + 6px);
+  border: 1px solid var(--bd);
+  background: var(--panel);
+  padding: 12px;
+}
+
+/* Gradient frame + square image */
+body[data-page="edit-profile"] .profile--edit .avatar-frame {
+  border-radius: calc(var(--radius) + 4px);
+  background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
+  padding: 14px;
+}
+
+body[data-page="edit-profile"] .profile--edit .profile__avatar {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: calc(var(--radius) + 4px);
+}
+
+/* Right column: form stretches */
+body[data-page="edit-profile"] .profile--edit .prose {
+  flex: 1 1 auto;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 720px) {
+  body[data-page="edit-profile"] .profile--edit {
+    flex-direction: column;
+  }
+
+  body[data-page="edit-profile"] .profile--edit .avatar {
+    flex: 0 0 auto;
+    max-width: 260px;
+  }
 }
