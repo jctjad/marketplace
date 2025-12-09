@@ -19,6 +19,19 @@
       </div>
 
       <div class="card-login-body">
+
+        <!--Adding Flash Support-->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-container">
+              {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+
         <h3 class="login-title">Sign Up</h3>
         <!-- CHANGED: no url_for, plain /signup -->
         <form id = "signup_form" method="POST" action="/signup">

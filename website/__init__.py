@@ -9,8 +9,8 @@ from flask import Flask
 
 #Auth Libraries
 from flask_login import LoginManager
-
 from authlib.integrations.flask_client import OAuth
+
 
 #Cloudinary
 import cloudinary
@@ -76,7 +76,7 @@ def create_app():
 
     #Auth Section
     login_man = LoginManager(app)
-    login_man.login_view = 'auth.signup'
+    login_man.login_view = 'auth.login'
     login_man.login_message = None
 
     @login_man.user_loader
