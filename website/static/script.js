@@ -519,6 +519,14 @@ async function loadProfileData() {
       }
     }
 
+    // Hide "+ New listing" button when viewing someone else's profile
+    if (!isOwnProfile) {
+      const newListingBtn = document.querySelector(".profile__new-listing");
+      if (newListingBtn) {
+        newListingBtn.style.display = "none";
+      }
+    }
+
     // Edit profile page (pre-fill)
     const editBio = document.getElementById("edit-profile-bio");
     const editAvatarPreview = document.getElementById(
