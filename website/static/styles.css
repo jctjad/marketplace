@@ -850,54 +850,79 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .chat-popup {
   display: none;
   position: fixed;
-  bottom: 0;
-  right: 15px;
-  border: 3px solid #f8f8f8;
+  bottom: 1rem;
+  right: 1rem;
+  background: #ffffff;
   z-index: 9;
+  max-width: 30vw;
 }
 
 /* Add styles to the form container */
 .form-container {
-  max-width: 300px;
-  padding: 10px;
+  padding: 0.75rem;
   background-color: white;
 }
 
 /* Full-width textarea */
 .form-container textarea {
   width: 100%;
-  padding: 15px;
-  margin: 5px 0 22px 0;
-  border: none;
+  padding: 0.5rem;
+  margin: 0.5rem 0 0.75rem 0;
+  border-radius: 6px;
   background: #f8f8f8;
   resize: none;
-  min-height: 200px;
+  max-height: 200px;
 }
 
 /* When the textarea gets focus, do something */
 .form-container textarea:focus {
   background-color: #f8f8f8;
-  outline: none;
+  outline: 2px solid #02AB0A22;
 }
 
 /* Set a style for the submit/login button */
 .form-container .btn_msg {
   background-color: #02AB0A;
   color: #f8f8f8;
-  padding: 16px 20px;
-  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
   width: 100%;
-  margin-bottom:10px;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 /* Add a red background color to the cancel button */
 .form-container .cancel {
   background: #ef4444;
   color: #f8f8f8;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
   font-weight: 600;
 }
 
-#messages {
-  display: none;
+/* Message scroll area styled like a card section */
+.chat-messages {
+  height: 250px;
+  width: 30vw;
+  overflow-y: auto;
+  overflow-wrap: break-word;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  background: #fafafa;
+}
+
+/* Message bubble */
+.chat-message {
+  padding: 0.5rem 0.75rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  max-width: 30vw;
+}
+
+#chat-title {
+  padding-left: 0.5rem;
 }

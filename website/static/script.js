@@ -866,9 +866,7 @@ let socket;
 // Open chat box
 async function openForm() {
   const chat_form = document.getElementById("chatForm");
-  const chat_screen = document.getElementById("messages");
   chat_form.style.display = "block";
-  chat_screen.style.display = "grid";
 
   const parts = window.location.pathname.split("/");
   const id = parts[parts.length - 1];
@@ -881,9 +879,17 @@ async function openForm() {
 
   socket = io();
   socket.emit("join", item, user);
+
   socket.on("message", function (data) {
-    const messages = document.getElementById("messages");
-    messages.innerHTML += `<span>${data}</span>`;
+    const chatMessages = document.getElementById("chat-messages");
+    const div = document.createElement("div");
+    div.classList.add("chat-message");
+
+    div.textContent = data;
+    chatMessages.appendChild(div);
+
+    // auto scroll to newest message
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 
   chat_form.addEventListener("submit", async (e) => {
