@@ -397,6 +397,17 @@ async function initEditItemPage() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // client-side price validation
+    const priceVal = parseFloat(priceInput.value);
+    if (isNaN(priceVal)) {
+      alert("Please enter a valid price.");
+      return;
+    }
+    if (priceVal < 0) {
+      alert("Price cannot be negative.");
+      return;
+    }
+
     // Collect updated fields
     const formData = new FormData();
     formData.append("name", nameInput.value.trim());
