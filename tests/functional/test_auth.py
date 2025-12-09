@@ -10,16 +10,19 @@ import website.auth as auth_module
 # ============================
 
 def test_signup_page(test_client):
+    """Testing signup page"""
     resp = test_client.get("/signup")
     assert resp.status_code == 200
     assert b"Sign in With Google" in resp.data
 
 def test_login_page(test_client):
+    """Testing login page"""
     resp = test_client.get("/login")
     assert resp.status_code == 200
     assert b"Sign in With Google" in resp.data
 
 def test_logout_with_logged_in_user(test_client, app):
+    """Testing logout functionality"""
     with app.app_context():
         user = User(
             email="logouttest@colby.edu",
@@ -44,12 +47,16 @@ def test_logout_with_logged_in_user(test_client, app):
 # ============================================
 
 def test_login_google_success(test_client, fake_google):
+    """Testing google login success"""
     resp = test_client.get("/login/google/")
     assert resp.status_code == 302
     assert "https://accounts.google.com" in resp.location
 
 def test_login_google_exception(test_client, fake_google):
-    # Force an exception inside login_google by overriding authorize_redirect
+    """
+    Testing google login exception
+    Force an exception inside login_google by overriding authorize_redirect
+    """
     def boom(redirect_uri, prompt=None):
         raise Exception("boom")
 
@@ -63,6 +70,7 @@ def test_login_google_exception(test_client, fake_google):
 # ===================================
 
 def test_google_valid_email(test_client, fake_google, app):
+    """Testing google login with VALID Colby email"""
     fake_google.userinfo_to_return = {
         "email": "newstudent@colby.edu",    # Valid Colby email
         "given_name": "New",
@@ -73,6 +81,7 @@ def test_google_valid_email(test_client, fake_google, app):
     assert "/" in resp.location     # Redirects to Browse Items page
 
 def test_google_invalid_email(test_client, fake_google):
+    """Testing google login with INVALID non-Colby email"""
     fake_google.userinfo_to_return = {
         "email": "user@gmail.com",  # Non-Colby email
         "given_name": "Test",
@@ -82,11 +91,13 @@ def test_google_invalid_email(test_client, fake_google):
     assert resp.status_code == 403
 
 def test_google_denied_error(test_client, fake_google):
+    """Testing google login accessed denied error"""
     resp = test_client.get("/login/google/callback?error=access_denied")
     assert resp.status_code == 302
     assert "/login" in resp.location
 
 def test_google_oauth_error(test_client, fake_google):
+    """Testing google login oauth error"""
     fake_google.raise_on_token = OAuthError(
         error="invalid_grant",
         description="Bad code",
@@ -96,12 +107,14 @@ def test_google_oauth_error(test_client, fake_google):
     assert "/login" in resp.location
 
 def test_google_userinfo_error(test_client, fake_google):
+    """Testing google login userinfo error"""
     fake_google.userinfo_to_return = {}
     fake_google.raise_on_get = Exception("fetch failed")
     resp = test_client.get("/login/google/callback")
     assert resp.status_code == 500
 
 def test_google_existing_user_reused(test_client, fake_google, app):
+    """Testing google login with reused user"""
     with app.app_context():
         existing = User(
             email="existing@colby.edu", # Pre-create a user with the same email
@@ -123,7 +136,10 @@ def test_google_existing_user_reused(test_client, fake_google, app):
     assert resp.status_code == 302
 
 def test_google_db_error(test_client, fake_google, app, monkeypatch):
-    # Force db.session.commit() to raise an exception
+    """
+    Testing google login db error
+    Force db.session.commit() to raise an exception
+    """
     fake_google.userinfo_to_return = {
         "email": "dberror@colby.edu",
         "given_name": "DB",
@@ -140,7 +156,7 @@ def test_google_db_error(test_client, fake_google, app, monkeypatch):
         assert resp.get_json()["error"] == "Internal server error"
 
 def test_google_login_error(test_client, fake_google, app, monkeypatch):
-    # login_user() fail
+    """Testing google login error --> ogin_user() fail"""
     fake_google.userinfo_to_return = {
         "email": "loginerr@colby.edu",
         "given_name": "Login",

@@ -47,8 +47,8 @@ def login_user(test_client, init_database):
 #  Google auth   #
 ##################
 
-# Fake Google client that matches auth.py usage
 class FakeGoogle:
+    """Fake Google client that matches auth.py usage"""
     def __init__(self):
         self.server_metadata = {
             "userinfo_endpoint": "https://fake.example.com/userinfo"
@@ -59,15 +59,18 @@ class FakeGoogle:
         self.raise_on_get = None
 
     def authorize_redirect(self, redirect_uri, prompt=None):
+        """Authorize redirect"""
         from flask import redirect
         return redirect("https://accounts.google.com/o/oauth2/auth?fake=1")
 
     def authorize_access_token(self):
+        """Authorize access token"""
         if self.raise_on_token:
             raise self.raise_on_token
         return self.token_to_return
 
     def get(self, url):
+        """Getter"""
         if self.raise_on_get:
             raise self.raise_on_get
 
