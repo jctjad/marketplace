@@ -677,9 +677,10 @@ def api_update_item(item_id):
     condition = request.form.get("condition")
     payment_options = request.form.getlist("payment_options")
 
+    # --- Optional image upload ---
     f = request.files.get("image_file")
     if f and f.filename:
-        image_file = request.files.get("image_file")
+        image_file = f
 
         if asset_folder == "marketplace":
             # Read to memory so Pillow can validate the image
@@ -705,22 +706,25 @@ def api_update_item(item_id):
                 public_id=f"{filename}",
                 unique_filename=True,
                 overwrite=True,
-                asset_folder=asset_folder+"_uploads"
+                asset_folder=asset_folder + "_uploads"
             )
 
             image_path = upload_result.get("secure_url")
 
-        else: # asset_folder == "local_marketplace"; we will save stuff locally if being run
+        else:  # asset_folder == "local_marketplace"; save locally
             filename = secure_filename(f"{current_user.id}_{image_file.filename}")
             filepath = os.path.join(UPLOAD_FOLDER, filename)
             image_file.save(filepath)
             image_path = f"/static/uploads/{filename}"
-    else:
-        image_path = "/static/assets/item_placeholder.svg"
 
+        # Only update item_photos if a new image was actually uploaded
+        item.item_photos = image_path
+
+    # --- Always update these fields ---
     item.name = name
     item.description = description
-    # Only update price if provided; validate it
+
+    # (plus your price validation block we added earlier)
     if price is not None and price != "":
         try:
             price_val = float(price)
@@ -731,9 +735,10 @@ def api_update_item(item_id):
             return {"error": "Price cannot be negative"}, 400
 
         item.price = price_val
+
     item.condition = condition
     item.payment_options = payment_options
-    item.item_photos = image_path
+
     # data = request.get_json() or {}
 
     # if 'name' in data:
