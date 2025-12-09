@@ -1,8 +1,10 @@
+"""views.py"""
+
 import os
 import io # for our file
 import csv
 from datetime import datetime
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import cloudinary # to send our images to cloudinary
 import cloudinary.uploader
 from flask import (
@@ -204,7 +206,7 @@ def save_profile_edits():
                 with Image.open(img_file) as img:
                     if img.format not in ("PNG", "JPEG", "JPG"):
                         return {"error": "Invalid image format"}, 400
-            except Exception:
+            except UnidentifiedImageError:
                 return {"error": "Invalid image file"}, 400
 
             # Reset pointer after Pillow read
@@ -236,7 +238,7 @@ def save_profile_edits():
                         os.remove(dest)
                         flash("Invalid image file.", "error")
                         return redirect(url_for("profile.goto_edit_profile_page"))
-            except Exception:
+            except UnidentifiedImageError:
                 os.remove(dest)
                 flash("Invalid image file.", "error")
                 return redirect(url_for("profile.goto_edit_profile_page"))

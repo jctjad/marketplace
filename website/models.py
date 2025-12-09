@@ -1,10 +1,7 @@
-# from flask_sqlalchemy import SQLAlchemy
-# from sqlalchemy.dialects.sqlite import JSON
+"""models.py"""
+
 from datetime import datetime
-
-#Password Libraries
-from werkzeug.security import generate_password_hash, check_password_hash
-
+from werkzeug.security import generate_password_hash, check_password_hash   # Password Libraries
 from flask_login import UserMixin
 from website.extensions import db
 
