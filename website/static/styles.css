@@ -162,112 +162,134 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .specs { margin-top: 8px; border-top: 1px solid var(--bd); padding-top: 12px; color: var(--muted); }
 
 /* Profile */
-/* Profile overall layout: column, header on top, listings below */
+/* === Profile layout === */
 .profile {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
   margin-top: 8px;
 }
 
-/* Top row: identity on left, "+ New listing" on the right */
-.profile__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
+/* Profile card: avatar + text */
+.profile-card {
+  position: relative;
+  max-width: 560px;
+  padding: 22px 24px;
+  border-radius: calc(var(--radius) + 4px);
 }
 
-/* Avatar + name row */
-.profile__identity {
+.profile-card__body {
   display: flex;
   align-items: center;
   gap: 20px;
 }
 
-/* Avatar card like your original */
-.profile__avatar-frame {
-  width: 180px;
+/* Avatar: close to your original 220px width, slightly bigger look */
+.profile-card__avatar-wrap {
+  width: 220px;
   border-radius: calc(var(--radius) + 6px);
-  background: linear-gradient(145deg,#f3f4f6,#e5e7eb);
+  background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
   padding: 14px;
 }
 
-.profile__avatar {
+.profile-card__avatar {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: calc(var(--radius) + 4px);
 }
 
-/* Name + bio + edit */
-.profile__meta {
+/* Name + bio */
+.profile-card__text {
   display: grid;
   gap: 6px;
 }
 
-.profile__name {
+.profile-card__name {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.5rem;   /* bigger */
   font-weight: 700;
 }
 
-.profile__bio {
+.profile-card__bio {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.98rem;  /* slightly bigger */
   max-width: 420px;
 }
 
-.profile__edit-link {
-  width: fit-content;
-  margin-top: 6px;
-  padding: 6px 16px;
+/* Edit button – yellow pill, top-right of card */
+.profile-card__edit {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  padding: 7px 16px;
   border-radius: 999px;
-  border: 1px solid var(--bd);
-  background: var(--elev);
+  background: #fbbf24;
+  color: #1f2933;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--muted);
+  border: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
 }
 
-.profile__edit-link:hover {
-  background: #e5edff;
-  color: var(--text);
+.profile-card__edit:hover {
+  background: #f59e0b;
 }
 
-/* "+ New listing" pill (you already had styles; these refine spacing) */
-.profile__new-listing {
-  align-self: flex-start;
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--bd);
-  background: var(--bg);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.profile__new-listing:hover {
-  background: var(--elev);
-  color: var(--text);
-}
-
-/* Listings section under header */
+/* Listings section under the card */
 .profile__listings {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* Responsive: stack avatar + name + button on small screens */
+/* Listings header + blue "+ New listing" button */
+.profile__listings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile__listings-header h3 {
+  margin: 0;
+}
+
+.profile__new-listing {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #007bff;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.16);
+}
+
+.profile__new-listing:hover {
+  background: #0056b3;
+}
+
+/* Responsive: stack card contents on narrow screens */
 @media (max-width: 720px) {
-  .profile__header {
+  .profile-card__body {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .profile__identity {
-    width: 100%;
+  .profile-card__avatar-wrap {
+    width: 180px;
+  }
+
+  .profile-card__edit {
+    position: static;
+    margin-bottom: 10px;
+    align-self: flex-end;
+  }
+
+  .profile__listings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 
   .profile__new-listing {

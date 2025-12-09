@@ -31,40 +31,38 @@
     <h1 class="page__title">Profile</h1>
 
       <section class="profile">
-      <!-- Top row: avatar + info + new listing button -->
-      <div class="profile__header">
-        <div class="profile__identity">
-          <!-- Avatar on the left -->
-          <div class="profile__avatar-frame">
+      <!-- Profile card -->
+      <article class="profile-card card">
+        <a class="profile-card__edit" href="/profile/edit">
+          Edit profile
+        </a>
+
+        <div class="profile-card__body">
+          <div class="profile-card__avatar-wrap">
             <img
               id="profile-avatar"
               src="/static/assets/avatar.svg"
               alt="Profile avatar"
-              class="profile__avatar">
+              class="profile-card__avatar">
           </div>
 
-          <!-- Name + bio + edit on the right -->
-          <div class="profile__meta">
-            <h2 id="profile-name" class="profile__name">User</h2>
-            <p id="profile-bio" class="profile__bio muted">
+          <div class="profile-card__text">
+            <h2 id="profile-name" class="profile-card__name">User</h2>
+            <p id="profile-bio" class="profile-card__bio muted">
               Loading profile…
             </p>
-
-            <a class="profile__edit-link" href="/profile/edit">
-              Edit profile
-            </a>
           </div>
         </div>
+      </article>
 
-        <!-- Stays on the right in the same row -->
-        <a href="/item/new" class="profile__new-listing">
-          + New listing
-        </a>
-      </div>
-
-      <!-- Listings underneath the whole header row -->
+      <!-- Listings section under the card -->
       <section class="profile__listings">
-        <h3>Listings</h3>
+        <div class="profile__listings-header">
+          <h3>Listings</h3>
+          <a href="/item/new" class="profile__new-listing">
+            + New listing
+          </a>
+        </div>
 
         <div id="profile-listings-empty" class="muted">
           This user has no active listings yet.
@@ -73,6 +71,7 @@
         <div id="profile-listings" class="grid" aria-label="Seller listings"></div>
       </section>
     </section>
+
 
 
   </main>
