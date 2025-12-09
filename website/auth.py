@@ -21,7 +21,6 @@ def login():
     """
     This function handles route to login page.
     """
-
     return render_template('login.html')
 
 @auth_blueprint.route('/logout')
@@ -33,14 +32,10 @@ def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
-
-# =====================================================
+# ===========
 # GOOGLE AUTH
-# =====================================================
+# ===========
 
-
-#Check if this works, might not due to redirect url from google cloud side
-#Creating login for google
 @auth_blueprint.route("/login/google/")
 def login_google():
     """
@@ -48,14 +43,13 @@ def login_google():
     """
     google = current_app.config["GOOGLE_CLIENT"]
     try:
-        #External window pop up to authorize
+        # External window pop up to authorize
         redirect_uri = url_for('auth.authorize_google', _external = True)
-        #Redirecting authorize to page url on google cloud project
+        # Redirecting authorize to page url on google cloud project
         return google.authorize_redirect(redirect_uri, prompt = "select_account")
     except Exception as e:
         current_app.logger.error(f"Error During Login:{str(e)}")
         return {"error": "Error occurred during login"}, 400
-
 
 @auth_blueprint.route("/login/google/callback")
 def authorize_google():
