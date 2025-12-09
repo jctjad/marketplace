@@ -1,4 +1,4 @@
-# functional tests
+"""test_auth.py"""
 
 from authlib.integrations.base_client.errors import OAuthError
 from website import db

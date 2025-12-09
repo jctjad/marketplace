@@ -1,3 +1,5 @@
+"""Sets up functional tests"""
+
 import os
 import pytest
 from website import create_app, db
