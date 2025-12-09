@@ -12,46 +12,33 @@
 </head>
 
 <body class="login-background">
-  <main class="page container">
-    <div class="card-login card-login-default">
-      <div class="card-login-header">
-        <img class="login-img" src="/static/assets/mulebay_logo.svg" alt="Mulebay Logo Image">
+  <div class="login-location-setter">
+    <main class="page container">
+      <div class="card-login">
+
+        <div class="login-text-box">
+          <h1 class="login-title-large">Mulebay Marketplace</h1>
+          <p>Colby-exclusive marketplace that connects students, faculty, and staff to trade items
+            and improve sustainability on our campus
+          </p>
+        </div>
+
+        <div class="login-function-box">          
+          <h2 class="login-title-small">Begin your journey as a Colby merchant</h2>
+          <form method="POST" action="/login">
+            <div class="col-md-12">            
+              <div class = "separator"></div>
+
+              <button type="button" class="google-button" onclick="window.location.href='/login/google/'">
+                <img src="/static/assets/google_icon.png" alt="Google" class="google-icon">
+                Sign in With Google
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-
-      <div class="card-login-body">
-        <h3 class="login-title">Sign In</h3>
-        <!-- CHANGED: no url_for, plain /login -->
-        <form method="POST" action="/login">
-          <div class="row">
-            <div class="form-group col-md-12">
-              <input class="form-control input-lg" type="text" name="email" placeholder="Email">
-            </div>
-            <div class="form-group col-md-12">
-              <input class="form-control input-lg" type="password" name="password" placeholder="Password">
-            </div>
-          </div>
-
-          <div class="col-md-12">
-            <button class="login-button" type="submit">Submit</button>
-            
-            <div class = "separator">
-              <span>OR</span>
-            </div>
-
-            <button type = "button" class = "google-button" onclick= "window.location.href = '/login/google/'">
-              <img src = "/static/assets/google_icon.jpg" alt="Google" class = "google-icon">
-              Login With Google
-            </button>
-            
-            <p class="login-p">
-              Don't have an Account?
-              <a class="login-link" href="/signup">Sign Up</a>
-            </p>
-          </div>
-        </form>
-      </div>
-    </div>
-  </main>
+    </main>
+  </div>
 
   <footer class="footer">
     <div class="container footer__inner">
