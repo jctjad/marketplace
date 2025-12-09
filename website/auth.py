@@ -12,55 +12,15 @@ auth_blueprint = Blueprint('auth', __name__)
 @auth_blueprint.route('/signup', methods = ['GET', 'POST'])
 def signup():
     """
-    This function handles when a user is signing up.
+    This function handles route to login page.
     """
-    if request.method == 'POST':
-        email = request.form.get('email') #Email acts like our username
-        password = request.form.get('password')
-        first_name = request.form.get('firstName')
-        last_name = request.form.get('lastName')
-
-        #Restricting to Colby emails
-        if not email.endswith("@colby.edu"):
-            return {"error": "Access Restricted to Colby Students"}, 400
-
-        #Checking if User already exists
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            return redirect(url_for('auth.login'))
-
-        #Creating a new User
-        new_user = User(email=email, first_name=first_name, last_name=last_name,
-                        date_created=datetime.today())
-        new_user.set_password(password)
-
-        #Add and commite new user to db
-        db.session.add(new_user)
-        db.session.commit()
-
-        return redirect(url_for('auth.login'))
     return render_template('login.html')
-
 
 @auth_blueprint.route('/login', methods = ['GET', 'POST'])
 def login():
     """
-    This function handles when a user is trying to log in.
+    This function handles route to login page.
     """
-    #Doesn't account for how many times someone can log in
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-
-        #Restricting to Colby emails
-        if not email.endswith("@colby.edu"):
-            return {"error": "not valid email address"}, 400
-
-        user = User.query.filter_by(email=email).first()
-        if user and user.check_password(password):
-            login_user(user)
-            #I believe it's main.index to render index.html
-            return redirect(url_for('main.goto_browse_items_page'))
 
     return render_template('login.html')
 
