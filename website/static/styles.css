@@ -162,68 +162,66 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .specs { margin-top: 8px; border-top: 1px solid var(--bd); padding-top: 12px; color: var(--muted); }
 
 /* Profile */
-/* Profile layout */
+/* Profile overall layout: column, header on top, listings below */
 .profile {
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap: 32px;
-  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   margin-top: 8px;
 }
 
-@media (max-width: 900px) {
-  .profile {
-    grid-template-columns: 1fr;
-  }
+/* Top row: identity on left, "+ New listing" on the right */
+.profile__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
 }
 
-/* Left card */
-.profile__sidebar {
-  padding: 20px;
-  border-radius: calc(var(--radius) + 4px);
-  background: var(--panel);
-  border: 1px solid var(--bd);
-  box-shadow: 0 10px 35px rgba(0,0,0,0.10);
-  display: grid;
-  gap: 16px;
+/* Avatar + name row */
+.profile__identity {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
-/* Avatar box */
+/* Avatar card like your original */
 .profile__avatar-frame {
-  border-radius: calc(var(--radius) + 4px);
+  width: 180px;
+  border-radius: calc(var(--radius) + 6px);
   background: linear-gradient(145deg,#f3f4f6,#e5e7eb);
-  padding: 10px;
+  padding: 14px;
 }
 
-.profile__avatar-frame img,
 .profile__avatar {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: calc(var(--radius));
+  border-radius: calc(var(--radius) + 4px);
 }
 
-/* Text + meta */
+/* Name + bio + edit */
 .profile__meta {
   display: grid;
-  gap: 4px;
+  gap: 6px;
 }
 
 .profile__name {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 700;
 }
 
 .profile__bio {
   margin: 0;
   font-size: 0.95rem;
+  max-width: 420px;
 }
 
-/* Edit button */
 .profile__edit-link {
-  align-self: flex-start;
-  padding: 6px 14px;
+  width: fit-content;
+  margin-top: 6px;
+  padding: 6px 16px;
   border-radius: 999px;
   border: 1px solid var(--bd);
   background: var(--elev);
@@ -237,30 +235,14 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   color: var(--text);
 }
 
-/* Right column */
-.profile__main {
-  display: grid;
-  gap: 16px;
-}
-
-/* Listings header row */
-.profile__listings-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.profile__listings-header h3 {
-  margin: 0;
-}
-
-/* "New listing" chip */
+/* "+ New listing" pill (you already had styles; these refine spacing) */
 .profile__new-listing {
-  padding: 6px 12px;
+  align-self: flex-start;
+  padding: 8px 16px;
   border-radius: 999px;
   border: 1px solid var(--bd);
   background: var(--bg);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--muted);
 }
@@ -270,9 +252,27 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   color: var(--text);
 }
 
-/* Empty state text */
-#profile-listings-empty {
-  padding: 8px 0;
+/* Listings section under header */
+.profile__listings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Responsive: stack avatar + name + button on small screens */
+@media (max-width: 720px) {
+  .profile__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .profile__identity {
+    width: 100%;
+  }
+
+  .profile__new-listing {
+    align-self: flex-end;
+  }
 }
 
 
