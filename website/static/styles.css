@@ -482,7 +482,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   background-color: #f5f5f5; /* gives subtle backdrop if image doesn’t fill */
 }
 
-/* Login/Signup Section */
+/* Login Section */
 
 .login-background {
   background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)),
@@ -491,64 +491,11 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   background-size: cover;
 }
 
-.login-box {
-  margin: 10px auto;
-  background-color: #254893;
-  border-radius: 10px;
-  width: 60%;
-  padding: 10px 10px;
-}
-
-.login-title {
-  text-align: center;
-  color: white;
-}
-
-.login-img {
-  display: block;
-  margin: 0 auto;
-  max-width: 100%;
-  height: auto;
-}
-
-.login-section {
-  background-color: var(--bd);
-  color: var(--text);
-  border-radius: 5px;
-  padding: 1px 1px;
-  text-align: center;
-  width: 250px;
-  margin: 10px auto;
-}
-
-.login-section input {
-  width: 100%; 
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.login-button {
-  background-color: #10d194;
-  color: white;
-  border-radius: 20px;
-  text-align: center;
-  display: block;
-  margin: 10px auto;
-  width: 150px;
-  
-}
-
-.login-button:hover {
-  background-color: #0fb480;
-}
-
 .separator {
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 15px 0;
+  margin: 12px 0 22px 0;
 }
 
 .separator::before, .separator::after{
@@ -557,18 +504,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   border-bottom: 1px solid #333;
 }
 
-.separator:not(:empty)::before {
-  margin-right: .5rem;
-}
-
-.separator:not(:empty)::after {
-  margin-left: .5rem;
-}
-
 .google-button {
-  background-color: #10d194;
-  border-color: #10d194;
-  color: white;
+  background-color: #fff;
+  color: #444;
   border-radius: 4px;
   text-align: center;
   display: flex;
@@ -581,56 +519,70 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 .google-button:hover {
-  background-color: #0fb480;
+  background-color: #e5e5e5;
 }
 
 .google-icon {
-  margin-right: 8px;
-  width: 21px;
-  height: 21px;
+  margin-left: 5px;
+  margin-right: 5px;
+  width: 25px;
+  height: 25px;
 }
 
-.login-p{
-  color:white;
-}
-.login-link{
-  color: #10d194;
-}
-.login-link:hover {
-  color: #0ea878;
-  text-decoration: underline;
+/* Login Hub */
+.login-location-setter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 85vh;
+  margin: 0;
 }
 
-/* Updating Login Section */
 .card-login {
+  margin-top: 5vh;  /* Hack fix to clunky setup */
+  display: flex;
   position: relative;
+  justify-content: center;
+  flex-direction: row;
+
+  height: 30vh;
+  min-width: 100px;
+  min-height: 200px;
+  padding: 1rem;
+  /* background-color: rgba(0, 0, 0, 0.5); */
+  border-radius: 0.25rem;
+}
+
+.login-text-box {
   display: flex;
   flex-direction: column;
-  width: 60%;
-  min-width: 0;
-  word-wrap: break-word;
-  background-color: #254893;
-  background-clip: border-box;
-  border: 1px solid #FFFFFF;
-  border-radius: 0.25rem;
-  margin: 10px auto;
+  justify-content: center;
+  width: 50%;
+  color: white;
+  padding-right: 2rem;
 }
 
-.card-login-default .card-login-header {
-  padding-top: 1.875rem;
-  padding-bottom: 1rem;
+.login-function-box {
   display: flex;
-  justify-content: space-between;
-  background-color: transparent;
-  border-bottom: none;
-  flex-wrap: wrap;
-  text-transform: capitalize;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 50%;
+  color: white;
+  text-align: center;
 }
 
-.card-login-body {
-  flex: 1 1 auto;
-  min-height: 1px;
-  padding: 1.875rem;
+.login-title-large {
+  color: white;
+  font-size: 50px;
+  font-weight: 900;
+  margin-bottom: 0;
+}
+
+.login-title-small {
+  color: white;
+  font-size: 25px;
+  font-weight: 700;
+  margin-bottom: 0;
 }
 
 .row {
