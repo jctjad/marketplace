@@ -515,7 +515,7 @@ async function loadProfileData() {
     if (bioEl) {
       bioEl.textContent =
         user.profile_description ||
-        "No bio yet. Click “Edit profile” to add a public bio.";
+        "Hello Mules!";
     }
     if (avatarEl) {
       avatarEl.src = user.profile_image || "/static/assets/avatar.svg";
@@ -526,6 +526,14 @@ async function loadProfileData() {
       const editLink = document.querySelector('a[href="/profile/edit"]');
       if (editLink) {
         editLink.style.display = "none";
+      }
+    }
+
+    // Hide "+ New listing" button when viewing someone else's profile
+    if (!isOwnProfile) {
+      const newListingBtn = document.querySelector(".profile__new-listing");
+      if (newListingBtn) {
+        newListingBtn.style.display = "none";
       }
     }
 
