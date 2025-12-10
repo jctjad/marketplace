@@ -1,7 +1,7 @@
 /* styles.css */
 
 :root {
-  --bg: #ffffff;
+  --bg: #fff;
   --panel: #f9f9fb;
   --elev: #f2f2f2;
   --text: #202124;
@@ -68,14 +68,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* Cards */
 .card {
-  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)), var(--panel);
-  border: 1px solid var(--bd);
+  background: #fff;
+  border: 1px solid #ddd;
   border-radius: var(--radius);
   overflow: clip;
-  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-  box-shadow: 0 1px 0 rgba(0,0,0,.3), 0 8px 30px rgba(0,0,0,.15);
+  /* box-shadow: 0 8px 30px rgba(0,0,0,.15); */
 }
-.card:hover { transform: translateY(-2px); border-color: var(--bd-strong); }
+.card:hover { transform: translateY(0px); }
 
 /* Browse Grid */
 .grid {
@@ -92,7 +91,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .item-card__thumb {
   width: 100%;
   height: 200px;           /* or adjust to your card height */
-  object-fit: contain;     /* ensures the full image shows, not cropped */
+  object-fit: cover;       /* Crops image */
+  object-position: center;
   border-radius: 10px 10px 0 0;
   background-color: #f8f8f8; /* subtle background for images with transparency */
 }
@@ -109,7 +109,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   cursor: pointer;
   transition: transform .15s ease;
 }
-.item-card__bookmark:hover { transform: scale(1.06); }
 
 .item-card__top { display: grid; grid-template-columns: 2fr 1fr; gap: 6px; margin-bottom: 5px; }
 .item-card__bottom { display: grid; grid-template-columns: 2fr 1fr; gap: 6px; }
@@ -138,7 +137,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 .gallery { display:grid; gap: 12px; }
 .gallery__stage { background: var(--panel); border:1px solid var(--bd); border-radius: var(--radius); padding: 8px; }
-.gallery__stage img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+.gallery__stage img { width: 100%; aspect-ratio: 4/3; }
 .gallery__thumbs { display:grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .gallery__thumbs img { aspect-ratio: 1/1; object-fit: cover; cursor: pointer; border:1px solid var(--bd); }
 .gallery__thumbs img[aria-current="true"] { outline: var(--ring); border-color: var(--bd-strong); }
@@ -259,7 +258,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .page {
   padding: 26px 0 40px;
 }
-.page__title { margin: 10px 0 14px; font-size: clamp(22px, 3.6vw, 36px); font-weight: 900; letter-spacing: .2px; }
+.page__title { margin: 10px 0 14px; font-size: clamp(18px, 3.2vw, 30px); font-weight: 700; letter-spacing: .2px; }
 .bar {position: relative; display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; gap: 12px; }
 .search {
   display:flex; align-items:center; gap:8px; width: 100%; max-width: 520px;
@@ -330,7 +329,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 .floating-sell-btn:hover {
   background-color: #0056b3;
-  transform: scale(1.05);
 }
 
 /* Create Item Form Styling */
@@ -397,10 +395,6 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   transition: transform 0.2s ease;
 }
 
-.create-item-form .btn:hover {
-  transform: scale(1.05);
-}
-
 /* Upload section */
 .upload-stage {
   position: relative;
@@ -464,7 +458,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   display: none; /* hide image by default */
   max-width: 100%;
   border-radius: 12px;
-  object-fit: cover;
+  object-fit: contain;
   transition: opacity 0.25s ease;
 }
 #stage.visible {
@@ -473,17 +467,44 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 /* Ensure uploaded item images fit neatly inside their container */
-.gallery__stage img,
-.item-image {
+.gallery__stage img {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* ensures full image is visible, keeps proportions */
+  object-fit: contain;
   border-radius: 12px; /* optional – matches your soft corners */
-  background-color: #f5f5f5; /* gives subtle backdrop if image doesn’t fill */
+  background-color: transparent; /* gives subtle backdrop if image doesn’t fill */
 }
 
-/* Login/Signup Section */
+.item-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;   /* or 1 / 1, 16 / 9, whatever you like */
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f5f5f5;   /* fallback */
+}
+.item-image-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(24px);
+  transform: scale(1.15);
+  z-index: 0;
+  background-image: var(--bg-image);
+}
+.item-image {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 12px;
+}
 
+/* Login Section */
 .login-background {
   background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)),
   url('assets/miller.jpg') no-repeat center center / cover;
@@ -491,64 +512,11 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   background-size: cover;
 }
 
-.login-box {
-  margin: 10px auto;
-  background-color: #254893;
-  border-radius: 10px;
-  width: 60%;
-  padding: 10px 10px;
-}
-
-.login-title {
-  text-align: center;
-  color: white;
-}
-
-.login-img {
-  display: block;
-  margin: 0 auto;
-  max-width: 100%;
-  height: auto;
-}
-
-.login-section {
-  background-color: var(--bd);
-  color: var(--text);
-  border-radius: 5px;
-  padding: 1px 1px;
-  text-align: center;
-  width: 250px;
-  margin: 10px auto;
-}
-
-.login-section input {
-  width: 100%; 
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.login-button {
-  background-color: #10d194;
-  color: white;
-  border-radius: 20px;
-  text-align: center;
-  display: block;
-  margin: 10px auto;
-  width: 150px;
-  
-}
-
-.login-button:hover {
-  background-color: #0fb480;
-}
-
 .separator {
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 15px 0;
+  margin: 12px 0 22px 0;
 }
 
 .separator::before, .separator::after{
@@ -557,18 +525,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   border-bottom: 1px solid #333;
 }
 
-.separator:not(:empty)::before {
-  margin-right: .5rem;
-}
-
-.separator:not(:empty)::after {
-  margin-left: .5rem;
-}
-
 .google-button {
-  background-color: #10d194;
-  border-color: #10d194;
-  color: white;
+  background-color: #fff;
+  color: #333;
   border-radius: 4px;
   text-align: center;
   display: flex;
@@ -581,56 +540,70 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 .google-button:hover {
-  background-color: #0fb480;
+  background-color: #e5e5e5;
 }
 
 .google-icon {
-  margin-right: 8px;
-  width: 21px;
-  height: 21px;
+  margin-left: 5px;
+  margin-right: 5px;
+  width: 25px;
+  height: 25px;
 }
 
-.login-p{
-  color:white;
-}
-.login-link{
-  color: #10d194;
-}
-.login-link:hover {
-  color: #0ea878;
-  text-decoration: underline;
+/* Login Hub */
+.login-location-setter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 85vh;
+  margin: 0;
 }
 
-/* Updating Login Section */
 .card-login {
+  margin-top: 5vh;  /* Hack fix to clunky setup */
+  display: flex;
   position: relative;
+  justify-content: center;
+  flex-direction: row;
+
+  height: 30vh;
+  min-width: 100px;
+  min-height: 200px;
+  padding: 1rem;
+  /* background-color: rgba(0, 0, 0, 0.5); */
+  border-radius: 0.25rem;
+}
+
+.login-text-box {
   display: flex;
   flex-direction: column;
-  width: 60%;
-  min-width: 0;
-  word-wrap: break-word;
-  background-color: #254893;
-  background-clip: border-box;
-  border: 1px solid #FFFFFF;
-  border-radius: 0.25rem;
-  margin: 10px auto;
+  justify-content: center;
+  width: 50%;
+  color: white;
+  padding-right: 2rem;
 }
 
-.card-login-default .card-login-header {
-  padding-top: 1.875rem;
-  padding-bottom: 1rem;
+.login-function-box {
   display: flex;
-  justify-content: space-between;
-  background-color: transparent;
-  border-bottom: none;
-  flex-wrap: wrap;
-  text-transform: capitalize;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 50%;
+  color: white;
+  text-align: center;
 }
 
-.card-login-body {
-  flex: 1 1 auto;
-  min-height: 1px;
-  padding: 1.875rem;
+.login-title-large {
+  color: white;
+  font-size: 50px;
+  font-weight: 900;
+  margin-bottom: 0;
+}
+
+.login-title-small {
+  color: white;
+  font-size: 25px;
+  font-weight: 700;
+  margin-bottom: 0;
 }
 
 .row {
@@ -718,12 +691,10 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   outline: none;
   padding: 8px 12px;
   border-radius: 8px;
-  width: 200px;
   transition: width 0.3s ease;
 }
 
 .search input:focus {
-  width: 280px;
   background: #fff;
   box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
 }
@@ -841,63 +812,83 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   font-weight: 600;
 }
 
-.btn-edit:hover,
-.btn-delete:hover {
-  transform: scale(1.03);
-}
-
 /* The popup chat - hidden by default */
 .chat-popup {
   display: none;
   position: fixed;
-  bottom: 0;
-  right: 15px;
-  border: 3px solid #f8f8f8;
+  bottom: 1rem;
+  right: 1rem;
+  background: #ffffff;
   z-index: 9;
+  max-width: 30vw;
 }
 
 /* Add styles to the form container */
 .form-container {
-  max-width: 300px;
-  padding: 10px;
+  padding: 0.75rem;
   background-color: white;
 }
 
 /* Full-width textarea */
 .form-container textarea {
   width: 100%;
-  padding: 15px;
-  margin: 5px 0 22px 0;
-  border: none;
+  padding: 0.5rem;
+  margin: 0.5rem 0 0.75rem 0;
+  border-radius: 6px;
   background: #f8f8f8;
   resize: none;
-  min-height: 200px;
+  max-height: 200px;
 }
 
 /* When the textarea gets focus, do something */
 .form-container textarea:focus {
   background-color: #f8f8f8;
-  outline: none;
+  outline: 2px solid #02AB0A22;
 }
 
 /* Set a style for the submit/login button */
 .form-container .btn_msg {
   background-color: #02AB0A;
   color: #f8f8f8;
-  padding: 16px 20px;
-  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
   width: 100%;
-  margin-bottom:10px;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 /* Add a red background color to the cancel button */
 .form-container .cancel {
   background: #ef4444;
   color: #f8f8f8;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
   font-weight: 600;
 }
 
-#messages {
-  display: none;
+/* Message scroll area styled like a card section */
+.chat-messages {
+  height: 250px;
+  width: 30vw;
+  overflow-y: auto;
+  overflow-wrap: break-word;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  background: #fafafa;
+}
+
+/* Message bubble */
+.chat-message {
+  padding: 0.5rem 0.75rem;
+  background: #f3f4f6;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  max-width: 30vw;
+}
+
+#chat-title {
+  padding-left: 0.5rem;
 }

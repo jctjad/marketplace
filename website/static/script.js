@@ -85,7 +85,7 @@ function renderItemGrid(items) {
   if (!items.length) {
     const p = document.createElement("p");
     p.className = "empty-msg";
-    p.textContent = "No items yet — be the first to list something!";
+    p.textContent = "No items yet – be the first to list something!";
     grid.appendChild(p);
     return;
   }
@@ -218,8 +218,18 @@ async function initItemPage() {
       priceEl.textContent = `$${Number(item.price || 0).toFixed(2)}`;
     }
     if (imgEl) {
-      imgEl.src = item.item_photos || "/static/assets/item_placeholder.svg";
-      imgEl.alt = item.name || "Item image";
+      const src = item.item_photos || "/static/assets/item_placeholder.svg";
+      const alt = item.name || "Item image";
+
+      // Update the foreground image
+      imgEl.src = src;
+      imgEl.alt = alt;
+
+      // Get the existing wrapper from the DOM
+      const wrapper = imgEl.closest(".item-image-wrapper");
+      if (wrapper) {
+        wrapper.style.setProperty("--bg-image", `url("${src}")`);
+      }
     }
     if (conditionEl) conditionEl.textContent = item.condition || "—";
     if (sellerEl && item.seller) {
@@ -572,18 +582,6 @@ async function loadProfileListings(sellerId) {
         item.item_photos || "/static/assets/item_placeholder.svg";
       imgThumb.alt = item.name || "Item";
 
-      const bookmark = document.createElement("img");
-      bookmark.className = "item-card__bookmark";
-      bookmark.dataset.itemId = item.id;
-      bookmark.dataset.bookmarked = item.bookmarked ? "true" : "false";
-      if (item.bookmarked) {
-        bookmark.src = "/static/assets/bookmark-filled.svg";
-        bookmark.dataset.altSrc = "/static/assets/bookmark.svg";
-      } else {
-        bookmark.src = "/static/assets/bookmark.svg";
-        bookmark.dataset.altSrc = "/static/assets/bookmark-filled.svg";
-      }
-
       const body = document.createElement("div");
       body.className = "item-card__body";
 
@@ -638,13 +636,11 @@ async function loadProfileListings(sellerId) {
       body.appendChild(bottom);
 
       a.appendChild(imgThumb);
-      a.appendChild(bookmark);
       a.appendChild(body);
 
       grid.appendChild(a);
     });
 
-    bindBookmarkIcons();
   } catch (err) {
     console.error("Error loading seller listings:", err);
     if (emptyState) {
@@ -890,9 +886,7 @@ let socket;
 // Open chat box
 async function openForm() {
   const chat_form = document.getElementById("chatForm");
-  const chat_screen = document.getElementById("messages");
   chat_form.style.display = "block";
-  chat_screen.style.display = "grid";
 
   const parts = window.location.pathname.split("/");
   const id = parts[parts.length - 1];
@@ -905,9 +899,17 @@ async function openForm() {
 
   socket = io();
   socket.emit("join", item, user);
+
   socket.on("message", function (data) {
-    const messages = document.getElementById("messages");
-    messages.innerHTML += `<span>${data}</span>`;
+    const chatMessages = document.getElementById("chat-messages");
+    const div = document.createElement("div");
+    div.classList.add("chat-message");
+
+    div.textContent = data;
+    chatMessages.appendChild(div);
+
+    // auto scroll to newest message
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 
   chat_form.addEventListener("submit", async (e) => {
@@ -918,8 +920,20 @@ async function openForm() {
 
 // Close chat box
 async function closeForm() {
+  const parts = window.location.pathname.split("/");
+  const id = parts[parts.length - 1];
+
+  const data_user = await fetchJSON("/api/profile/me");
+  const user = data_user.user;
+
+  const data_item = await fetchJSON(`/api/items/${id}`);
+  const item = data_item.item;
+
+  socket.emit("leave", item, user);
+  socket.disconnect();
+  
   document.getElementById("chatForm").style.display = "none";
-  await fetchJSON("/api/profile/me"); // no-op, but keeps pattern
+  // await fetchJSON("/api/profile/me"); // no-op, but keeps pattern
 }
 
 // Function to send messages
