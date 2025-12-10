@@ -119,7 +119,7 @@ def authorize_google():
         login_user(user)
     except Exception as e:
         current_app.logger.error(f"Login failed: {str(e)}")
-        flash("Login failed", category = "Error")
+        flash("Login failed", category = "error")
         return render_template('login.html')
 
     return redirect(url_for('main.goto_browse_items_page'))
