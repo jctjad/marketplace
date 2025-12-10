@@ -12,7 +12,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
-from flask_socketio import emit, join_room
+from flask_socketio import emit, join_room, leave_room
 from website.extensions import db, socketio
 from .models import User, Item, Chat
 
@@ -117,8 +117,6 @@ def handle_join(item, user):
     This function handles when the user joins the chat room.
     """
     item_id = item["id"]
-    # user_id = user["id"]
-    # seller_id = item["seller_id"]
     room_id = item_id
     join_room(room_id)
     emit("message", f"{user['first_name']} {user['last_name']} has joined the chat", room=room_id)
@@ -132,13 +130,16 @@ def handle_message(data, user):
     emit("message", f"{user['first_name']} {user['last_name']}: {data}", broadcast=True)
 
 
-@socketio.on("disconnect")
-def handle_disconnect():
+@socketio.on("leave")
+def handle_disconnect(item, user):
     """
-    This function handles when the user leaves/disconenct from the page.
+    This function handles when the user leaves/disconenct from the chat/page.
     """
-    user = User.query.filter_by(id=current_user.id).first()
-    emit("message", f" {user.first_name} {user.last_name} left the chat", broadcast=True)
+    # user = User.query.filter_by(id=current_user.id).first()
+    item_id = item["id"]
+    room_id = item_id
+    emit("message", f"{user['first_name']} {user['last_name']} left the chat", broadcast=True)
+    leave_room(room_id)
 
 
 @item_blueprint.route('/item/<int:item_id>/edit')

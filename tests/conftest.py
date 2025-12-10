@@ -1,8 +1,9 @@
 """Sets up functional tests"""
 
-import os
 import pytest
-from website import create_app, db
+import os
+from website import create_app, db, socketio
+from website.models import User, Item
 
 @pytest.fixture(scope="session")
 def app():
@@ -33,7 +34,7 @@ def test_client(app):
 def init_database(app, test_client):
     """
     Hook for populating the database before a group of tests,
-    if you need it. Right now it’s effectively a no-op.
+    if you need it. Right now it's effectively a no-op.
     """
     yield
 
@@ -94,3 +95,42 @@ def fake_google(app):
     g = FakeGoogle()
     app.config["GOOGLE_CLIENT"] = g
     return g
+
+
+@pytest.fixture
+def test_socketio_client(app):
+    """
+    Creates a test client for the socketio client.
+    """
+    test_client = app.test_client()
+    socketio_test_client = socketio.test_client(app, flask_test_client=test_client)
+
+    yield {'socketio_test_client': socketio_test_client, 'socketio': socketio}
+
+    socketio_test_client.disconnect()
+
+@pytest.fixture
+def test_data_socketio(test_client):
+    """
+    Creates a test user and test item for the socketio tests.
+    """
+    with test_client.application.app_context():
+        db.drop_all()
+        db.create_all()
+
+        user1 = User(email='test1@colby.edu', first_name='John', last_name='Smith')
+        user1.set_password('password1')
+        db.session.add(user1)
+
+        db.session.commit()
+
+        item = Item(seller_id=user1.id, name='test_item', description='description for test item',
+                    item_photos='placeholder.svg', price=10.0)
+        
+        db.session.add(item)
+        db.session.commit()
+
+        yield {'user1': user1, 'item': item}
+
+        db.session.remove()
+        db.drop_all()

@@ -71,9 +71,11 @@
       </aside>
     </div>
 
+    <!-- Chat Popup Card -->
     <div class="chat-popup card" id="chatForm">
+      <h1 id="chat-title">Chat</h1>
+      <div class="chat-messages" id="chat-messages"></div>
       <form class="form-container">
-        <h1>Chat</h1>
         <label for="msg"><b>Message</b></label>
         <textarea placeholder="Type message..." id="msg"></textarea>
         <button type="submit" class="btn_msg" id="send_btn" onclick="sendMessage()">Send</button>
@@ -85,9 +87,7 @@
     <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"
             integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
             crossorigin="anonymous"></script>
-
-    <!-- Where chat messages will appear -->
-    <div class="buybox card" id="messages"></div>
+            
   </main>
 
   <footer class="footer">
