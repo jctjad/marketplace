@@ -1,4 +1,6 @@
-"""test_auth.py"""
+"""
+test_auth.py - Handles Tests for authentication routes in Auth.py
+"""
 
 from authlib.integrations.base_client.errors import OAuthError
 from flask import get_flashed_messages
@@ -9,6 +11,12 @@ from website.models import User
 # ============================
 # (1) basic tests (page loads)
 # ============================
+
+def test_signup_page(test_client):
+    """Testing Signup Page"""
+    resp = test_client.get("/signup")
+    assert resp.status_code == 200
+    assert b"Sign in With Googel" in resp.data
 
 def test_login_page(test_client):
     """Testing login page"""

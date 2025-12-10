@@ -1,4 +1,7 @@
-"""auth.py"""
+"""
+auth.py - Handles authentication routes for MuleBay site. Includes 
+signup, login, logout, and Google OAuth.
+"""
 
 import os
 
@@ -13,6 +16,14 @@ from .models import User
 
 #Auth Blueprint
 auth_blueprint = Blueprint('auth', __name__)
+
+
+@auth_blueprint.route('/signup', methods = ['GET', 'POST'])
+def signup():
+    """
+    This function handles route to login page
+    """
+    return render_template('login.html')
 
 @auth_blueprint.route('/login', methods = ['GET', 'POST'])
 def login():
