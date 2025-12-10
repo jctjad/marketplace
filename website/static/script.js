@@ -903,14 +903,17 @@ async function closeForm() {
   const parts = window.location.pathname.split("/");
   const id = parts[parts.length - 1];
 
+  const data_user = await fetchJSON("/api/profile/me");
+  const user = data_user.user;
+
   const data_item = await fetchJSON(`/api/items/${id}`);
   const item = data_item.item;
 
-  socket.emit("leave", item);
+  socket.emit("leave", item, user);
   socket.disconnect();
   
   document.getElementById("chatForm").style.display = "none";
-  await fetchJSON("/api/profile/me"); // no-op, but keeps pattern
+  // await fetchJSON("/api/profile/me"); // no-op, but keeps pattern
 }
 
 // Function to send messages
