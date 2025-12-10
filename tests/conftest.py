@@ -46,6 +46,38 @@ def login_user(test_client, init_database):
     """
     yield
 
+@pytest.fixture
+def authed_client(app, test_client):
+    """
+    Creates (or reuses) a user, logs them in by setting the Flask-Login
+    session key, and returns (client, user).
+    """
+    with app.app_context():
+        user = User.query.filter_by(email="testuser@colby.edu").first()
+        if user is None:
+            user = User(
+                email="testuser@colby.edu",
+                first_name="Test",
+                last_name="User"
+            )
+            user.set_password("password")
+            db.session.add(user)
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+                # if another test created it in the meantime
+                user = User.query.filter_by(email="testuser@colby.edu").first()
+
+        user_id = user.id
+
+    client = test_client
+    with client.session_transaction() as sess:
+        # Flask-Login uses this key for the current user
+        sess["_user_id"] = str(user_id)
+
+    return client, user
+
 ##################
 #  Google auth   #
 ##################
