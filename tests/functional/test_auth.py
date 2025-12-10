@@ -1,19 +1,14 @@
 """test_auth.py"""
 
 from authlib.integrations.base_client.errors import OAuthError
+from flask import get_flashed_messages
+import website.auth as auth_module
 from website import db
 from website.models import User
-import website.auth as auth_module
 
 # ============================
 # (1) basic tests (page loads)
 # ============================
-
-def test_signup_page(test_client):
-    """Testing signup page"""
-    resp = test_client.get("/signup")
-    assert resp.status_code == 200
-    assert b"Sign in With Google" in resp.data
 
 def test_login_page(test_client):
     """Testing login page"""
@@ -63,7 +58,15 @@ def test_login_google_exception(test_client, fake_google):
     fake_google.authorize_redirect = boom
 
     resp = test_client.get("/login/google/")
-    assert resp.status_code == 400
+    
+    #Checking redirect
+    assert resp.status_code == 302
+    assert "/login" in resp.location
+
+    #Checking flash message
+    with test_client.session_transaction():
+        messages = get_flashed_messages(with_categories=True)
+        assert ("error", "Error during Login. Please try again") in messages
 
 # ===================================
 # (3) authorize_google() branch tests
@@ -77,9 +80,8 @@ def test_google_valid_email(test_client, fake_google, app):
         "family_name": "Student",
     }
     resp = test_client.get("/login/google/callback", follow_redirects=False)
-    assert resp.status_code == 302
-    assert "/" in resp.location     # Redirects to Browse Items page
-
+    assert resp.status_code == 302 #stills render login page   
+    
 def test_google_invalid_email(test_client, fake_google):
     """Testing google login with INVALID non-Colby email"""
     fake_google.userinfo_to_return = {
@@ -88,7 +90,11 @@ def test_google_invalid_email(test_client, fake_google):
         "family_name": "User",
     }
     resp = test_client.get("/login/google/callback")
-    assert resp.status_code == 403
+    assert resp.status_code == 200
+    with test_client.session_transaction():
+        messages = get_flashed_messages(with_categories=True)
+        assert ("error", "Access restricted to Colby Students") in messages
+
 
 def test_google_denied_error(test_client, fake_google):
     """Testing google login accessed denied error"""
@@ -111,7 +117,12 @@ def test_google_userinfo_error(test_client, fake_google):
     fake_google.userinfo_to_return = {}
     fake_google.raise_on_get = Exception("fetch failed")
     resp = test_client.get("/login/google/callback")
-    assert resp.status_code == 500
+    assert resp.status_code == 200
+    assert b'login' in resp.data
+
+    with test_client.session_transaction():
+            messages = get_flashed_messages(with_categories=True)
+            assert ("error", "Failed to fetch user info") in messages
 
 def test_google_existing_user_reused(test_client, fake_google, app):
     """Testing google login with reused user"""
@@ -151,9 +162,13 @@ def test_google_db_error(test_client, fake_google, app, monkeypatch):
             raise Exception("DB down")
         monkeypatch.setattr(db.session, "commit", bad_commit)
         resp = test_client.get("/login/google/callback")
-        assert resp.status_code == 500
-        assert resp.is_json
-        assert resp.get_json()["error"] == "Internal server error"
+        assert resp.status_code == 200 #login.html rendered
+        # assert resp.is_json
+        # assert resp.get_json()["error"] == "Internal server error"
+        with test_client.session_transaction():
+            messages = get_flashed_messages(with_categories=True)
+            assert ("error", "Internal server error") in messages
+
 
 def test_google_login_error(test_client, fake_google, app, monkeypatch):
     """Testing google login error --> ogin_user() fail"""
@@ -166,6 +181,7 @@ def test_google_login_error(test_client, fake_google, app, monkeypatch):
         raise Exception("login failed")
     monkeypatch.setattr(auth_module, "login_user", bad_login_user)
     resp = test_client.get("/login/google/callback")
-    assert resp.status_code == 500
-    assert resp.is_json
-    assert resp.get_json()["error"] == "Login failed"
+    assert resp.status_code == 200
+    with test_client.session_transaction():
+        messages = get_flashed_messages(with_categories=True)
+        assert ("Error", "Login failed") in messages

@@ -25,6 +25,19 @@
 
         <div class="login-function-box">          
           <h2 class="login-title-small">Begin your journey as a Colby merchant</h2>
+          
+          <!--Adding Flash Support-->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="flash-container">
+                {% for category, message in messages %}
+                  <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          
           <form method="POST" action="/login">
             <div class="col-md-12">            
               <div class = "separator"></div>
