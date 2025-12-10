@@ -16,7 +16,7 @@ def test_signup_page(test_client):
     """Testing Signup Page"""
     resp = test_client.get("/signup")
     assert resp.status_code == 200
-    assert b"Sign in With Googel" in resp.data
+    assert b"Sign in With Google" in resp.data
 
 def test_login_page(test_client):
     """Testing login page"""
@@ -129,8 +129,8 @@ def test_google_userinfo_error(test_client, fake_google):
     assert b'login' in resp.data
 
     with test_client.session_transaction():
-            messages = get_flashed_messages(with_categories=True)
-            assert ("error", "Failed to fetch user info") in messages
+        messages = get_flashed_messages(with_categories=True)
+        assert ("error", "Failed to fetch user info") in messages
 
 def test_google_existing_user_reused(test_client, fake_google, app):
     """Testing google login with reused user"""
@@ -171,8 +171,6 @@ def test_google_db_error(test_client, fake_google, app, monkeypatch):
         monkeypatch.setattr(db.session, "commit", bad_commit)
         resp = test_client.get("/login/google/callback")
         assert resp.status_code == 200 #login.html rendered
-        # assert resp.is_json
-        # assert resp.get_json()["error"] == "Internal server error"
         with test_client.session_transaction():
             messages = get_flashed_messages(with_categories=True)
             assert ("error", "Internal server error") in messages
@@ -192,4 +190,4 @@ def test_google_login_error(test_client, fake_google, app, monkeypatch):
     assert resp.status_code == 200
     with test_client.session_transaction():
         messages = get_flashed_messages(with_categories=True)
-        assert ("Error", "Login failed") in messages
+        assert ("error", "Login failed") in messages
