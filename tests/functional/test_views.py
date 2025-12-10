@@ -1,5 +1,7 @@
 """Functional tests for views and API endpoints."""
 
+import io
+
 from website import db
 from website.models import User, Item
 
@@ -482,6 +484,93 @@ def test_api_update_item_success(authed_client, app):
     updated = resp.get_json()["item"]
     assert updated["name"] == "New"
     assert updated["price"] == 15.0
+
+def test_api_update_item_keeps_existing_photo_when_no_new_file(authed_client, app):
+    """Ensure editing an item without a new image keeps the existing photo."""
+    client, user = authed_client
+    original_photo = "/static/uploads/original.png"
+
+    # Create an item with a non-placeholder photo path
+    item_id = _create_item_for_user(
+        app,
+        user,
+        name="Old name",
+        description="Old desc",
+        price=5.0,
+        item_photos=original_photo,
+    )
+
+    # Update text fields only, no image_file in the form
+    resp = client.put(
+        f"/api/items/{item_id}",
+        data={
+            "name": "New name",
+            "description": "Updated desc",
+            "price": "10",
+            "condition": "Like new",
+            "payment_options": ["Cash"],
+        },
+        content_type="multipart/form-data",
+    )
+    assert resp.status_code == 200
+    updated = resp.get_json()["item"]
+
+    # Photo should be unchanged
+    assert updated["item_photos"] == original_photo
+
+    # Double-check DB state too
+    with app.app_context():
+        refreshed = Item.query.get(item_id)
+        assert refreshed.item_photos == original_photo
+
+
+def test_api_update_item_replaces_photo_when_new_file_uploaded(authed_client, app, monkeypatch):
+    """Ensure uploading a new image when editing replaces the item photo path."""
+    # Force the view code into "local" mode so it saves files locally
+    # and does not call Cloudinary / Pillow validation.
+    monkeypatch.setattr("website.views.asset_folder", "local_marketplace", raising=False)
+
+    client, user = authed_client
+    original_photo = "/static/uploads/original.png"
+
+    item_id = _create_item_for_user(
+        app,
+        user,
+        name="Old name",
+        description="Old desc",
+        price=5.0,
+        item_photos=original_photo,
+    )
+
+    # Fake "image" file in memory
+    file_bytes = io.BytesIO(b"fake image data")
+    file_bytes.name = "new_image.png"  # helps Werkzeug name it
+
+    data = {
+        "name": "New name",
+        "description": "Updated desc",
+        "price": "10",
+        "condition": "Like new",
+        "payment_options": ["Cash"],
+        # This field name must match request.files.get("image_file")
+        "image_file": (file_bytes, "new_image.png"),
+    }
+
+    resp = client.put(
+        f"/api/items/{item_id}",
+        data=data,
+        content_type="multipart/form-data",
+    )
+    assert resp.status_code == 200
+    updated = resp.get_json()["item"]
+
+    # Photo should have changed from the original
+    assert updated["item_photos"] != original_photo
+    assert updated["item_photos"].startswith("/static/uploads/")
+
+    with app.app_context():
+        refreshed = Item.query.get(item_id)
+        assert refreshed.item_photos == updated["item_photos"]
 
 
 #########################
