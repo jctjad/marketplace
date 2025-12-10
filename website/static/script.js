@@ -85,7 +85,7 @@ function renderItemGrid(items) {
   if (!items.length) {
     const p = document.createElement("p");
     p.className = "empty-msg";
-    p.textContent = "No items yet — be the first to list something!";
+    p.textContent = "No items yet – be the first to list something!";
     grid.appendChild(p);
     return;
   }
@@ -218,8 +218,18 @@ async function initItemPage() {
       priceEl.textContent = `$${Number(item.price || 0).toFixed(2)}`;
     }
     if (imgEl) {
-      imgEl.src = item.item_photos || "/static/assets/item_placeholder.svg";
-      imgEl.alt = item.name || "Item image";
+      const src = item.item_photos || "/static/assets/item_placeholder.svg";
+      const alt = item.name || "Item image";
+
+      // Update the foreground image
+      imgEl.src = src;
+      imgEl.alt = alt;
+
+      // Get the existing wrapper from the DOM
+      const wrapper = imgEl.closest(".item-image-wrapper");
+      if (wrapper) {
+        wrapper.style.setProperty("--bg-image", `url("${src}")`);
+      }
     }
     if (conditionEl) conditionEl.textContent = item.condition || "—";
     if (sellerEl && item.seller) {
@@ -548,18 +558,6 @@ async function loadProfileListings(sellerId) {
         item.item_photos || "/static/assets/item_placeholder.svg";
       imgThumb.alt = item.name || "Item";
 
-      const bookmark = document.createElement("img");
-      bookmark.className = "item-card__bookmark";
-      bookmark.dataset.itemId = item.id;
-      bookmark.dataset.bookmarked = item.bookmarked ? "true" : "false";
-      if (item.bookmarked) {
-        bookmark.src = "/static/assets/bookmark-filled.svg";
-        bookmark.dataset.altSrc = "/static/assets/bookmark.svg";
-      } else {
-        bookmark.src = "/static/assets/bookmark.svg";
-        bookmark.dataset.altSrc = "/static/assets/bookmark-filled.svg";
-      }
-
       const body = document.createElement("div");
       body.className = "item-card__body";
 
@@ -614,13 +612,11 @@ async function loadProfileListings(sellerId) {
       body.appendChild(bottom);
 
       a.appendChild(imgThumb);
-      a.appendChild(bookmark);
       a.appendChild(body);
 
       grid.appendChild(a);
     });
 
-    bindBookmarkIcons();
   } catch (err) {
     console.error("Error loading seller listings:", err);
     if (emptyState) {
