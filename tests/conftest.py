@@ -4,6 +4,8 @@ import pytest
 import os
 from website import create_app, db, socketio
 from website.models import User, Item
+from sqlalchemy.exc import IntegrityError
+
 
 @pytest.fixture(scope="session")
 def app():
@@ -77,6 +79,7 @@ def authed_client(app, test_client):
         sess["_user_id"] = str(user_id)
 
     return client, user
+
 
 ##################
 #  Google auth   #
@@ -164,5 +167,10 @@ def test_data_socketio(test_client):
 
         yield {'user1': user1, 'item': item}
 
-        db.session.remove()
-        db.drop_all()
+        # db.session.remove()
+        # db.drop_all()
+
+        # Instead of drop_all(), just clear rows so other tests still have tables
+        db.session.query(Item).delete()
+        db.session.query(User).delete()
+        db.session.commit()

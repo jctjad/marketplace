@@ -62,7 +62,7 @@ def test_disconnect(test_socketio_client, test_data_socketio):
     """
     GIVEN a user is in a chat room
     WHEN the user closes the chat popup
-    THEN the message of the user is sent and no longer in the room
+    THEN a leave message is sent and the user leaves the room
     """
     socketio_test_client = test_socketio_client['socketio_test_client']
     user1 = test_data_socketio['user1']
