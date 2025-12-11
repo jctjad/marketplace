@@ -583,4 +583,3 @@ def api_bookmark():
         "bookmarked": bool(bookmarked),
         "bookmarks": bookmarks,
     }), 200
-
