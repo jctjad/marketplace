@@ -13,7 +13,7 @@ from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 from flask_socketio import emit, join_room, leave_room
 from website.extensions import db, socketio
-from .models import User, Item, Chat
+from .models import User, Item
 
 # --- Blueprints ---
 main_blueprint = Blueprint('main', __name__)
