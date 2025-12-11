@@ -68,13 +68,18 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* Cards */
 .card {
+  position: relative;
   background: #fff;
   border: 1px solid #ddd;
   border-radius: var(--radius);
   overflow: clip;
   /* box-shadow: 0 8px 30px rgba(0,0,0,.15); */
 }
-.card:hover { transform: translateY(0px); }
+.card:hover .item-card__bookmark { 
+  transform: translateY(0px);
+  opacity: 1;
+  visibility: visible;
+}
 
 /* Browse Grid */
 .grid {
@@ -108,6 +113,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
   cursor: pointer;
   transition: transform .15s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+.item-card__bookmark[data-bookmarked="true"] {
+  opacity: 1;
+  visibility: visible;
 }
 
 .item-card__top { display: grid; grid-template-columns: 2fr 1fr; gap: 6px; margin-bottom: 5px; }
