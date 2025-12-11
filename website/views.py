@@ -37,18 +37,9 @@ asset_folder = "marketplace"
 if uri is None:
     asset_folder = "local_marketplace"
 
-# Item image types (you previously allowed these)
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 # Avatar (profile) strict mimetypes
 AVATAR_ALLOWED_MIMES = {'image/png', 'image/jpeg'}
-
-
-def allowed_file(filename: str) -> bool:
-    """
-    This function checks to see if the file type is allowed.
-    """
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # =====================================================
@@ -134,7 +125,6 @@ def handle_disconnect(item, user):
     """
     This function handles when the user leaves/disconenct from the chat/page.
     """
-    # user = User.query.filter_by(id=current_user.id).first()
     item_id = item["id"]
     room_id = item_id
     emit("message", f"{user['first_name']} {user['last_name']} left the chat", broadcast=True)
@@ -179,7 +169,7 @@ def goto_edit_profile_page():
 @login_required
 def save_profile_edits():
     """
-    Same logic, but the templates no longer use Jinja –
+    Same logic, but the templates no longer use Jinja -
     they are populated via JS from /api/profile/me.
     """
     # Update bio (public profile description)
