@@ -322,6 +322,19 @@ function initCreateItemPage() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // client-side price validation
+    const priceInput = form.querySelector('input[name="price"]');
+    const priceVal = parseFloat(priceInput.value);
+
+    if (isNaN(priceVal)) {
+      alert("Please enter a valid price.");
+      return;
+    }
+    if (priceVal < 0) {
+      alert("Price cannot be negative.");
+      return;
+    }
+
     const formData = new FormData(form);
 
     try {
@@ -393,6 +406,17 @@ async function initEditItemPage() {
   // 2. Handle Save Changes
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    // client-side price validation
+    const priceVal = parseFloat(priceInput.value);
+    if (isNaN(priceVal)) {
+      alert("Please enter a valid price.");
+      return;
+    }
+    if (priceVal < 0) {
+      alert("Price cannot be negative.");
+      return;
+    }
 
     // Collect updated fields
     const formData = new FormData();
@@ -491,7 +515,7 @@ async function loadProfileData() {
     if (bioEl) {
       bioEl.textContent =
         user.profile_description ||
-        "No bio yet. Click “Edit profile” to add a public bio.";
+        "Hello Mules!";
     }
     if (avatarEl) {
       avatarEl.src = user.profile_image || "/static/assets/avatar.svg";
@@ -502,6 +526,14 @@ async function loadProfileData() {
       const editLink = document.querySelector('a[href="/profile/edit"]');
       if (editLink) {
         editLink.style.display = "none";
+      }
+    }
+
+    // Hide "+ New listing" button when viewing someone else's profile
+    if (!isOwnProfile) {
+      const newListingBtn = document.querySelector(".profile__new-listing");
+      if (newListingBtn) {
+        newListingBtn.style.display = "none";
       }
     }
 

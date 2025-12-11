@@ -68,13 +68,18 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* Cards */
 .card {
+  position: relative;
   background: #fff;
   border: 1px solid #ddd;
   border-radius: var(--radius);
   overflow: clip;
   /* box-shadow: 0 8px 30px rgba(0,0,0,.15); */
 }
-.card:hover { transform: translateY(0px); }
+.card:hover .item-card__bookmark { 
+  transform: translateY(0px);
+  opacity: 1;
+  visibility: visible;
+}
 
 /* Browse Grid */
 .grid {
@@ -108,6 +113,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
   cursor: pointer;
   transition: transform .15s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+.item-card__bookmark[data-bookmarked="true"] {
+  opacity: 1;
+  visibility: visible;
 }
 
 .item-card__top { display: grid; grid-template-columns: 2fr 1fr; gap: 6px; margin-bottom: 5px; }
@@ -161,32 +172,142 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .specs { margin-top: 8px; border-top: 1px solid var(--bd); padding-top: 12px; color: var(--muted); }
 
 /* Profile */
-/* Profile layout: avatar column + content column */
-.profile {
+/* === Profile layout (view profile page) === */
+body[data-page="profile"] .profile {
   display: flex;
-  gap: 24px;
-  align-items: flex-start; /* prevents the avatar card from stretching vertically */
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 8px;
 }
 
-/* Left column: avatar box stays fixed width, height = its content only */
-.profile > .avatar {
-  flex: 0 0 220px; /* 220px wide, no stretching */
+
+/* Profile card: avatar + text */
+.profile-card {
+  position: relative;
+  max-width: 560px;
+  padding: 22px 24px;
+  border-radius: calc(var(--radius) + 4px);
 }
 
-/* Right column: bio + listings take remaining space */
-.profile > .prose {
-  flex: 1 1 auto;
+.profile-card__body {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
-/* Stack on small screens */
+/* Avatar: close to your original 220px width, slightly bigger look */
+.profile-card__avatar-wrap {
+  width: 220px;
+  border-radius: calc(var(--radius) + 6px);
+  background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
+  padding: 14px;
+}
+
+.profile-card__avatar {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: calc(var(--radius) + 4px);
+}
+
+/* Name + bio */
+.profile-card__text {
+  display: grid;
+  gap: 6px;
+}
+
+.profile-card__name {
+  margin: 0;
+  font-size: 1.5rem;   /* bigger */
+  font-weight: 700;
+}
+
+.profile-card__bio {
+  margin: 0;
+  font-size: 0.98rem;  /* slightly bigger */
+  max-width: 420px;
+}
+
+/* Edit button – yellow pill, top-right of card */
+.profile-card__edit {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: #fbbf24;
+  color: #1f2933;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+
+.profile-card__edit:hover {
+  background: #f59e0b;
+}
+
+/* Listings section under the card */
+.profile__listings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Listings header + blue "+ New listing" button */
+.profile__listings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile__listings-header h3 {
+  margin: 0;
+}
+
+.profile__new-listing {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #007bff;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.16);
+}
+
+.profile__new-listing:hover {
+  background: #0056b3;
+}
+
+/* Responsive: stack card contents on narrow screens */
 @media (max-width: 720px) {
-  .profile {
+  .profile-card__body {
     flex-direction: column;
+    align-items: flex-start;
   }
-  .profile > .avatar {
-    flex: 0 0 auto;
+
+  .profile-card__avatar-wrap {
+    width: 180px;
+  }
+
+  .profile-card__edit {
+    position: static;
+    margin-bottom: 10px;
+    align-self: flex-end;
+  }
+
+  .profile__listings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .profile__new-listing {
+    align-self: flex-end;
   }
 }
+
 
 .avatar { border-radius: calc(var(--radius) + 6px); border:1px solid var(--bd); background: var(--panel); padding: 8px; }
 .prose { color: var(--text); }
@@ -594,7 +715,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 .login-title-large {
   color: white;
-  font-size: 50px;
+  font-size: 42px;
   font-weight: 900;
   margin-bottom: 0;
 }
@@ -921,4 +1042,89 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
         opacity: 1;
         transform: translateY(0);
     }
+}
+/* === Edit profile layout === */
+body[data-page="edit-profile"] .profile--edit {
+  margin-top: 8px;
+}
+
+/* Card that contains avatar + form (matches profile styling vibes) */
+body[data-page="edit-profile"] .profile-edit-card {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  padding: 24px 28px;
+  background: var(--panel);
+  border: 1px solid var(--bd);
+  border-radius: calc(var(--radius) + 6px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+/* Avatar column inside the card */
+body[data-page="edit-profile"] .profile-edit-card .avatar {
+  flex: 0 0 260px;
+  border-radius: calc(var(--radius) + 6px);
+  border: none;              /* border comes from the outer card now */
+  background: transparent;
+  padding: 0;
+}
+
+body[data-page="edit-profile"] .profile-edit-card .avatar-frame {
+  border-radius: calc(var(--radius) + 6px);
+  background: linear-gradient(145deg, #f3f4f6, #e5e7eb);
+  padding: 16px;
+}
+
+body[data-page="edit-profile"] .profile-edit-card .profile__avatar {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: calc(var(--radius) + 4px);
+}
+
+body[data-page="edit-profile"] .profile-edit-card .avatar .muted {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+/* Form column */
+body[data-page="edit-profile"] .profile-edit-card .prose {
+  flex: 1 1 auto;
+}
+
+/* Slightly larger label + textarea text for "Public bio" */
+body[data-page="edit-profile"] .create-item-form label {
+  font-size: 1rem;
+}
+
+body[data-page="edit-profile"] #edit-profile-bio {
+  font-size: 1rem;
+}
+
+/* Make Cancel button red on this page only */
+body[data-page="edit-profile"] .btn--ghost {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+}
+
+body[data-page="edit-profile"] .btn--ghost:hover {
+  background: #dc2626;
+}
+
+/* Optional: keep the form from stretching too wide */
+body[data-page="edit-profile"] #edit-profile-form {
+  max-width: 640px;
+}
+
+/* Responsive stacking */
+@media (max-width: 720px) {
+  body[data-page="edit-profile"] .profile-edit-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  body[data-page="edit-profile"] .profile-edit-card .avatar {
+    max-width: 260px;
+  }
 }
