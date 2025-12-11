@@ -346,7 +346,6 @@ def test_api_create_item_invalid_price(authed_client):
     assert resp.status_code == 400
     assert resp.get_json()["error"] == "Price must be a number"
 
-
 def test_api_create_item_negative_price(authed_client):
     """Ensure creating an item with a negative price returns a 400 error."""
     client, _ = authed_client
@@ -448,6 +447,22 @@ def test_api_update_item_invalid_price(authed_client, app):
     )
     assert resp.status_code == 400
     assert resp.get_json()["error"] == "Price must be a number"
+
+def test_api_update_item_empty_price(authed_client, app):
+    """
+    Ensure updating an item with a empty price returns 500.
+    """
+    client, user = authed_client
+    item_id = _create_item_for_user(app, user, price=5.0)
+
+    resp = client.put(
+        f"/api/items/{item_id}",
+        data={"price": ""},
+        content_type="multipart/form-data",
+    )
+
+    assert resp.status_code == 500
+    assert resp.get_json() is None
 
 
 def test_api_update_item_negative_price(authed_client, app):
