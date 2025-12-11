@@ -58,68 +58,52 @@ def login_google():
         return google.authorize_redirect(redirect_uri, prompt = "select_account")
     except Exception as e:
         current_app.logger.error(f"Error During Login:{str(e)}")
-        flash("Error during Login. Please try again", category = "error")
-        return redirect(url_for('auth.login'))
+        return {"error": "Error during Login. Please try again"}, 400
 
 @auth_blueprint.route("/login/google/callback")
 def authorize_google():
-    """This function uses Google to authorize the user before they
-    can login. 
-    If authorized, they are sent to the browse item page.
-    Otherwise, they must not be using a valid Colby email.
-    """
     google = current_app.config["GOOGLE_CLIENT"]
 
-    error = request.args.get("error")
-    if error:
-        flash("Google Login canceled or failed", "error")
-        return redirect(url_for("auth.login"))
+    # 1. If Google explicitly returns an error
+    if (error := request.args.get("error")):
+        return redirect(url_for("auth.login", error="Google login canceled or failed"))
 
-    #receiving authorize access token
+    # 2. Get Google token
     try:
         token = google.authorize_access_token()
-        current_app.logger.info(f"Token received: {token}")
     except OAuthError as e:
-        current_app.logger.error(f"OAuthError: {e.error} - {e.description}")
-        flash(f"Google Login Failed: {e.error} - {e.description}", "error")
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("auth.login", error=f"Google Login Failed: {e.error}"))
 
+    # 3. Fetch Google user info
     try:
-        user_info_endpoint = google.server_metadata.get('userinfo_endpoint')
-        resp = google.get(user_info_endpoint)
-        user_info = resp.json()
-    except Exception as e:
-        current_app.logger.error(f"Fetching user info failed: {str(e)}")
-        flash("Failed to fetch user info", category = "error")
-        return render_template('login.html')
+        user_info = google.get(google.server_metadata.get("userinfo_endpoint")).json()
+    except Exception:
+        return redirect(url_for("auth.login", error="Failed to fetch user info"))
 
-    email = user_info.get('email')
-    first_name = user_info.get('given_name', "")
-    last_name = user_info.get('family_name', "")
+    email = user_info.get("email")
+    first_name = user_info.get("given_name", "")
+    last_name = user_info.get("family_name", "")
 
+    # 4. Restrict to @colby.edu
     if not email or not email.endswith("@colby.edu"):
-        flash("Access restricted to Colby Students", category = "error")
-        return render_template('login.html')
+        return redirect(url_for("auth.login", error="Access restricted to Colby Students"))
 
+    # 5. Create user if needed
     try:
         user = User.query.filter_by(email=email).first()
         if not user:
             user = User(email=email, first_name=first_name, last_name=last_name)
-            # Generate a random password hash
-            random_password = os.urandom(16).hex()  # 16 bytes → 32 hex characters
-            user.set_password(random_password)
+            user.set_password(os.urandom(16).hex())
             db.session.add(user)
             db.session.commit()
-    except Exception as e:
-        current_app.logger.error(f"DB error: {str(e)}")
-        flash("Internal server error", category = "error")
-        return render_template('login.html')
+    except Exception:
+        return redirect(url_for("auth.login", error="Internal server error"))
 
+    # 6. Log user in
     try:
         login_user(user)
-    except Exception as e:
-        current_app.logger.error(f"Login failed: {str(e)}")
-        flash("Login failed", category = "error")
-        return render_template('login.html')
+    except Exception:
+        return redirect(url_for("auth.login", error="Login failed"))
 
-    return redirect(url_for('main.goto_browse_items_page'))
+    # 7. SUCCESS → redirect normally
+    return redirect(url_for("main.goto_browse_items_page"))

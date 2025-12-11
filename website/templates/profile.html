@@ -30,37 +30,50 @@
   <main class="page container">
     <h1 class="page__title">Profile</h1>
 
-    <section class="profile">
-      <!-- Left column: avatar + basic info -->
-      <div class="avatar">
-        <img
-          id="profile-avatar"
-          src="/static/assets/avatar.svg"
-          alt="Profile avatar"
-          class="profile__avatar">
-      </div>
+      <section class="profile">
+      <!-- Profile card -->
+      <article class="profile-card card">
+        <a class="profile-card__edit" href="/profile/edit">
+          Edit Profile
+        </a>
 
-      <!-- Right column: name, bio, listings -->
-      <div class="prose">
-        <h2 id="profile-name">User</h2>
-        <p id="profile-bio" class="muted">
-          Loading profile…
-        </p>
+        <div class="profile-card__body">
+          <div class="profile-card__avatar-wrap">
+            <img
+              id="profile-avatar"
+              src="/static/assets/avatar.svg"
+              alt="Profile avatar"
+              class="profile-card__avatar">
+          </div>
 
-        <p>
-          <a class="badge" href="/profile/edit">Edit profile</a>
-        </p>
+          <div class="profile-card__text">
+            <h2 id="profile-name" class="profile-card__name">User</h2>
+            <p id="profile-bio" class="profile-card__bio muted">
+              Loading profile…
+            </p>
+          </div>
+        </div>
+      </article>
 
-        <!-- Seller listings -->
-        <h3>Listings</h3>
+      <!-- Listings section under the card -->
+      <section class="profile__listings">
+        <div class="profile__listings-header">
+          <h3>Listings</h3>
+          <a href="/item/new" class="profile__new-listing">
+            + New Listing
+          </a>
+        </div>
 
         <div id="profile-listings-empty" class="muted">
           This user has no active listings yet.
         </div>
 
         <div id="profile-listings" class="grid" aria-label="Seller listings"></div>
-      </div>
+      </section>
     </section>
+
+
+
   </main>
 
   <footer class="footer">

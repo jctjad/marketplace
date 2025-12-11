@@ -26,25 +26,15 @@
         <div class="login-function-box">          
           <h2 class="login-title-small">Begin your journey as a Colby merchant</h2>
           
-          <!--Adding Flash Support-->
-          {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-              <div class="flash-container">
-                {% for category, message in messages %}
-                  {% if category == "error" %}
-                    <div class="flash flash-{{ category }}">{{ message }}</div>
-                  {% endif %}
-                {% endfor %}
-              </div>
-            {% endif %}
-          {% endwith %}
+          <!--Adding Flash Support: starts empty-->
+          <div id = "flash-box"></div>
 
           
           <form method="POST" action="/login">
             <div class="col-md-12">            
               <div class = "separator"></div>
 
-              <button type="button" class="google-button" onclick="window.location.href='/login/google/'">
+              <button id="google-login-btn" type="button" class="google-button" onclick="startGoogleLogin()">
                 <img src="/static/assets/google_icon.png" alt="Google" class="google-icon">
                 Sign in With Google
               </button>
