@@ -989,3 +989,26 @@ document.addEventListener("DOMContentLoaded", () => {
     initEditItemPage();
   }
 });
+
+
+// ==============================
+// Login page – login.html (Error Message Support)
+// ==============================
+
+function startGoogleLogin() {
+    // Full browser redirect → required for OAuth
+    window.location.href = "/login/google/";
+}
+
+function showFlashError(msg) {
+    const box = document.getElementById("flash-box");
+    box.innerHTML = `<div class="flash flash-error">${msg}</div>`;
+}
+
+// Check if backend passed an error through URL query string (?error=xyz)
+document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("error")) {
+        showFlashError(params.get("error"));
+    }
+});

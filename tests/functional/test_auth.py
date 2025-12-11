@@ -1,16 +1,19 @@
-"""test_auth.py"""
+"""
+test_auth.py - Handles Tests for authentication routes in Auth.py
+"""
 
 from authlib.integrations.base_client.errors import OAuthError
+from flask import get_flashed_messages
+import website.auth as auth_module
 from website import db
 from website.models import User
-import website.auth as auth_module
 
 # ============================
 # (1) basic tests (page loads)
 # ============================
 
 def test_signup_page(test_client):
-    """Testing signup page"""
+    """Testing Signup Page"""
     resp = test_client.get("/signup")
     assert resp.status_code == 200
     assert b"Sign in With Google" in resp.data
@@ -63,7 +66,11 @@ def test_login_google_exception(test_client, fake_google):
     fake_google.authorize_redirect = boom
 
     resp = test_client.get("/login/google/")
+    
+    #Checking redirect
     assert resp.status_code == 400
+    data = resp.get_json()
+    assert data["error"] == "Error during Login. Please try again"
 
 # ===================================
 # (3) authorize_google() branch tests
@@ -78,8 +85,8 @@ def test_google_valid_email(test_client, fake_google, app):
     }
     resp = test_client.get("/login/google/callback", follow_redirects=False)
     assert resp.status_code == 302
-    assert "/" in resp.location     # Redirects to Browse Items page
-
+    assert "/" in resp.location
+    
 def test_google_invalid_email(test_client, fake_google):
     """Testing google login with INVALID non-Colby email"""
     fake_google.userinfo_to_return = {
@@ -88,30 +95,33 @@ def test_google_invalid_email(test_client, fake_google):
         "family_name": "User",
     }
     resp = test_client.get("/login/google/callback")
-    assert resp.status_code == 403
+    assert resp.status_code == 302
+    assert "/login?error=Access+restricted+to+Colby+Students" in resp.location
 
 def test_google_denied_error(test_client, fake_google):
     """Testing google login accessed denied error"""
     resp = test_client.get("/login/google/callback?error=access_denied")
     assert resp.status_code == 302
-    assert "/login" in resp.location
+    # The redirect should go to login page with error param
+    assert "/login?error=Google+login+canceled+or+failed" in resp.location
 
 def test_google_oauth_error(test_client, fake_google):
-    """Testing google login oauth error"""
+    """Simulate OAuth error → redirect with error"""
     fake_google.raise_on_token = OAuthError(
         error="invalid_grant",
         description="Bad code",
     )
     resp = test_client.get("/login/google/callback")
     assert resp.status_code == 302
-    assert "/login" in resp.location
+    assert "/login?error=Google+Login+Failed" in resp.location
 
 def test_google_userinfo_error(test_client, fake_google):
     """Testing google login userinfo error"""
     fake_google.userinfo_to_return = {}
     fake_google.raise_on_get = Exception("fetch failed")
     resp = test_client.get("/login/google/callback")
-    assert resp.status_code == 500
+    assert resp.status_code == 302
+    assert "/login?error=Failed+to+fetch+user+info" in resp.location
 
 def test_google_existing_user_reused(test_client, fake_google, app):
     """Testing google login with reused user"""
@@ -132,9 +142,10 @@ def test_google_existing_user_reused(test_client, fake_google, app):
         "family_name": "Name",
     }
 
-    resp = test_client.get("/login/google/callback", follow_redirects=False)
+    resp = test_client.get("/login/google/callback")
     assert resp.status_code == 302
-
+    assert "/" in resp.location
+    
 def test_google_db_error(test_client, fake_google, app, monkeypatch):
     """
     Testing google login db error
@@ -150,10 +161,11 @@ def test_google_db_error(test_client, fake_google, app, monkeypatch):
         def bad_commit():
             raise Exception("DB down")
         monkeypatch.setattr(db.session, "commit", bad_commit)
+
         resp = test_client.get("/login/google/callback")
-        assert resp.status_code == 500
-        assert resp.is_json
-        assert resp.get_json()["error"] == "Internal server error"
+        assert resp.status_code == 302
+        assert "/login?error=Internal+server+error" in resp.location
+
 
 def test_google_login_error(test_client, fake_google, app, monkeypatch):
     """Testing google login error --> ogin_user() fail"""
@@ -165,7 +177,7 @@ def test_google_login_error(test_client, fake_google, app, monkeypatch):
     def bad_login_user(user):
         raise Exception("login failed")
     monkeypatch.setattr(auth_module, "login_user", bad_login_user)
+
     resp = test_client.get("/login/google/callback")
-    assert resp.status_code == 500
-    assert resp.is_json
-    assert resp.get_json()["error"] == "Login failed"
+    assert resp.status_code == 302
+    assert "/login?error=Login+failed" in resp.location
