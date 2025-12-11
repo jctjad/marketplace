@@ -161,7 +161,7 @@ def test_data_socketio(test_client):
 
         item = Item(seller_id=user1.id, name='test_item', description='description for test item',
                     item_photos='placeholder.svg', price=10.0)
-        
+
         db.session.add(item)
         db.session.commit()
 
