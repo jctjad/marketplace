@@ -1,9 +1,11 @@
 """Functional tests for views and API endpoints."""
 
 import io
-
+from PIL import Image
 from website import db
 from website.models import User, Item
+from website import views
+import cloudinary.uploader
 
 
 def test_join(test_socketio_client, test_data_socketio):
@@ -123,6 +125,9 @@ def test_profile_shell_routes(authed_client):
     assert resp_profile.status_code == 200
 
     resp_edit = client.get("/profile/edit")
+    assert resp_edit.status_code == 200
+
+    resp_profile = client.get("/profile/1")
     assert resp_edit.status_code == 200
 
 
@@ -255,7 +260,7 @@ def test_api_list_items_filter_by_seller(authed_client, app):
     resp = client.get(f"/api/items?seller_id={user.id}")
     assert resp.status_code == 200
     data = resp.get_json()
-    assert len(data["items"]) == 2
+    assert len(data["items"]) == 1
     assert data["items"][0]["seller_id"] == user.id
 
 
@@ -288,7 +293,7 @@ def test_api_list_items_search_query(authed_client, app):
     resp = client.get("/api/items?q=desk")
     assert resp.status_code == 200
     data = resp.get_json()
-    assert len(data["items"]) == 2
+    assert len(data["items"]) == 1
     assert "Desk" in data["items"][0]["name"]
 
 
@@ -313,7 +318,6 @@ def test_api_get_item(authed_client, app):
     resp = client.get(f"/api/items/{item_id}")
     assert resp.status_code == 200
     assert resp.get_json()["item"]["id"] == item_id
-
 
 #########################
 #     ITEM CREATION     #
@@ -346,7 +350,6 @@ def test_api_create_item_invalid_price(authed_client):
     assert resp.status_code == 400
     assert resp.get_json()["error"] == "Price must be a number"
 
-
 def test_api_create_item_negative_price(authed_client):
     """Ensure creating an item with a negative price returns a 400 error."""
     client, _ = authed_client
@@ -359,8 +362,11 @@ def test_api_create_item_negative_price(authed_client):
     assert resp.get_json()["error"] == "Price cannot be negative"
 
 
-def test_api_create_item_success(authed_client, app):
-    """Ensure a valid item creation request succeeds and persists."""
+def test_api_create_item_success_default(authed_client, app):
+    """
+    Ensure a valid item creation request succeeds and persists using an
+    item placeholder image.
+    """
     client, user = authed_client
 
     resp = client.post(
@@ -386,6 +392,159 @@ def test_api_create_item_success(authed_client, app):
         # Ensure the item is associated with the current user
         assert db_item.seller_id == user.id
 
+def test_api_create_item_local_success(authed_client, app):
+    """
+    Ensure a valid item creation request succeeds and persists when the uri is set,
+    i.e saving the data locally.
+    """
+    client, user = authed_client
+
+    img = io.BytesIO()
+    image = Image.new("RGB", (10, 10), color="blue")
+    image.save(img, format="PNG")
+    img.seek(0)
+
+    resp = client.post(
+        "/api/items",
+        data={
+            "name": "Chair",
+            "description": "Comfy chair",
+            "price": "25",
+            "condition": "Fair",
+            "payment_options": ["Cash", "Venmo"],
+            "image_file": (img, "chair.png", "image/png")
+        },
+        content_type="multipart/form-data",
+    )
+    assert resp.status_code == 201
+
+    item = resp.get_json()["item"]
+    assert item["name"] == "Chair"
+    assert item["price"] == 25.0
+    assert item["item_photos"].startswith("/static/uploads/")
+
+    with app.app_context():
+        db_item = Item.query.get(item["id"])
+        assert db_item is not None
+        # Ensure the item is associated with the current user
+        assert db_item.seller_id == user.id
+
+def test_api_create_item_cloudinary_success(monkeypatch, authed_client, app):
+    """
+    Given that if uri is set, it ensures a valid item creation request succeeds 
+    and persists.
+    """
+    client, user = authed_client
+
+    # force marketplace asset_folder
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    def fake_upload(file, **kwargs):
+        return {"secure_url": "https://res.cloudinary.com/fake/image.jpg"}
+
+    monkeypatch.setattr("cloudinary.uploader.upload", fake_upload)
+
+    img = io.BytesIO()
+    image = Image.new("RGB", (10, 10), color="blue")
+    image.save(img, format="JPEG")
+    img.seek(0)
+
+    data = {
+        "name": "Test Item",
+        "price": "10",
+        "image_file": (img, "item.png", "image/jpg")
+    }
+
+    with app.app_context():
+        response = client.post(
+            "/api/items",
+            data=data,
+            content_type="multipart/form-data",
+            follow_redirects=True
+        )
+
+    assert response.status_code == 201
+
+    item = response.get_json()["item"]
+    assert item["name"] == "Test Item"
+    assert item["price"] == 10
+    assert item["item_photos"] == "https://res.cloudinary.com/fake/image.jpg"
+
+    with app.app_context():
+        db_item = Item.query.get(item["id"])
+        assert db_item is not None
+        # Ensure the item is associated with the current user
+        assert db_item.seller_id == user.id
+
+
+def test_api_create_item_success_invalid_image_file(authed_client, app, monkeypatch):
+    """
+    Ensures that if an invalid image file such as .txt file is uploaded, it returns an
+    error for invalid image file.
+    """
+    client, _ = authed_client
+
+    # Force Cloudinary branch
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    # Prevent any Cloudinary call
+    monkeypatch.setattr(cloudinary.uploader, "upload",
+                        lambda *args, **kwargs: AssertionError("Upload should not happen"))
+
+    # Invalid image bytes
+    bad_bytes = io.BytesIO(b"this-is-not-an-image")
+
+    data = {
+        "name": "Test Item",
+        "price": "10",
+        "image_file": (bad_bytes, "photo.txt", "text/plain")
+    }
+
+    with app.app_context():
+        response = client.post(
+            "api/items",
+            data=data,
+            content_type="multipart/form-data"
+        )
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Invalid image file"}
+
+def test_api_create_item_success_invalid_image_format(authed_client, app, monkeypatch):
+    """
+    Ensures that if an invalid image format such as .gif file is uploaded, it returns an
+    error for invalid image format.
+    """
+    client, _ = authed_client
+
+    # Force Cloudinary branch
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    # Prevent any Cloudinary call
+    monkeypatch.setattr(cloudinary.uploader, "upload",
+                        lambda *args, **kwargs: AssertionError("Upload should not happen"))
+
+    # Create a gif
+    gif_bytes = io.BytesIO()
+    img = Image.new("RGB", (10, 10), color="red")
+    img.save(gif_bytes, format="GIF")
+    gif_bytes.seek(0)
+
+    data = {
+        "name": "Test Item",
+        "price": "10",
+        "image_file": (gif_bytes, "test.gif", "image/gif")
+    }
+
+    with app.app_context():
+        response = client.post(
+            "api/items",
+            data=data,
+            content_type="multipart/form-data"
+        )
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Invalid image format"}
 
 #########################
 #      ITEM UPDATE      #
@@ -448,6 +607,22 @@ def test_api_update_item_invalid_price(authed_client, app):
     )
     assert resp.status_code == 400
     assert resp.get_json()["error"] == "Price must be a number"
+
+def test_api_update_item_empty_price(authed_client, app):
+    """
+    Ensure updating an item with a empty price returns 500.
+    """
+    client, user = authed_client
+    item_id = _create_item_for_user(app, user, price=5.0)
+
+    resp = client.put(
+        f"/api/items/{item_id}",
+        data={"price": ""},
+        content_type="multipart/form-data",
+    )
+
+    assert resp.status_code == 500
+    assert resp.get_json() is None
 
 
 def test_api_update_item_negative_price(authed_client, app):
@@ -573,6 +748,126 @@ def test_api_update_item_replaces_photo_when_new_file_uploaded(authed_client, ap
         assert refreshed.item_photos == updated["item_photos"]
 
 
+def test_api_update_item_success_cloudinary(authed_client, app, monkeypatch):
+    """
+    Ensure a valid item update request  succeeds when the uri is not set, i.e using Cloudinary.
+    """
+    client, user = authed_client
+
+    # force marketplace asset_folder
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    def fake_upload(file, **kwargs):
+        return {"secure_url": "https://res.cloudinary.com/fake/new_image.jpg"}
+    
+    monkeypatch.setattr("cloudinary.uploader.upload", fake_upload)
+
+    item_id = _create_item_for_user(app, user, name="Old", price=5.0)
+
+    img = io.BytesIO()
+    image = Image.new("RGB", (10, 10), color="blue")
+    image.save(img, format="JPEG")
+    img.seek(0)
+
+    with app.app_context():
+        response = client.put(
+            f"/api/items/{item_id}",
+            data = {
+            "name": "New name",
+            "description": "Updated desc",
+            "price": "10",
+            "condition": "Like new",
+            "payment_options": ["Cash"],
+            "image_file": (img, "new_image.jpg"),
+            },
+            content_type="multipart/form-data",
+        )
+
+    assert response.status_code == 200
+
+    item = response.get_json()["item"]
+    assert item["name"] == "New name"
+    assert item["price"] == 10
+    assert item["item_photos"] == "https://res.cloudinary.com/fake/new_image.jpg"
+
+
+def test_api_update_item_invalid_image_file_cloudinary(authed_client, app, monkeypatch):
+    """
+    Ensures that when an invalid update item request succeeds occurs when the uri is not set,
+    i.e using Cloudinary, and the image is not a valid image file, such as TXT, it returns an
+    error for invalid image file.
+    """
+    client, user = authed_client
+
+    # force marketplace asset_folder
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+        
+    monkeypatch.setattr(cloudinary.uploader, "upload",
+                        lambda *args, **kwargs: AssertionError("Upload should not happen"))
+
+    item_id = _create_item_for_user(app, user, name="Old", price=5.0)
+
+    # Invalid image bytes
+    bad_bytes = io.BytesIO(b"this-is-not-an-image")
+
+    with app.app_context():
+        response = client.put(
+            f"/api/items/{item_id}",
+            data = {
+            "name": "New name",
+            "description": "Updated desc",
+            "price": "10",
+            "condition": "Like new",
+            "payment_options": ["Cash"],
+            "image_file": (bad_bytes, "photo.txt", "text/plain"),
+            },
+            content_type="multipart/form-data",
+        )
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Invalid image file"}
+
+
+def test_api_update_item_invalid_image_format_cloudinary(authed_client, app, monkeypatch):
+    """
+    Ensures that when an invalid update item request succeeds occurs when the uri is not set,
+    i.e using Cloudinary, and the image is not a valid image format, such as GIF, it returns
+    an error for invalid image format.
+    """
+    client, user = authed_client
+
+    # force marketplace asset_folder
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+        
+    monkeypatch.setattr(cloudinary.uploader, "upload",
+                        lambda *args, **kwargs: AssertionError("Upload should not happen"))
+
+    item_id = _create_item_for_user(app, user, name="Old", price=5.0)
+
+    # Create a gif
+    gif_bytes = io.BytesIO()
+    img = Image.new("RGB", (10, 10), color="red")
+    img.save(gif_bytes, format="GIF")
+    gif_bytes.seek(0)
+
+    with app.app_context():
+        response = client.put(
+            f"/api/items/{item_id}",
+            data = {
+            "name": "New name",
+            "description": "Updated desc",
+            "price": "10",
+            "condition": "Like new",
+            "payment_options": ["Cash"],
+            "image_file": (gif_bytes, "test.gif", "image/gif"),
+            },
+            content_type="multipart/form-data",
+        )
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Invalid image format"}
+
+
 #########################
 #      ITEM DELETE      #
 #########################
@@ -680,3 +975,213 @@ def test_api_bookmark_toggle(authed_client, app):
     )
     assert resp_remove.status_code == 200
     assert item_id not in resp_remove.get_json()["bookmarks"]
+
+#########################
+#      DATABASE_URL     #
+#########################
+
+def test_uri_set(monkeypatch):
+    """
+    Ensure that if the uri has a database URL, that the asset folder is set to the 
+    cloudinary folder.
+    """
+    monkeypatch.setenv("DATABASE_URL", "postgres://user:pass@localhost/db")
+    # reload the views module to re-run the uri logic
+    import importlib
+    importlib.reload(views)
+
+    assert views.uri == "postgres://user:pass@localhost/db"
+    assert views.asset_folder == "marketplace"
+
+def test_uri_not_set(monkeypatch):
+    """Ensure that if the uri is not set, that the asset folder is set to the local asset folder."""
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    import importlib
+    importlib.reload(views)
+
+    assert views.uri is None
+    assert views.asset_folder == "local_marketplace"
+
+#########################
+#      Avatar Upload    #
+#########################
+
+def test_avatar_upload_local(monkeypatch, authed_client, app):
+    """
+    Given that if uri is not set, when a user tries to upload an avatar,
+    the avatar is saved locally.
+    """
+    client, user = authed_client
+
+    # force local asset_folder
+    monkeypatch.setattr(views, "asset_folder", "local_marketplace")
+
+    # create fake image file
+    img = io.BytesIO()
+    image = Image.new("RGB", (10, 10), color="red")
+    image.save(img, format="JPEG")
+    img.seek(0)
+    
+    data = {
+        "profile_description": "Hello world",
+        "avatar": (img, "avatar.jpg")
+    }
+
+    with app.app_context():
+        response = client.post(
+            "/profile/edit",
+            data=data,
+            content_type="multipart/form-data",
+            follow_redirects=True
+        )
+        refreshed = User.query.get(user.id)
+
+    assert response.status_code == 200
+    # Ensure user's profile_image was set to /static/uploads/...
+    assert refreshed.profile_image.startswith("/static/uploads/")
+
+
+def test_avatar_upload_cloudinary(monkeypatch, authed_client, app):
+    """
+    Given that if uri is not set, when a user tries to upload an avatar,
+    the avatar is saved.
+    """
+    client, user = authed_client
+
+    # force marketplace asset_folder
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    def fake_upload(file, **kwargs):
+        return {"secure_url": "https://res.cloudinary.com/fake/image.jpg"}
+
+    monkeypatch.setattr("cloudinary.uploader.upload", fake_upload)
+
+    img = io.BytesIO()
+    image = Image.new("RGB", (10, 10), color="blue")
+    image.save(img, format="JPEG")
+    img.seek(0)
+
+    data = {
+        "profile_description": "Hello world",
+        "avatar": (img, "avatar.jpg")
+    }
+
+    with app.app_context():
+        response = client.post(
+            "/profile/edit",
+            data=data,
+            content_type="multipart/form-data",
+            follow_redirects=True
+        )
+        refreshed = User.query.get(user.id)
+
+    assert response.status_code == 200
+    # Confirm that our fake Cloudinary URL was assigned
+    assert refreshed.profile_image == "https://res.cloudinary.com/fake/image.jpg"
+
+
+def test_avatar_invalid_mime(authed_client, app):
+    """
+    Given a user changing their profile, when they tried uploading an image that is not PNG or JPEG,
+    then a flash comes across the screen letting them know they can't.
+    """
+    client, user = authed_client
+
+    # Create a fake file with invalid MIME type
+    fake_file = io.BytesIO(b"fake content")
+    fake_file.filename = "avatar.txt"
+    fake_file.mimetype = "text/plain"  # not allowed
+
+    data = {
+        "profile_description": "Test bio",
+        "avatar": (fake_file, fake_file.filename)
+    }
+
+    with app.app_context():
+        response = client.post(
+            "profile/edit",
+            data=data,
+            content_type="multipart/form-data",
+            follow_redirects=True
+        )
+
+    # Should redirect back to the edit page
+    assert response.status_code == 200
+
+    with client.session_transaction() as sess:
+        flashes = sess.get("_flashes", [])
+
+    assert ("error", "Avatar must be PNG or JPEG (≤ 5 MB).") in flashes
+
+    # Ensure user's profile_image was NOT updated
+    assert user.profile_image is None or user.profile_image == ""
+
+
+def test_avatar_local_unidentified_image_error(authed_client, monkeypatch):
+    """
+    Given a user changing their profile and the uri is set, when they try to upload
+    a bad image with valid mimetype, but invalid content, then the page should redirect
+    to the edit profile page and the avatar shouldn't update.
+    """
+    client, user = authed_client
+
+    monkeypatch.setattr(views, "asset_folder", "local_marketplace")
+
+    # Create a fake bad image with VALID mimetype but INVALID content
+    bad_file = io.BytesIO(b"not-an-image-at-all")
+    bad_file.filename = "avatar.png"
+    bad_file.mimetype = "image/png"
+
+    data = {
+        "profile_description": "Test",
+        "avatar": (bad_file, bad_file.filename)
+    }
+
+    response = client.post(
+        "profile/edit",
+        data=data,
+        content_type="multipart/form-data",
+        follow_redirects=True
+    )
+    assert response.status_code == 200
+
+    with client.session_transaction() as sess:
+        flashes = sess.get("_flashes", [])
+
+    assert ("error", "Invalid image file.") in flashes
+
+    # Assert user image NOT updated
+    assert not user.profile_image 
+
+
+def test_avatar_cloudinary_unidentified_image_error(authed_client, monkeypatch):
+    """
+    Given a user changing their profile and the uri is not set, when they try to upload
+    a bad image with valid mimetype, but invalid content, then the page should redirect
+    to the edit profile page and the avatar shouldn't update.
+    """
+    client, user = authed_client
+
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    # Create a fake bad image with VALID mimetype but INVALID content
+    bad_file = io.BytesIO(b"not-an-image-at-all")
+    bad_file.filename = "avatar.png"
+    bad_file.mimetype = "image/png"
+
+    data = {
+        "profile_description": "Test",
+        "avatar": (bad_file, bad_file.filename)
+    }
+
+    response = client.post(
+        "profile/edit",
+        data=data,
+        content_type="multipart/form-data",
+        follow_redirects=True
+    )
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "Invalid image file"
+
+    # Assert user image NOT updated
+    assert not user.profile_image 

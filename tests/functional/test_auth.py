@@ -3,7 +3,6 @@ test_auth.py - Handles Tests for authentication routes in Auth.py
 """
 
 from authlib.integrations.base_client.errors import OAuthError
-from flask import get_flashed_messages
 import website.auth as auth_module
 from website import db
 from website.models import User
@@ -66,7 +65,7 @@ def test_login_google_exception(test_client, fake_google):
     fake_google.authorize_redirect = boom
 
     resp = test_client.get("/login/google/")
-    
+
     #Checking redirect
     assert resp.status_code == 400
     data = resp.get_json()
@@ -86,7 +85,7 @@ def test_google_valid_email(test_client, fake_google, app):
     resp = test_client.get("/login/google/callback", follow_redirects=False)
     assert resp.status_code == 302
     assert "/" in resp.location
-    
+
 def test_google_invalid_email(test_client, fake_google):
     """Testing google login with INVALID non-Colby email"""
     fake_google.userinfo_to_return = {
@@ -145,7 +144,7 @@ def test_google_existing_user_reused(test_client, fake_google, app):
     resp = test_client.get("/login/google/callback")
     assert resp.status_code == 302
     assert "/" in resp.location
-    
+
 def test_google_db_error(test_client, fake_google, app, monkeypatch):
     """
     Testing google login db error
