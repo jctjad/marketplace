@@ -5,6 +5,7 @@ from PIL import Image
 from website import db
 from website.models import User, Item
 from website import views
+import cloudinary.uploader
 
 
 def test_join(test_socketio_client, test_data_socketio):
@@ -124,6 +125,9 @@ def test_profile_shell_routes(authed_client):
     assert resp_profile.status_code == 200
 
     resp_edit = client.get("/profile/edit")
+    assert resp_edit.status_code == 200
+
+    resp_profile = client.get("/profile/1")
     assert resp_edit.status_code == 200
 
 
@@ -385,6 +389,117 @@ def test_api_create_item_success(authed_client, app):
         # Ensure the item is associated with the current user
         assert db_item.seller_id == user.id
 
+
+def test_api_create_item_cloudinary_success(monkeypatch, authed_client, app):
+    """
+    Given that if uri is set, it ensures a valid item creation request succeeds 
+    and persists.
+    """
+    client, _ = authed_client
+
+    # force marketplace asset_folder
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    def fake_upload(file, **kwargs):
+        return {"secure_url": "https://res.cloudinary.com/fake/image.jpg"}
+        
+    monkeypatch.setattr("cloudinary.uploader.upload", fake_upload)
+
+    img = io.BytesIO()
+    image = Image.new("RGB", (10, 10), color="blue")
+    image.save(img, format="JPEG")
+    img.seek(0)
+
+    data = {
+        "name": "Test Item",
+        "price": "10",
+        "image_file": (img, "item.png", "image/jpg")
+    }
+
+    with app.app_context():
+        response = client.post(
+            "/api/items",
+            data=data,
+            content_type="multipart/form-data",
+            follow_redirects=True
+        )
+
+    assert response.status_code == 201
+
+    item = response.get_json()["item"]
+    assert item["name"] == "Test Item"
+    assert item["price"] == 10
+    assert item["item_photos"] == "https://res.cloudinary.com/fake/image.jpg"
+
+
+def test_api_create_item_success_invalid_image_file(authed_client, app, monkeypatch):
+    """
+    Ensures that if an invalid image file such as .txt file is uploaded, it returns an
+    error for invalid image file.
+    """
+    client, _ = authed_client
+
+    # Force Cloudinary branch
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    # Prevent any Cloudinary call
+    monkeypatch.setattr(cloudinary.uploader, "upload",
+                        lambda *args, **kwargs: AssertionError("Upload should not happen"))
+
+    # Invalid image bytes
+    bad_bytes = io.BytesIO(b"this-is-not-an-image")
+
+    data = {
+        "name": "Test Item",
+        "price": "10",
+        "image_file": (bad_bytes, "photo.txt", "text/plain")
+    }
+
+    with app.app_context():
+        response = client.post(
+            "api/items",
+            data=data,
+            content_type="multipart/form-data"
+        )
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Invalid image file"}
+
+def test_api_create_item_success_invalid_image_format(authed_client, app, monkeypatch):
+    """
+    Ensures that if an invalid image format such as .gif file is uploaded, it returns an
+    error for invalid image format.
+    """
+    client, _ = authed_client
+
+    # Force Cloudinary branch
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    # Prevent any Cloudinary call
+    monkeypatch.setattr(cloudinary.uploader, "upload",
+                        lambda *args, **kwargs: AssertionError("Upload should not happen"))
+
+    # Create a gif
+    gif_bytes = io.BytesIO()
+    img = Image.new("RGB", (10, 10), color="red")
+    img.save(gif_bytes, format="GIF")
+    gif_bytes.seek(0)
+
+    data = {
+        "name": "Test Item",
+        "price": "10",
+        "image_file": (gif_bytes, "test.gif", "image/gif")
+    }
+
+    with app.app_context():
+        response = client.post(
+            "api/items",
+            data=data,
+            content_type="multipart/form-data"
+        )
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Invalid image format"}
 
 #########################
 #      ITEM UPDATE      #
