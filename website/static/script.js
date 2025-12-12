@@ -889,7 +889,10 @@ async function updateBookmarkOnServer(itemId, isBookmarked) {
 // ==============================
 // Messaging 
 // ==============================
-let socket;
+let socket = null;
+let socketInitialized = false; // keeps track of the socket has been created
+let chatOpen = false; // keeps track if the chat popup is open
+let inRoom = false; // keeps track if the user is in the room
 
 // Open chat box
 async function openForm() {
@@ -905,20 +908,33 @@ async function openForm() {
   const data_item = await fetchJSON(`/api/items/${id}`);
   const item = data_item.item;
 
-  socket = io();
-  socket.emit("join", item, user);
+  // Create socket if it hasn't
+  if (!socket) {
+    socket = io();
 
-  socket.on("message", function (data) {
-    const chatMessages = document.getElementById("chat-messages");
-    const div = document.createElement("div");
-    div.classList.add("chat-message");
+    // Bind message listener only if the socket has been created yet
+    if (!socketInitialized) {
+      socket.on("message", function (data) {
+        const chatMessages = document.getElementById("chat-messages");
+        const div = document.createElement("div");
+        div.classList.add("chat-message");
+        div.textContent = data;
+        chatMessages.appendChild(div);
 
-    div.textContent = data;
-    chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      });
 
-    // auto scroll to newest message
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  });
+      socketInitialized = true;
+    }
+  }
+
+  if(!chatOpen){
+    chatOpen = true;
+    if(!inRoom){
+      socket.emit("join", item, user);
+      inRoom = true;
+    }
+  }
 
   chat_form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -937,8 +953,11 @@ async function closeForm() {
   const data_item = await fetchJSON(`/api/items/${id}`);
   const item = data_item.item;
 
-  socket.emit("leave", item, user);
-  socket.disconnect();
+  if (socket) {
+    socket.emit("leave", item, user);
+    chatOpen = false;
+    inRoom = false;
+  }
   
   document.getElementById("chatForm").style.display = "none";
   // await fetchJSON("/api/profile/me"); // no-op, but keeps pattern
