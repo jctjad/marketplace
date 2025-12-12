@@ -402,7 +402,7 @@ def test_api_create_item_cloudinary_success(monkeypatch, authed_client, app):
 
     def fake_upload(file, **kwargs):
         return {"secure_url": "https://res.cloudinary.com/fake/image.jpg"}
-        
+
     monkeypatch.setattr("cloudinary.uploader.upload", fake_upload)
 
     img = io.BytesIO()
@@ -714,7 +714,7 @@ def test_api_update_item_success_cloudinary(authed_client, app, monkeypatch):
 
     def fake_upload(file, **kwargs):
         return {"secure_url": "https://res.cloudinary.com/fake/new_image.jpg"}
-        
+    
     monkeypatch.setattr("cloudinary.uploader.upload", fake_upload)
 
     item_id = _create_item_for_user(app, user, name="Old", price=5.0)
@@ -936,7 +936,10 @@ def test_api_bookmark_toggle(authed_client, app):
 #########################
 
 def test_uri_set(monkeypatch):
-    """Ensure that if the uri has a database URL, that the asset folder is set to the cloudinary folder."""
+    """
+    Ensure that if the uri has a database URL, that the asset folder is set to the 
+    cloudinary folder.
+    """
     monkeypatch.setenv("DATABASE_URL", "postgres://user:pass@localhost/db")
     # reload the views module to re-run the uri logic
     import importlib
@@ -1005,7 +1008,7 @@ def test_avatar_upload_cloudinary(monkeypatch, authed_client, app):
 
     def fake_upload(file, **kwargs):
         return {"secure_url": "https://res.cloudinary.com/fake/image.jpg"}
-        
+
     monkeypatch.setattr("cloudinary.uploader.upload", fake_upload)
 
     img = io.BytesIO()
