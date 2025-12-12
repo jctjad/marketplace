@@ -757,10 +757,11 @@ def test_avatar_upload_local(monkeypatch, authed_client, app):
     # Ensure user's profile_image was set to /static/uploads/...
     assert refreshed.profile_image.startswith("/static/uploads/")
 
+
 def test_avatar_upload_cloudinary(monkeypatch, authed_client, app):
     """
     Given that if uri is not set, when a user tries to upload an avatar,
-    the avatar is saved locally.
+    the avatar is saved.
     """
     client, user = authed_client
 
@@ -794,3 +795,110 @@ def test_avatar_upload_cloudinary(monkeypatch, authed_client, app):
     assert response.status_code == 200
     # Confirm that our fake Cloudinary URL was assigned
     assert refreshed.profile_image == "https://res.cloudinary.com/fake/image.jpg"
+
+
+def test_avatar_invalid_mime(authed_client, app):
+    """
+    Given a user changing their profile, when they tried uploading an image that is not PNG or JPEG,
+    then a flash comes across the screen letting them know they can't.
+    """
+    client, user = authed_client
+
+    # Create a fake file with invalid MIME type
+    fake_file = io.BytesIO(b"fake content")
+    fake_file.filename = "avatar.txt"
+    fake_file.mimetype = "text/plain"  # not allowed
+
+    data = {
+        "profile_description": "Test bio",
+        "avatar": (fake_file, fake_file.filename)
+    }
+
+    with app.app_context():
+        response = client.post(
+            "profile/edit",
+            data=data,
+            content_type="multipart/form-data",
+            follow_redirects=True
+        )
+
+    # Should redirect back to the edit page
+    assert response.status_code == 200
+
+    with client.session_transaction() as sess:
+        flashes = sess.get("_flashes", [])
+
+    assert ("error", "Avatar must be PNG or JPEG (≤ 5 MB).") in flashes
+
+    # Ensure user's profile_image was NOT updated
+    assert user.profile_image is None or user.profile_image == ""
+
+
+def test_avatar_local_unidentified_image_error(authed_client, monkeypatch):
+    """
+    Given a user changing their profile and the uri is set, when they try to upload
+    a bad image with valid mimetype, but invalid content, then the page should redirect
+    to the edit profile page and the avatar shouldn't update.
+    """
+    client, user = authed_client
+
+    monkeypatch.setattr(views, "asset_folder", "local_marketplace")
+
+    # Create a fake bad image with VALID mimetype but INVALID content
+    bad_file = io.BytesIO(b"not-an-image-at-all")
+    bad_file.filename = "avatar.png"
+    bad_file.mimetype = "image/png"
+
+    data = {
+        "profile_description": "Test",
+        "avatar": (bad_file, bad_file.filename)
+    }
+
+    response = client.post(
+        "profile/edit",
+        data=data,
+        content_type="multipart/form-data",
+        follow_redirects=True
+    )
+    assert response.status_code == 200
+
+    with client.session_transaction() as sess:
+        flashes = sess.get("_flashes", [])
+
+    assert ("error", "Invalid image file.") in flashes
+
+    # Assert user image NOT updated
+    assert not user.profile_image 
+
+
+def test_avatar_cloudinary_unidentified_image_error(authed_client, monkeypatch):
+    """
+    Given a user changing their profile and the uri is not set, when they try to upload
+    a bad image with valid mimetype, but invalid content, then the page should redirect
+    to the edit profile page and the avatar shouldn't update.
+    """
+    client, user = authed_client
+
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    # Create a fake bad image with VALID mimetype but INVALID content
+    bad_file = io.BytesIO(b"not-an-image-at-all")
+    bad_file.filename = "avatar.png"
+    bad_file.mimetype = "image/png"
+
+    data = {
+        "profile_description": "Test",
+        "avatar": (bad_file, bad_file.filename)
+    }
+
+    response = client.post(
+        "profile/edit",
+        data=data,
+        content_type="multipart/form-data",
+        follow_redirects=True
+    )
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "Invalid image file"
+
+    # Assert user image NOT updated
+    assert not user.profile_image 
