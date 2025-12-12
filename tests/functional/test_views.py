@@ -1,9 +1,10 @@
 """Functional tests for views and API endpoints."""
 
 import io
-
+from PIL import Image
 from website import db
 from website.models import User, Item
+from website import views
 
 
 def test_join(test_socketio_client, test_data_socketio):
@@ -255,7 +256,7 @@ def test_api_list_items_filter_by_seller(authed_client, app):
     resp = client.get(f"/api/items?seller_id={user.id}")
     assert resp.status_code == 200
     data = resp.get_json()
-    assert len(data["items"]) == 2
+    assert len(data["items"]) == 1
     assert data["items"][0]["seller_id"] == user.id
 
 
@@ -288,7 +289,7 @@ def test_api_list_items_search_query(authed_client, app):
     resp = client.get("/api/items?q=desk")
     assert resp.status_code == 200
     data = resp.get_json()
-    assert len(data["items"]) == 2
+    assert len(data["items"]) == 1
     assert "Desk" in data["items"][0]["name"]
 
 
@@ -313,7 +314,6 @@ def test_api_get_item(authed_client, app):
     resp = client.get(f"/api/items/{item_id}")
     assert resp.status_code == 200
     assert resp.get_json()["item"]["id"] == item_id
-
 
 #########################
 #     ITEM CREATION     #
@@ -695,3 +695,102 @@ def test_api_bookmark_toggle(authed_client, app):
     )
     assert resp_remove.status_code == 200
     assert item_id not in resp_remove.get_json()["bookmarks"]
+
+#########################
+#      DATABASE_URL     #
+#########################
+
+def test_uri_set(monkeypatch):
+    """Ensure that if the uri has a database URL, that the asset folder is set to the cloudinary folder."""
+    monkeypatch.setenv("DATABASE_URL", "postgres://user:pass@localhost/db")
+    # reload the views module to re-run the uri logic
+    import importlib
+    importlib.reload(views)
+
+    assert views.uri == "postgres://user:pass@localhost/db"
+    assert views.asset_folder == "marketplace"
+
+def test_uri_not_set(monkeypatch):
+    """Ensure that if the uri is not set, that the asset folder is set to the local asset folder."""
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    import importlib
+    importlib.reload(views)
+
+    assert views.uri is None
+    assert views.asset_folder == "local_marketplace"
+
+#########################
+#      Avatar Upload    #
+#########################
+
+def test_avatar_upload_local(monkeypatch, authed_client, app):
+    """
+    Given that if uri is not set, when a user tries to upload an avatar,
+    the avatar is saved locally.
+    """
+    client, user = authed_client
+
+    # force local asset_folder
+    monkeypatch.setattr(views, "asset_folder", "local_marketplace")
+
+    # create fake image file
+    img = io.BytesIO()
+    image = Image.new("RGB", (10, 10), color="red")
+    image.save(img, format="JPEG")
+    img.seek(0)
+    
+    data = {
+        "profile_description": "Hello world",
+        "avatar": (img, "avatar.jpg")
+    }
+
+    with app.app_context():
+        response = client.post(
+            "/profile/edit",
+            data=data,
+            content_type="multipart/form-data",
+            follow_redirects=True
+        )
+        refreshed = User.query.get(user.id)
+
+    assert response.status_code == 200
+    # Ensure user's profile_image was set to /static/uploads/...
+    assert refreshed.profile_image.startswith("/static/uploads/")
+
+def test_avatar_upload_cloudinary(monkeypatch, authed_client, app):
+    """
+    Given that if uri is not set, when a user tries to upload an avatar,
+    the avatar is saved locally.
+    """
+    client, user = authed_client
+
+    # force marketplace asset_folder
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    def fake_upload(file, **kwargs):
+        return {"secure_url": "https://res.cloudinary.com/fake/image.jpg"}
+        
+    monkeypatch.setattr("cloudinary.uploader.upload", fake_upload)
+
+    img = io.BytesIO()
+    image = Image.new("RGB", (10, 10), color="blue")
+    image.save(img, format="JPEG")
+    img.seek(0)
+
+    data = {
+        "profile_description": "Hello world",
+        "avatar": (img, "avatar.jpg")
+    }
+
+    with app.app_context():
+        response = client.post(
+            "/profile/edit",
+            data=data,
+            content_type="multipart/form-data",
+            follow_redirects=True
+        )
+        refreshed = User.query.get(user.id)
+
+    assert response.status_code == 200
+    # Confirm that our fake Cloudinary URL was assigned
+    assert refreshed.profile_image == "https://res.cloudinary.com/fake/image.jpg"

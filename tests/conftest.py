@@ -78,7 +78,12 @@ def authed_client(app, test_client):
         # Flask-Login uses this key for the current user
         sess["_user_id"] = str(user_id)
 
-    return client, user
+    yield client, user
+
+    with app.app_context():
+        db.session.query(Item).delete()
+        db.session.query(User).delete()
+        db.session.commit()
 
 
 ##################
