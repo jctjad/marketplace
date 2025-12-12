@@ -703,6 +703,126 @@ def test_api_update_item_replaces_photo_when_new_file_uploaded(authed_client, ap
         assert refreshed.item_photos == updated["item_photos"]
 
 
+def test_api_update_item_success_cloudinary(authed_client, app, monkeypatch):
+    """
+    Ensure a valid item update request  succeeds when the uri is not set, i.e using Cloudinary.
+    """
+    client, user = authed_client
+
+    # force marketplace asset_folder
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+
+    def fake_upload(file, **kwargs):
+        return {"secure_url": "https://res.cloudinary.com/fake/new_image.jpg"}
+        
+    monkeypatch.setattr("cloudinary.uploader.upload", fake_upload)
+
+    item_id = _create_item_for_user(app, user, name="Old", price=5.0)
+
+    img = io.BytesIO()
+    image = Image.new("RGB", (10, 10), color="blue")
+    image.save(img, format="JPEG")
+    img.seek(0)
+
+    with app.app_context():
+        response = client.put(
+            f"/api/items/{item_id}",
+            data = {
+            "name": "New name",
+            "description": "Updated desc",
+            "price": "10",
+            "condition": "Like new",
+            "payment_options": ["Cash"],
+            "image_file": (img, "new_image.jpg"),
+            },
+            content_type="multipart/form-data",
+        )
+
+    assert response.status_code == 200
+
+    item = response.get_json()["item"]
+    assert item["name"] == "New name"
+    assert item["price"] == 10
+    assert item["item_photos"] == "https://res.cloudinary.com/fake/new_image.jpg"
+
+
+def test_api_update_item_invalid_image_file_cloudinary(authed_client, app, monkeypatch):
+    """
+    Ensures that when an invalid update item request succeeds occurs when the uri is not set,
+    i.e using Cloudinary, and the image is not a valid image file, such as TXT, it returns an
+    error for invalid image file.
+    """
+    client, user = authed_client
+
+    # force marketplace asset_folder
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+        
+    monkeypatch.setattr(cloudinary.uploader, "upload",
+                        lambda *args, **kwargs: AssertionError("Upload should not happen"))
+
+    item_id = _create_item_for_user(app, user, name="Old", price=5.0)
+
+    # Invalid image bytes
+    bad_bytes = io.BytesIO(b"this-is-not-an-image")
+
+    with app.app_context():
+        response = client.put(
+            f"/api/items/{item_id}",
+            data = {
+            "name": "New name",
+            "description": "Updated desc",
+            "price": "10",
+            "condition": "Like new",
+            "payment_options": ["Cash"],
+            "image_file": (bad_bytes, "photo.txt", "text/plain"),
+            },
+            content_type="multipart/form-data",
+        )
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Invalid image file"}
+
+
+def test_api_update_item_invalid_image_format_cloudinary(authed_client, app, monkeypatch):
+    """
+    Ensures that when an invalid update item request succeeds occurs when the uri is not set,
+    i.e using Cloudinary, and the image is not a valid image format, such as GIF, it returns
+    an error for invalid image format.
+    """
+    client, user = authed_client
+
+    # force marketplace asset_folder
+    monkeypatch.setattr(views, "asset_folder", "marketplace")
+        
+    monkeypatch.setattr(cloudinary.uploader, "upload",
+                        lambda *args, **kwargs: AssertionError("Upload should not happen"))
+
+    item_id = _create_item_for_user(app, user, name="Old", price=5.0)
+
+    # Create a gif
+    gif_bytes = io.BytesIO()
+    img = Image.new("RGB", (10, 10), color="red")
+    img.save(gif_bytes, format="GIF")
+    gif_bytes.seek(0)
+
+    with app.app_context():
+        response = client.put(
+            f"/api/items/{item_id}",
+            data = {
+            "name": "New name",
+            "description": "Updated desc",
+            "price": "10",
+            "condition": "Like new",
+            "payment_options": ["Cash"],
+            "image_file": (gif_bytes, "test.gif", "image/gif"),
+            },
+            content_type="multipart/form-data",
+        )
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Invalid image format"}
+
+
 #########################
 #      ITEM DELETE      #
 #########################
