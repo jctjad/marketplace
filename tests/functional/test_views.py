@@ -362,8 +362,11 @@ def test_api_create_item_negative_price(authed_client):
     assert resp.get_json()["error"] == "Price cannot be negative"
 
 
-def test_api_create_item_success(authed_client, app):
-    """Ensure a valid item creation request succeeds and persists."""
+def test_api_create_item_success_default(authed_client, app):
+    """
+    Ensure a valid item creation request succeeds and persists using an
+    item placeholder image.
+    """
     client, user = authed_client
 
     resp = client.post(
@@ -389,13 +392,49 @@ def test_api_create_item_success(authed_client, app):
         # Ensure the item is associated with the current user
         assert db_item.seller_id == user.id
 
+def test_api_create_item_local_success(authed_client, app):
+    """
+    Ensure a valid item creation request succeeds and persists when the uri is set,
+    i.e saving the data locally.
+    """
+    client, user = authed_client
+
+    img = io.BytesIO()
+    image = Image.new("RGB", (10, 10), color="blue")
+    image.save(img, format="PNG")
+    img.seek(0)
+
+    resp = client.post(
+        "/api/items",
+        data={
+            "name": "Chair",
+            "description": "Comfy chair",
+            "price": "25",
+            "condition": "Fair",
+            "payment_options": ["Cash", "Venmo"],
+            "image_file": (img, "chair.png", "image/png")
+        },
+        content_type="multipart/form-data",
+    )
+    assert resp.status_code == 201
+
+    item = resp.get_json()["item"]
+    assert item["name"] == "Chair"
+    assert item["price"] == 25.0
+    assert item["item_photos"].startswith("/static/uploads/")
+
+    with app.app_context():
+        db_item = Item.query.get(item["id"])
+        assert db_item is not None
+        # Ensure the item is associated with the current user
+        assert db_item.seller_id == user.id
 
 def test_api_create_item_cloudinary_success(monkeypatch, authed_client, app):
     """
     Given that if uri is set, it ensures a valid item creation request succeeds 
     and persists.
     """
-    client, _ = authed_client
+    client, user = authed_client
 
     # force marketplace asset_folder
     monkeypatch.setattr(views, "asset_folder", "marketplace")
@@ -430,6 +469,12 @@ def test_api_create_item_cloudinary_success(monkeypatch, authed_client, app):
     assert item["name"] == "Test Item"
     assert item["price"] == 10
     assert item["item_photos"] == "https://res.cloudinary.com/fake/image.jpg"
+
+    with app.app_context():
+        db_item = Item.query.get(item["id"])
+        assert db_item is not None
+        # Ensure the item is associated with the current user
+        assert db_item.seller_id == user.id
 
 
 def test_api_create_item_success_invalid_image_file(authed_client, app, monkeypatch):
